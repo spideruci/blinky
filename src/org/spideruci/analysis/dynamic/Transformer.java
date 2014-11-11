@@ -9,7 +9,6 @@ import org.spideruci.analysis.statik.instrumentation.Deputy;
 import org.spideruci.analysis.statik.instrumentation.SourceLineInstrumenter;
 import org.spideruci.util.Constants;
 
-
 public class Transformer implements ClassFileTransformer {
 
   public Transformer() {
@@ -28,13 +27,7 @@ public class Transformer implements ClassFileTransformer {
     byte[] instrumentedBytes = null;
     boolean shouldNotInstrument = false;
     
-    for(String item : Deputy.exclusionList) {
-      if((className.startsWith(Constants.spiderNamespace) ||
-          className.startsWith(Constants.spiderNamespace2))
-          && className.contains("test")) {
-        break;
-      }
-    }
+    shouldNotInstrument = shouldNotInstrument(className);
     
     if(shouldNotInstrument) {
       return classBytes;
@@ -47,9 +40,27 @@ public class Transformer implements ClassFileTransformer {
       instrumentedBytes = classBytes;
     }
     
-    
-    
     return instrumentedBytes;
+  }
+  
+  private boolean shouldNotInstrument(String className) {
+    boolean shouldNotInstrument = false;
+    if(className.startsWith(Constants.SPIDER_NAMESPACE)
+        || className.startsWith(Constants.SPIDER_NAMESPACE2)) {
+      if(className.contains("test")) {
+        return false; // shouldInstrument
+      } else {
+        return true; // shouldNotInstrument
+      }
+    }
+    
+    for(String item : Deputy.exclusionList) {
+      if(className.startsWith(item)) {
+        return true;
+      }
+    }
+    
+    return shouldNotInstrument;
   }
   
 }

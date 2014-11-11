@@ -1,6 +1,6 @@
 package org.spideruci.util;
 
 public class Constants {
-  public static String spiderNamespace = "edu/uci/spiderlab";
-  public static String spiderNamespace2 = "org/spideruci";
+  public static final String SPIDER_NAMESPACE = "edu/uci/spiderlab";
+  public static final String SPIDER_NAMESPACE2 = "org/spideruci";
 }
