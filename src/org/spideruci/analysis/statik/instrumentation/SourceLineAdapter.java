@@ -18,39 +18,11 @@ public class SourceLineAdapter extends ClassVisitor {
       String signature, String[] exceptions) {
     MethodVisitor mv;
     
-    MethodProperties mid;
     mv = cv.visitMethod(access, name, desc, signature, exceptions);
-    
-//    if(name.startsWith("palepuin_") || name.startsWith("palepuout_")) {
-//      return mv;
-//    }
-    
-    if(className.startsWith("java/util/AbstractCollection")) {
-      if (mv != null 
-          && (name.startsWith("toArray")
-//              || name.startsWith("isEmpty")
-//              || name.startsWith("contains")
-//              || name.startsWith("finishToArray")
-//              || name.startsWith("hugeCapacity")
-//              || name.startsWith("add")
-//              || name.startsWith("remove")
-//              || name.startsWith("containsAll")
-//              || name.startsWith("addAll")
-//              || name.startsWith("removeAll")
-//              || name.startsWith("retainAll")
-//              || name.startsWith("clear")
-//              || name.startsWith("toString")
-              )
-          && ((access & Opcodes.ACC_NATIVE) == 0)) {
-        mid = new MethodProperties(className, name, access, desc);
-        mv = new SourcelineMethodAdapter(mid, mv);
-      }
-      return mv;
-    }
     
     if (mv != null 
         && ((access & Opcodes.ACC_NATIVE) == 0)) {
-      mid = new MethodProperties(className, name, access, desc);
+      MethodProperties mid = new MethodProperties(className, name, access, desc);
       mv = new SourcelineMethodAdapter(mid, mv);
     }
     return mv;

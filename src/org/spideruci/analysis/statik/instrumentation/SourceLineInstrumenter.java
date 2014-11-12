@@ -22,11 +22,12 @@ public class SourceLineInstrumenter {
         FileInputStream in = new FileInputStream(classFile);
         cr = new ClassReader(in);
       } catch(IOException ioEx ) {
-        StackTraceElement[] stackTrace = ioEx.getStackTrace();
+        ioEx.printStackTrace();
         RuntimeException ioRunEx = new RuntimeException(ioEx.getMessage());
-        ioRunEx.setStackTrace(stackTrace);
         throw ioRunEx;
       }
+    } else {
+      cr = new ClassReader(bytecode);
     }
     
     if((cr.getAccess() & ACC_INTERFACE) == ACC_INTERFACE) {
@@ -56,7 +57,7 @@ public class SourceLineInstrumenter {
     }
         
     try {
-      ClassWriter cw = new ClassWriter(0);
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
       SourceLineAdapter sourcelineAdapter = new SourceLineAdapter(cw, className);
       cr.accept(sourcelineAdapter, ClassReader.EXPAND_FRAMES);
       bytecode2 = cw.toByteArray();

@@ -7,6 +7,7 @@ import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
 import org.spideruci.analysis.statik.instrumentation.SourceLineInstrumenter;
+import org.spideruci.util.ByteCodePrinter;
 import org.spideruci.util.Constants;
 
 public class Transformer implements ClassFileTransformer {
@@ -17,7 +18,10 @@ public class Transformer implements ClassFileTransformer {
   
   public static void premain(String agentArguments, 
       Instrumentation instrumentation) {
+    boolean tempGuard = Profiler.$guard1$; 
+    Profiler.$guard1$ = true;
     instrumentation.addTransformer(new Transformer());
+    Profiler.$guard1$ = tempGuard;
   }
   
   @Override
@@ -30,13 +34,18 @@ public class Transformer implements ClassFileTransformer {
     shouldNotInstrument = shouldNotInstrument(className);
     
     if(shouldNotInstrument) {
+      System.out.println("instrumentation skipped for " + className);
       return classBytes;
     }
     
     try {
       SourceLineInstrumenter ins = new SourceLineInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
+      System.out.println("instrumentation successful for " + className);
     } catch(Exception ex) {
+      ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
+      ex.printStackTrace();
+      System.out.println("instrumentation failed for " + className);
       instrumentedBytes = classBytes;
     }
     
