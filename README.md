@@ -6,7 +6,9 @@ Blinky is a Source-code level instruction instrumenter and execution tracer for 
 *More to come.*
 
 ## DEPENDENCIES
-*More to come.*
+
+- ASM: Java Bytecode Manipulation And Ananlysis Framework (http://asm.ow2.org/index.html), v4.0
+ 
 
 ## INSTALLATION & USAGE INSTRUCTIONS
 *More to come.*
@@ -19,7 +21,7 @@ James A. Jones, jajones [at] uci [dot] edu.
 
 Also avilable with this distribution at src/LICENSE.txt
 
-```
+<pre>
 -----------------------------------------------------------------------------
 LICENSE FOR `BLINKY: JAVA SOURCE-CODE-LINE INSTRUMENTER AND EXECUTION TRACER`
 -----------------------------------------------------------------------------
@@ -29,22 +31,43 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this list of conditions, the following list of research publications along with their citations and the following disclaimer.
+1. Redistributions of source code must retain the above copyright notice, this 
+list of conditions, the following list of research publications along with 
+their citations and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, citations for the following research publications and the following disclaimer in the documentation and/or other materials provided with the distribution.
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions, citations for the following research publications and 
+the following disclaimer in the documentation and/or other materials provided 
+with the distribution.
 
-3. Research data, works or publications that make use of this distribution, or its derivative, in source code or in binday form must cite the following research publications.
+3. Research data, works or publications that make use of this distribution, or 
+its derivative, in source code or in binday form must cite the following 
+research publications.
 
-4. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+4. Neither the name of the copyright holder nor the names of its contributors 
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ----------------------
 RESEARCH PUBLICATIONS 
 ----------------------
 
-[RESEARCH-PUBLICATION-1] Palepu, Vijay Krishna and Jones, James, "Visualizing Constituent Behaviors within Executions," , 2013 1st IEEE International Working Conference on Software Visualization (VISSOFT), pp.1-4, 27-28 September 2013.
+[RESEARCH-PUBLICATION-1] Palepu, Vijay Krishna and Jones, James, "Visualizing 
+Constituent Behaviors within Executions," , 2013 1st IEEE International 
+Working Conference on Software Visualization (VISSOFT), pp.1-4, 27-28 
+September 2013.
 
 [CITATIONS]
 [Format: BibTex]
@@ -96,4 +119,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
-```
+</pre>
