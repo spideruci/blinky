@@ -21,7 +21,7 @@ James A. Jones, jajones [at] uci [dot] edu.
 
 Also avilable with this distribution at src/LICENSE.txt
 
-<pre>
+```
 -----------------------------------------------------------------------------
 LICENSE FOR `BLINKY: JAVA SOURCE-CODE-LINE INSTRUMENTER AND EXECUTION TRACER`
 -----------------------------------------------------------------------------
@@ -119,4 +119,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
-</pre>
+```
