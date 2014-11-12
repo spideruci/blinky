@@ -84,6 +84,11 @@ public class Profiler {
   }
   
   
+  synchronized static public 
+  String getHash(Object obj) {
+    return String.valueOf(System.identityHashCode(obj));
+  }
+  
   /**************************isMain(String[])?**************************/
 
   synchronized static public void unsetGuard1() {
