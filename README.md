@@ -1,11 +1,15 @@
 # BLINKY: Java Source-code-line Instrumenter And Execution Tracer
 
-Blinky is a Source-code level instruction instrumenter and execution tracer for software that compile to Java Bytecode and target the Java Virtual Machine.
+Blinky is a Source-code level instruction instrumenter and execution tracer for software systems that compile to Java Bytecode and target the Java Virtual Machine for execution.
+
+**Source-code-line**: For the purposes of this project, a "source code line" or a "source code level instruction" is a single executable line of code, delimited by a newline character, within a Java source code file (*.java).
+
+This instrumenter and execution tracer has the capability to log the execution of any source-code-instruction being executed during a software run. In addition, it also logs events that indicate the execution flow's entry and exit from a method. Event logs that indicate method exits take the form of return or throw instructions.
 
 ## ARCHITECTURE
 *More to come.*
 
-## DEPENDENCIES
+## EXTERNAL DEPENDENCIES
 
 - ASM: Java Bytecode Manipulation And Ananlysis Framework (http://asm.ow2.org/index.html), v4.0
  
@@ -13,16 +17,38 @@ Blinky is a Source-code level instruction instrumenter and execution tracer for 
 ## INSTALLATION & USAGE INSTRUCTIONS
 *More to come.*
 
+### EXECUTION TRACES and .trc file format
+Execution Traces, for software program runs, are stored in trace files or *.trc files. These traces have been tailored for Java programs.
+Each line in a trace file (.trc) represents the execution of a Java source code instruction and it has the following format:
+
+    *<thread-id>*<log-id>,<object-instance-code>,<source-code-line-number>,<owner-class-name>,<owner-method-name>,<log-family>,<opcode>
+
+`<thread-id>` is obtained from the following code snippet: `Thread.currentThread().getId()`. It identifies the thread of execution along which the source code instruction was executed. NanoXML is a single threaded applicaiton; thus you should see only one thread id.
+
+`<log-id>` is a unique id assigned to the log of an event execution.
+
+`<owner-class>` is the name of the class that contains the source code instruction.
+
+`<owner-method>` is the name and the type-descriptor of the method that contains the source code instruction.
+
+`<source-code-line-number>` is the actual line number (within a Java source file) of the executed source code instruction.
+
+`<opcode>` is meaningfully stored in the event of recording execution logs for `return` or `athrow` statements. The opcode in the case of `return` is useful to decipher the kind of value being returned (e.g. int, float, double, long, object/array reference, etc.).
+
+`<object-instance-code>` is the dynamically observed system-hashcode for the `this` object *iff* the `owner-method` is an instance member of the `owner-class`. This value is computed with the `System.identityHashcode(Object object);` method available in the Java SDK, and may not be the same as the `hashcode()` method available to all objects in Java. In the event of a static `owner-method` the name of the `owner-class` is recorded instead of a numeric hashcode value.
+
+`<log-family>` indicates the type of event logged in the execution trace and can either be an `$enter$`, `$return$`, `$athrow$` or `$sourcelinenumber$`.
+
 ### Authors:
-Vijay Krishna Palepu, vpalepu [at] uci [dot] edu
-James A. Jones, jajones [at] uci [dot] edu
+- Vijay Krishna Palepu, vpalepu [at] uci [dot] edu  
+- James A. Jones, jajones [at] uci [dot] edu 
 
 ### Acknowledgements:
-This work is supported by the National Science Foundation under awards CAREER CCF1350837 and CCF1116943.
+This work is supported by the National Science Foundation under awards `CAREER CCF-1350837` and `CCF-1116943`.
 
 # LICENSE.txt
 
-Also avilable with this distribution at src/LICENSE.txt
+Also avilable with this distribution at Blinky/LICENSE.txt
 
 ```
 :::tex
