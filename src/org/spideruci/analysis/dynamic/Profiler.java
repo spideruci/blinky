@@ -175,9 +175,15 @@ public class Profiler {
           break;
         }
       }
+      
+      long time = System.currentTimeMillis() - Profiler.time;
+      
       String logPrefix = log.substring(firstAsterix, secondAsterix + 1);
       StringBuffer replacement = new StringBuffer();
-      replacement.append(logPrefix).append(count).append(","); 
+      
+      replacement.append(logPrefix)
+                 .append(count).append(",")
+                 .append(time).append(","); 
       return log.replace(logPrefix, replacement);
     }
   

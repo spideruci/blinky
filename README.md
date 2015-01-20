@@ -21,11 +21,13 @@ This instrumenter and execution tracer has the capability to log the execution o
 Execution Traces, for software program runs, are stored in trace files or *.trc files. These traces have been tailored for Java programs.
 Each line in a trace file (.trc) represents the execution of a Java source code instruction and it has the following format:
 
-    *<thread-id>*<log-id>,<object-instance-code>,<source-code-line-number>,<owner-class-name>,<owner-method-name>,<log-family>,<opcode>
+    *<thread-id>*<log-id>,<time>,<object-instance-code>,<source-code-line-number>,<owner-class-name>,<owner-method-name>,<log-family>,<opcode>
 
 `<thread-id>` is obtained from the following code snippet: `Thread.currentThread().getId()`. It identifies the thread of execution along which the source code instruction was executed. NanoXML is a single threaded applicaiton; thus you should see only one thread id.
 
 `<log-id>` is a unique id assigned to the log of an event execution.
+
+`<time>` is the time it took for the execution to reach and log the event.
 
 `<owner-class>` is the name of the class that contains the source code instruction.
 

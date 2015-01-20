@@ -34,18 +34,18 @@ public class Transformer implements ClassFileTransformer {
     shouldNotInstrument = shouldNotInstrument(className);
     
     if(shouldNotInstrument) {
-      System.out.println("instrumentation skipped for " + className);
+      System.err.println("instrumentation skipped for " + className);
       return classBytes;
     }
     
     try {
       SourceLineInstrumenter ins = new SourceLineInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
-      System.out.println("instrumentation successful for " + className);
+      System.err.println("instrumentation successful for " + className);
     } catch(Exception ex) {
       ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
       ex.printStackTrace();
-      System.out.println("instrumentation failed for " + className);
+      System.err.println("instrumentation failed for " + className);
       instrumentedBytes = classBytes;
     }
     
