@@ -38,14 +38,27 @@ public class Event {
     eventString = eventString.substring(1);
     String[] split = eventString.split(",");
     String[] split_0 = split[0].split("\\*");
-    String threadId = split_0[0];
-    String id = split_0[1];
-    String time = split[1];
-    String objectId = split[2];
-    String sourceLine = split[3]; 
-    String sourceClass = split[4];
-    String sourceMethod = split[5];
-    String type = split[6]; 
+    String threadId;
+    String id;
+    String time;
+    String objectId;
+    String sourceLine;
+    String sourceClass;
+    String sourceMethod;
+    String type;
+    try {
+      threadId = split_0[0];
+      id = split_0[1];
+      time = split[1];
+      objectId = split[2];
+      sourceLine = split[3]; 
+      sourceClass = split[4];
+      sourceMethod = split[5];
+      type = split[6];
+    } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+      System.err.println(eventString);
+      return null;
+    } 
     Event event = 
         new Event(
             threadId, 
