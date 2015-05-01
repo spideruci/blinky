@@ -8,6 +8,7 @@ public class Deputy {
   public static final String PROFILER_METHODENTER = "printLnMethodEnterLog";
   public static final String PROFILER_METHODEXIT = "printLnMethodExitLog";
   public static final String PROFILER_LINENUMER = "printLnLineNumber";
+  public static final String PROFILER_INVOKE = "printlnInvokeLog";
   public static final String PROFILER_GETHASH = "getHash";
   
   public static final String STRING_DESC = "Ljava/lang/String;";
@@ -26,6 +27,7 @@ public class Deputy {
   public static final String ATHORW = "$athrow$";
   public static final String RETURN = "$return$";
   public static final String LINE = "$sourcelinenumber$";
+  public static final String INVOKE = "$methodinvoke$";
   
   static {
     exclusionList = new ArrayList<String>();

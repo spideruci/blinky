@@ -96,6 +96,8 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitLineNumber(int line, Label start) {
+    Profiler.latestLineNumber = line;
+    
     if(!shouldInstrument) {
       super.visitLineNumber(line, start); //make the actual call.
       return;
@@ -119,6 +121,35 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
                        Deputy.PROFILER_NAME, 
                        Deputy.PROFILER_LINENUMER, 
                        callbackDesc.toString());
+  }
+  
+  @Override
+  public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+    int lineNum = Profiler.latestLineNumber;
+    if(!shouldInstrument) {
+      super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
+      return;
+    }
+    
+    StringBuffer callbackDesc = new StringBuffer();
+    callbackDesc.append("(");
+    
+    String methodName = owner + "/" + name + desc;
+    String instructionLog = buildInstructionLog(lineNum, methodName, opcode);
+    
+    mv.visitLdcInsn(instructionLog);
+    callbackDesc.append(Deputy.STRING_DESC);
+    
+    this.loadRecieverObjectId();
+    callbackDesc.append(Deputy.STRING_DESC);
+    
+    callbackDesc.append(")V");
+    mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
+                       Deputy.PROFILER_NAME, 
+                       Deputy.PROFILER_INVOKE, 
+                       callbackDesc.toString());
+    Profiler.latestLineNumber = lineNum;
+    super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
   }
   
   @Override

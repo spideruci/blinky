@@ -1,16 +1,19 @@
 package org.spideruci.analysis.trace;
 
+import org.objectweb.asm.Opcodes;
+
 public class Event {
   public static final String SOURCELINE_EVENT = "$sourcelinenumber$";
   
   private final String id;
-  private final String threadId;
-  private final String objectId;
-  private final String time;
+  @SuppressWarnings("unused") private final String threadId;
+  @SuppressWarnings("unused") private final String objectId;
+  @SuppressWarnings("unused") private final String time;
   private final String sourceLine;
   private final String sourceClass;
   private final String sourceMethod;
   private final String eventType;
+  private final int opcode;
   
     private Event(
         String threadId,
@@ -20,7 +23,8 @@ public class Event {
         String sourceLine, 
         String sourceClass,
         String sourceMethod,
-        String type) {
+        String type,
+        int opcode) {
       this.eventType = type;
       this.sourceLine = sourceLine;
       this.sourceClass = sourceClass;
@@ -29,6 +33,7 @@ public class Event {
       this.objectId = objectId;
       this.id = id;
       this.threadId = threadId;
+      this.opcode = opcode;
     }
   
   public static Event fromString(String eventString) {
@@ -46,6 +51,7 @@ public class Event {
     String sourceClass;
     String sourceMethod;
     String type;
+    String opcode;
     try {
       threadId = split_0[0];
       id = split_0[1];
@@ -55,6 +61,7 @@ public class Event {
       sourceClass = split[4];
       sourceMethod = split[5];
       type = split[6];
+      opcode = split[7];
     } catch (java.lang.ArrayIndexOutOfBoundsException e) {
       System.err.println(eventString);
       return null;
@@ -68,7 +75,8 @@ public class Event {
             sourceLine, 
             sourceClass, 
             sourceMethod, 
-            type);
+            type,
+            Integer.parseInt(opcode));
     return event;
   }
   
@@ -87,6 +95,41 @@ public class Event {
     }
     
     return false;
+  }
+  
+  public boolean isMethodInvokeEvent() {
+    switch(opcode) {
+    case Opcodes.INVOKEINTERFACE:
+    case Opcodes.INVOKESPECIAL:
+    case Opcodes.INVOKESTATIC:
+    case Opcodes.INVOKEVIRTUAL:
+      return true;
+    default:
+        return false;
+    }
+  }
+  
+  public String id() {
+    return id;
+  }
+
+  public String ownerClass() {
+    return sourceClass;
+  }
+  
+  public String ownerMethod() {
+    return sourceMethod;
+  }
+  
+  public String sourceLine() {
+    return sourceLine;
+  }
+
+  public String invokedMethod() {
+    if(isMethodInvokeEvent()) {
+      return eventType;
+    }
+    return null;
   }
   
 }

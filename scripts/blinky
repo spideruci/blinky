@@ -1,18 +1,29 @@
 #!/bin/sh
 
-while getopts ":c:m:j:i:" opt; do
+blinky_args="xile"
+
+while getopts ":c:m:j:i:ALM" opt; do
   case $opt in
-    c) >&2 echo "-c was triggered with paramter: $OPTARG." 
+    c) >&2 echo "-c was triggered with paramter: $OPTARG."
       classpath=$OPTARG
       ;;
-    m) >&2 echo "-m was triggered with paramter: $OPTARG."  
+    m) >&2 echo "-m was triggered with paramter: $OPTARG."
        mainClass=$OPTARG
       ;;
-    j) >&2 echo "-j was triggered with paramter: $OPTARG."  
+    j) >&2 echo "-j was triggered with paramter: $OPTARG."
        jarsHome=$OPTARG
       ;;
-    i) >&2 echo "-i was triggered with paramter: $OPTARG."  
+    i) >&2 echo "-i was triggered with paramter: $OPTARG."
        input=$OPTARG
+      ;;
+    A) >&2 echo "-A was triggered."
+       blinky_args="xile"
+      ;;
+    L) >&2 echo "-L was triggered."
+       blinky_args="l"
+      ;;
+    M) >&2 echo "-M was triggered."
+       blinky_args="i"
       ;;
     \?) >&2 echo "invalid options: -$OPTARG."
       ;;
@@ -23,15 +34,9 @@ done
 
 
 #jars
-rt="/home/vijay/TestSubjects/jre1.7.0_55/lib/rt.jar"
-guava=$jarsHome"/guava-14.0.1.jar"
 asm=$jarsHome"/asm-all-4.0.jar"
-junit=$jarsHome"/junit-4.11.jar"
-xstream=$jarsHome"/xstream-1.4.4.jar"
-xmlpull=$jarsHome"/xmlpull-1.1.3.1.jar"
 blinky=$jarsHome"/blinky.jar"
 
+>&2 echo "blinky_args are $blinky_args."
 
-# java -cp .:$classpath $mainClass $1
-
-time java -Xbootclasspath/p:$asm:$blinky -cp .:$classpath -javaagent:$blinky $mainClass $input
+time java -Xbootclasspath/p:$asm:$blinky -cp .:$classpath -javaagent:$blinky=$blinky_args $mainClass $input

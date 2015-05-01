@@ -20,6 +20,7 @@ public class Transformer implements ClassFileTransformer {
       Instrumentation instrumentation) {
     boolean tempGuard = Profiler.$guard1$; 
     Profiler.$guard1$ = true;
+    Profiler.initProfiler(agentArguments);
     instrumentation.addTransformer(new Transformer());
     Profiler.$guard1$ = tempGuard;
   }

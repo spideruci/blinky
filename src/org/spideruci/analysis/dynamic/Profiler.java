@@ -6,15 +6,72 @@ public class Profiler {
 
   public static int latestLineNumber = 0;
   public static boolean $guard1$ = false;
-  public static boolean $guard2$ = false;
-  public static boolean $premainGuard$ = true;
+  
+  public static boolean logMethodEnter = false;
+  public static boolean logMethodExit = false;
+  public static boolean logMethodInvoke = false;
+  public static boolean logSourceLineNumber = false;
+  
   private static long thread = -1;
   private static long count = 0;
   private static long time = 0;
 
+  synchronized static public void initProfiler(String args) {
+    if(args == null || args.isEmpty()) {
+      logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = true;
+      return;
+    }
+    
+    char[] processedArgs = args.trim().toLowerCase().toCharArray();
+    
+    int bits = 0;
+    
+    for(char arg : processedArgs) {
+      int index = ((int)arg) - 97;
+       
+      if(getBit(bits, index) == 1) {
+        continue;
+      } else {
+        bits = setBit(bits, index);
+      }
+      
+      displayBits(bits);
+      
+      switch(arg) {
+      case 'e':
+        logMethodEnter = true;
+        continue;
+      case 'x':
+        logMethodExit = true;
+        continue;
+      case 'l':
+        logSourceLineNumber = true;
+        continue;
+      case 'i': 
+        logMethodInvoke = true;
+        continue;
+      default: continue;
+      }
+    }
+    displayBits(bits);
+  }
+  
+    synchronized private static int getBit(int bits, int index) {
+      int mask = 1 << index;
+      return ((bits & mask) == 0) ? 0 : 1;
+    }
+    
+    synchronized private static int setBit(int bits, int index) {
+      int mask = 1 << index;
+      return (bits | mask);
+    }
+    
+    @SuppressWarnings("unused")
+    synchronized private static void displayBits(int bits) {
+      System.out.println(Integer.toBinaryString(bits));
+    }
+  
   synchronized static public void reguard(boolean guard) {
-    //  System.out.println("guard1:" + $guard1$ + "; guard2:" + $guard2$);
-    //  System.out.println("setting the guard1 to false.");
     $guard1$ = false;
   }
 
@@ -36,7 +93,7 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
     
-    if(Thread.currentThread().getId() == thread) {
+    if((Thread.currentThread().getId() == thread || Thread.currentThread().getId() == 12) && logMethodEnter) {
       String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
           + instruction + "\n";
       handleLog(log);
@@ -50,9 +107,8 @@ public class Profiler {
     if($guard1$) return;
     
     boolean guard = guard();    
-
     
-    if(Thread.currentThread().getId() == thread) {
+    if((Thread.currentThread().getId() == thread || Thread.currentThread().getId() == 12) && logMethodExit) {
       String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
           + instruction + "\n";
       handleLog(log);
@@ -64,15 +120,33 @@ public class Profiler {
     }
   }
   
-  synchronized static public void printLnLineNumber(String instruction, String tag) {
+  synchronized static public void printlnInvokeLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(Thread.currentThread().getId() == thread) {
+    if((Thread.currentThread().getId() == thread || Thread.currentThread().getId() == 12) && logMethodInvoke) {
       String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
           + instruction + "\n";
       handleLog(log);
     }
     reguard(guard);
+  }
+  
+  synchronized static public void printLnLineNumber(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+//    System.out.println(Thread.currentThread().getId());
+    if(threadCheck() && logSourceLineNumber) {
+      String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
+          + instruction + "\n";
+      handleLog(log);
+    }
+    reguard(guard);
+  }
+  
+  synchronized static private boolean threadCheck() {
+    return Thread.currentThread().getId() == thread 
+          || Thread.currentThread().getId() == 13 
+          || Thread.currentThread().getId() == 11;
   }
   
   synchronized static public void printTraceCount() {
@@ -151,6 +225,9 @@ public class Profiler {
     boolean regular = (mid.MethodName.equals("main") 
         || mid.MethodName.equals("realMain"))  
         && mid.MethodDescription.equals("([Ljava/lang/String;)V");
+    regular =  (mid.MethodName.equals("run")  &&
+        mid.MethodDescription.equals("()V") &&
+        mid.MethodOwnerName.equals("net/percederberg/tetris/Game$GameThread"));
     return regular;
   }
   
