@@ -75,7 +75,7 @@ the following disclaimer in the documentation and/or other materials provided
 with the distribution.
 
 3. Research data, works or publications that make use of this distribution, or 
-its derivative, in source code or in binday form must cite the following 
+its derivative, in source code or in binary form must cite the following 
 research publications.
 
 4. Neither the name of the copyright holder nor the names of its contributors 
