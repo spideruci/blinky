@@ -6,8 +6,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.spideruci.analysis.dynamic.Profiler;
 
-
-
 public class SourcelineMethodAdapter extends AdviceAdapter {
   
   private MethodProperties methodProps;
