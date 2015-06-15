@@ -64,13 +64,29 @@ public class Transformer implements ClassFileTransformer {
       }
     }
     
+    if(className.contains("Test")) {
+      return true; // shouldNotInstrument;
+    }
+    
+    if(className.contains("Mockito") || className.contains("Mock")) {
+      return true; // shouldNotInstrument;
+    }
+    
     for(String item : Deputy.exclusionList) {
       if(className.startsWith(item)) {
         return true;
       }
     }
     
-    return shouldNotInstrument;
+    if(!Deputy.checkInclusionList) return shouldNotInstrument;
+    
+    for(String item : Deputy.inclusionList) {
+      if(className.startsWith(item)) {
+        return false;
+      }
+    }
+    
+    return true;
   }
   
 }

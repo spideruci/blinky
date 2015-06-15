@@ -154,7 +154,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitMaxs(int MaxStack, int maxLocals) {
-    MaxStack += 15; 
+//    MaxStack += 15; 
     super.visitMaxs(MaxStack, maxLocals);
   }
   

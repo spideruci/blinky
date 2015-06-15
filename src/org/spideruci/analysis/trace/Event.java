@@ -65,18 +65,23 @@ public class Event {
     } catch (java.lang.ArrayIndexOutOfBoundsException e) {
       System.err.println(eventString);
       return null;
-    } 
-    Event event = 
-        new Event(
-            threadId, 
-            id, 
-            time, 
-            objectId,
-            sourceLine, 
-            sourceClass, 
-            sourceMethod, 
-            type,
-            Integer.parseInt(opcode));
+    }
+    
+    Event event = null;
+    try {
+      event = 
+          new Event(
+              threadId, 
+              id, 
+              time, 
+              objectId,
+              sourceLine, 
+              sourceClass, 
+              sourceMethod, 
+              type,
+              Integer.parseInt(opcode));  
+    } catch(NumberFormatException numex) { }
+    
     return event;
   }
   
@@ -107,6 +112,10 @@ public class Event {
     default:
         return false;
     }
+  }
+  
+  public String threadId() {
+    return threadId;
   }
   
   public String id() {

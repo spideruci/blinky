@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class Deputy {
   public static final ArrayList<String> exclusionList;
+  public static final ArrayList<String> inclusionList;
+  public static boolean checkInclusionList = false;
   public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
   public static final String PROFILER_METHODENTER = "printLnMethodEnterLog";
   public static final String PROFILER_METHODEXIT = "printLnMethodExitLog";
@@ -31,6 +33,10 @@ public class Deputy {
   
   static {
     exclusionList = new ArrayList<String>();
+    exclusionList.add("org/gjt/sp/util/Log$");
+    exclusionList.add("org/gjt/sp/util/Log$LogPrintStream");
+    exclusionList.add("org/gjt/sp/util/Log$LogInputStream");
+    exclusionList.add("org/gjt/sp/util/Log$LogOutputStream");
     exclusionList.add("java/");
     exclusionList.add("org/objectweb/asm");
     exclusionList.add("test/");
@@ -38,6 +44,7 @@ public class Deputy {
     exclusionList.add("Data/");
     exclusionList.add("dacapo");
     exclusionList.add("Harness");
+    exclusionList.add("com/google");
     exclusionList.add("sun");
     exclusionList.add("com/sun");
     exclusionList.add("javax/");
@@ -46,10 +53,15 @@ public class Deputy {
     exclusionList.add("org/omg");
     exclusionList.add("org/w3c");
     exclusionList.add("org/xml");
+    exclusionList.add("org/objenesis");
+    exclusionList.add("org/eclipse");
+    exclusionList.add("org/mockito");
+    exclusionList.add("org/hamcrest");
     exclusionList.add("sunw");
     exclusionList.add("com/thoughtworks/xstream");
     exclusionList.add("junit");
     exclusionList.add("org/junit");
+    exclusionList.add("org/fest");
     exclusionList.add("junit/tests/framework/");
     exclusionList.add("junit/tests/runner/TextFeedbackTest");
     exclusionList.add("junit/tests/runner/TextRunnerTest");
@@ -58,6 +70,11 @@ public class Deputy {
     exclusionList.add("org/apache/commons/logging");
     exclusionList.add("edu/uci/spiderlab/analysis");
     exclusionList.add("org/spideruci/analysis");
+    
+    inclusionList = new ArrayList<String>();
+    inclusionList.add("org/gjt/sp/");
+    inclusionList.add("DumpXML");
+    
   }
   
   public static String joinStrings(String[] strings, String sep) {

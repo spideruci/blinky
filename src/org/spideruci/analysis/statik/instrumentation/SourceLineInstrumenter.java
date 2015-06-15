@@ -57,7 +57,7 @@ public class SourceLineInstrumenter {
     }
         
     try {
-      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
       SourceLineAdapter sourcelineAdapter = new SourceLineAdapter(cw, className);
       cr.accept(sourcelineAdapter, ClassReader.EXPAND_FRAMES);
       bytecode2 = cw.toByteArray();

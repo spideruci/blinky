@@ -1,5 +1,8 @@
 package org.spideruci.analysis.dynamic;
 
+import java.io.PrintStream;
+
+import org.spideruci.analysis.statik.instrumentation.Deputy;
 import org.spideruci.analysis.statik.instrumentation.MethodProperties;
 
 public class Profiler {
@@ -12,17 +15,27 @@ public class Profiler {
   public static boolean logMethodInvoke = false;
   public static boolean logSourceLineNumber = false;
   
+  private static final PrintStream REAL_OUT = System.out;
+  private static final PrintStream REAL_ERR = System.err;
+  
   private static long thread = -1;
   private static long count = 0;
   private static long time = 0;
 
   synchronized static public void initProfiler(String args) {
+    
+    
     if(args == null || args.isEmpty()) {
       logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = true;
+      Deputy.checkInclusionList = false;
       return;
     }
     
-    char[] processedArgs = args.trim().toLowerCase().toCharArray();
+    String[] split = args.split(",");
+    
+    String profileConfig = split[0];
+    
+    char[] processedArgs = profileConfig.trim().toLowerCase().toCharArray();
     
     int bits = 0;
     
@@ -54,6 +67,28 @@ public class Profiler {
       }
     }
     displayBits(bits);
+    
+    for(int count = 1; count < split.length; count += 1) {
+      String arg = split[count]; 
+      if(arg == null || arg.length() == 0) {
+        continue;
+      }
+      String[] arg_split = arg.split("=");
+      String arg_name = arg_split[0];
+      String arg_value = arg_split[1].trim().toLowerCase();
+      REAL_OUT.printf("'%s':%s\n", arg_name , arg_value);
+      
+      switch(arg_name) {
+      case "whitelist":
+      {
+        if(arg_value.equals("true")) {
+          Deputy.checkInclusionList = true;
+        } else {
+          Deputy.checkInclusionList = false;
+        }
+      }
+      }
+    }
   }
   
     synchronized private static int getBit(int bits, int index) {
@@ -68,7 +103,7 @@ public class Profiler {
     
     @SuppressWarnings("unused")
     synchronized private static void displayBits(int bits) {
-      System.out.println(Integer.toBinaryString(bits));
+      REAL_OUT.println(Integer.toBinaryString(bits));
     }
   
   synchronized static public void reguard(boolean guard) {
@@ -93,7 +128,7 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
     
-    if((Thread.currentThread().getId() == thread || Thread.currentThread().getId() == 12) && logMethodEnter) {
+    if(logMethodEnter) {
       String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
           + instruction + "\n";
       handleLog(log);
@@ -108,7 +143,7 @@ public class Profiler {
     
     boolean guard = guard();    
     
-    if((Thread.currentThread().getId() == thread || Thread.currentThread().getId() == 12) && logMethodExit) {
+    if(logMethodExit) {
       String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
           + instruction + "\n";
       handleLog(log);
@@ -135,7 +170,7 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
 //    System.out.println(Thread.currentThread().getId());
-    if(threadCheck() && logSourceLineNumber) {
+    if(logSourceLineNumber) {
       String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
           + instruction + "\n";
       handleLog(log);
@@ -151,9 +186,9 @@ public class Profiler {
   
   synchronized static public void printTraceCount() {
     $guard1$ = true;
-    System.out.println("Trace Size:" + count);
+    REAL_OUT.println("Trace Size:" + count);
     long t = System.currentTimeMillis() - time;
-    System.out.println("Time Taken:" + t);
+    REAL_OUT.println("Time Taken:" + t);
     time = System.currentTimeMillis();
   }
   
@@ -206,9 +241,8 @@ public class Profiler {
     
     boolean regCondition = mid.MethodName.equals("main")  &&
         mid.MethodDescription.equals("([Ljava/lang/String;)V");
+    if(regCondition) REAL_OUT.println(regCondition);
     return regCondition;
-    
-    
   }
 
   /**
@@ -235,7 +269,7 @@ public class Profiler {
   
     synchronized static private void handleLog(String log) {
       log = modifyLog(log, ++count);
-      System.out.print(log);
+      REAL_OUT.print(log);
     }
     
     synchronized static private String modifyLog(String log, long count) {
