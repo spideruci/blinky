@@ -21,15 +21,16 @@ public class OfflineInstrumenter {
       source = JavacSource;
       destination = JavacDestination;
     } else {
-      throw new UnsupportedOperationException();
+      source = args[0];
+      destination = args[1];
     }
 
     ArrayList<ClassItem> classItems = ClassItem.getClassItems(source,"");
     OfflineInstrumenter driver = new OfflineInstrumenter();
-    driver.compileTimeInstrumentation(classItems, source, destination);
+    driver.offlineInstrumentation(classItems, source, destination);
   }
 
-  public void compileTimeInstrumentation(ArrayList<ClassItem> classItems, 
+  public void offlineInstrumentation(ArrayList<ClassItem> classItems, 
       String source, String destination) 
           throws FileNotFoundException, IOException {
     for(ClassItem classItem : classItems) {

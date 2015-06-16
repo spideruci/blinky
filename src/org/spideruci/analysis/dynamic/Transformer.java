@@ -78,6 +78,8 @@ public class Transformer implements ClassFileTransformer {
       }
     }
     
+//    return false;
+    
     if(!Deputy.checkInclusionList) return shouldNotInstrument;
     
     for(String item : Deputy.inclusionList) {

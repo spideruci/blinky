@@ -10,7 +10,7 @@ import org.objectweb.asm.util.Textifier;
 public class ByteCodePrinter {
 	
 	private static final String bytecodePrintPath = 
-			"/home/vijay/ProgramAnalysis/TestLogs/CollectedClasses/";
+			"~/ProgramAnalysis/TestLogs/CollectedClasses/";
 	
 	
 	
