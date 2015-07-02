@@ -47,8 +47,6 @@ public class TraceScanner implements Iterable<Event> {
       String sourceLine = event.toSourceString();
       System.out.println(sourceLine);
     }
-    
-    System.out.println("done");
   }
 
 }

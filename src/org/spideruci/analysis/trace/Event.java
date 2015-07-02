@@ -88,6 +88,7 @@ public class Event {
   public String toSourceString() {
     final String sep = ":";
     StringBuffer buffer = new StringBuffer();
+    buffer.append("*").append(threadId).append("*");
     buffer.append(sourceClass).append(sep);
     buffer.append(sourceMethod).append(sep);
     buffer.append("L").append(sourceLine);
