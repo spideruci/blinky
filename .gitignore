@@ -67,3 +67,6 @@ hs_err_pid*
 
 Blinky.ucls
 /target/
+
+#OSX hidden files
+.DS_Store/
