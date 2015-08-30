@@ -15,6 +15,16 @@ This instrumenter and execution tracer has the capability to log the execution o
  
 
 ## INSTALLATION & USAGE INSTRUCTIONS
+
+The installation and usage of Blinky is currently based on Maven.
+To install, make sure that you have the latest installation of Maven (3.3.3) installed.
+Assuming that you have already cloned the project and changed into the project's
+directory, run `mvn compile` to do a sanity check. This should make sure that the 
+project source is building properly. Any compilation issues will be best detected
+here. There after run `mvn package` to generate the `.jar` file, which can then
+be used as a java-agent in other test-running environments.
+
+In order to run your Junit test cases with Blinky's instrumentation, use Tacoco.
 *More to come.*
 
 ### EXECUTION TRACES and .trc file format
