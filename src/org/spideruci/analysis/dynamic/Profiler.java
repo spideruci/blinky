@@ -23,7 +23,6 @@ public class Profiler {
 
   synchronized static public void initProfiler(String args) {
     
-    
     if(args == null || args.isEmpty()) {
       logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = true;
       Deputy.checkInclusionList = false;
@@ -100,7 +99,6 @@ public class Profiler {
       return (bits | mask);
     }
     
-    @SuppressWarnings("unused")
     synchronized private static void displayBits(int bits) {
       REAL_OUT.println(Integer.toBinaryString(bits));
     }

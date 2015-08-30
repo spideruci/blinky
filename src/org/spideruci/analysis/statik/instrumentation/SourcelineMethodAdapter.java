@@ -7,10 +7,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.spideruci.analysis.dynamic.Profiler;
-import org.spideruci.analysis.trace.DeclPropNames;
-import org.spideruci.analysis.trace.EventBuilder;
 import org.spideruci.analysis.trace.EventType;
-import org.spideruci.analysis.trace.InsnPropNames;
 import org.spideruci.analysis.trace.TraceEvent;
 
 public class SourcelineMethodAdapter extends AdviceAdapter {
@@ -25,41 +22,29 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     this.shouldInstrument = false;
   }
   
-  @SuppressWarnings("deprecation")
   @Override
   protected void onMethodEnter() {
     int lineNum = Profiler.latestLineNumber;
     int access = Integer.parseInt(methodDecl.getDeclAccess());
     int opcode = ((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) ? -3 : -2;
-    if(methodDecl.getDeclAccess().contains("<init>")) {
+    if(methodDecl.getDeclName().contains("<init>")) {
       opcode = -5;
     }
     
     String instructionLog =
         buildInstructionLog(-1, EventType.$enter$, opcode, methodDecl.getId());
-    //instruction log the arguments for the call
-    StringBuffer callbackDesc = new StringBuffer();
     
-    mv.visitLdcInsn(methodDecl.getDeclOwner());
-    callbackDesc.append("(").append(Deputy.STRING_DESC);
+    ProfilerCallBack.start(mv)
+    .passArg(methodDecl.getDeclOwner())
+    .passArg(methodDecl.getDeclName())
+    .passArg(instructionLog)
+    .passThis(methodDecl.getDeclAccess())
+    .build(Deputy.PROFILER_METHODENTER);
     
-    mv.visitLdcInsn(methodDecl.getDeclName());
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    mv.visitLdcInsn(instructionLog); 
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    this.loadRecieverObjectId(); 
-    callbackDesc.append(Deputy.STRING_DESC).append(")V");
-    
-    mv.visitMethodInsn(Opcodes.INVOKESTATIC, Deputy.PROFILER_NAME,
-        Deputy.PROFILER_METHODENTER, callbackDesc.toString());
-
     Profiler.latestLineNumber = lineNum;
     shouldInstrument = true;
   }
   
-  @SuppressWarnings("deprecation")
   @Override
   protected void onMethodExit(int opcode) {
     int lineNum = Profiler.latestLineNumber;
@@ -68,29 +53,16 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     String instructionLog =
         buildInstructionLog(lineNum, eventType, opcode, methodDecl.getId());
     
-    StringBuffer callbackDesc = new StringBuffer();
+    ProfilerCallBack.start(mv)
+    .passArg(methodDecl.getDeclOwner())
+    .passArg(methodDecl.getDeclName())
+    .passArg(instructionLog)
+    .passThis(methodDecl.getDeclAccess())
+    .build(Deputy.PROFILER_METHODEXIT);
     
-    mv.visitLdcInsn(methodDecl.getDeclOwner());
-    callbackDesc.append("(").append(Deputy.STRING_DESC);
-    
-    mv.visitLdcInsn(methodDecl.getDeclName());
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    mv.visitLdcInsn(instructionLog);
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    this.loadRecieverObjectId();
-    callbackDesc.append(Deputy.STRING_DESC).append(")V");
-    
-    mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-                       Deputy.PROFILER_NAME, 
-                       Deputy.PROFILER_METHODEXIT, 
-                       callbackDesc.toString());
-
     Profiler.latestLineNumber = lineNum;
   }
   
-  @SuppressWarnings("deprecation")
   @Override
   public void visitLineNumber(int line, Label start) {
     Profiler.latestLineNumber = line;
@@ -104,18 +76,10 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     String instructionLog =
         buildInstructionLog(line, EventType.$line$, -1, methodDecl.getId());
     
-    StringBuffer callbackDesc = new StringBuffer();
-    
-    mv.visitLdcInsn(instructionLog);
-    callbackDesc.append("(").append(Deputy.STRING_DESC);
-    
-    this.loadRecieverObjectId();
-    callbackDesc.append(Deputy.STRING_DESC).append(")V");
-    
-    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                       Deputy.PROFILER_NAME, 
-                       Deputy.PROFILER_LINENUMER, 
-                       callbackDesc.toString());
+    ProfilerCallBack.start(mv)
+    .passArg(instructionLog)
+    .passThis(methodDecl.getDeclAccess())
+    .build(Deputy.PROFILER_LINENUMER);
   }
   
   @SuppressWarnings("deprecation")
@@ -127,24 +91,15 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       return;
     }
     
-    StringBuffer callbackDesc = new StringBuffer();
-    callbackDesc.append("(");
-    
     String methodName = owner + "/" + name + desc;
     String instructionLog = buildInstructionLog(lineNum, EventType.$invoke$, 
         opcode, methodDecl.getId(), methodName);
     
-    mv.visitLdcInsn(instructionLog);
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    this.loadRecieverObjectId();
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    callbackDesc.append(")V");
-    mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-                       Deputy.PROFILER_NAME, 
-                       Deputy.PROFILER_INVOKE, 
-                       callbackDesc.toString());
+    ProfilerCallBack.start(mv)
+    .passArg(instructionLog)
+    .passThis(methodDecl.getDeclAccess())
+    .build(Deputy.PROFILER_INVOKE);
+
     Profiler.latestLineNumber = lineNum;
     super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
   }
@@ -153,22 +108,4 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   public void visitMaxs(int MaxStack, int maxLocals) {
     super.visitMaxs(MaxStack, maxLocals);
   }
-  
-    @SuppressWarnings("deprecation")
-    private void loadRecieverObjectId() {
-      int access = Integer.parseInt(methodDecl.getDeclAccess());
-      if((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
-        mv.visitLdcInsn("C");
-      } else {
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-                           Deputy.PROFILER_NAME, 
-                           Deputy.PROFILER_GETHASH, 
-                           Deputy.PROFILER_GETHASH_DESC);
-      }
-    }
-    
-
-
 }
