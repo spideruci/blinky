@@ -3,10 +3,10 @@ package org.spideruci.analysis.trace;
 import java.util.Iterator;
 import java.util.Scanner;
 
-public class TraceIterator implements Iterator<Event> {
+public class TraceIterator implements Iterator<TraceEvent> {
 
   private final Scanner scanner;
-  private Event event;
+  private TraceEvent event;
   
   public TraceIterator(Scanner scanner) {
     this.scanner = scanner;
@@ -17,7 +17,8 @@ public class TraceIterator implements Iterator<Event> {
   public boolean hasNext() {
     while(scanner.hasNextLine()) {
       String eventString = scanner.nextLine();
-      this.event = Event.fromString(eventString);
+      
+      this.event = TraceEvent.valueOf(eventString);
       if(this.event != null) {
         return true;
       }
@@ -27,13 +28,12 @@ public class TraceIterator implements Iterator<Event> {
   }
 
   @Override
-  public Event next() {
+  public TraceEvent next() {
     return this.event;
   }
 
   @Override
   public void remove() {
-    // TODO Auto-generated method stub
     throw new UnsupportedOperationException("not supported.");
   }
 

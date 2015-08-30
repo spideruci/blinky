@@ -10,7 +10,7 @@ public enum EventType {
   $$class$$,
   $$method$$;
   
-  public boolean isStatic() {
+  public boolean isDecl() {
     switch(this) {
     case $$class$$:
     case $$method$$:
