@@ -2,6 +2,7 @@ package org.spideruci.analysis.trace;
 
 import org.objectweb.asm.Opcodes;
 
+@Deprecated
 public class Event {
   public static final String SOURCELINE_EVENT = "$sourcelinenumber$";
   

@@ -175,10 +175,25 @@ public class Profiler {
     reguard(guard);
   }
   
-  synchronized static private boolean threadCheck() {
-    return Thread.currentThread().getId() == thread 
-          || Thread.currentThread().getId() == 13 
-          || Thread.currentThread().getId() == 11;
+  /**
+   * Check for specific threads. Use only while debugging.
+   * @return true if the current thread is one of the specified thread id's.
+   */
+  @SuppressWarnings("unused")
+  synchronized static private boolean threadCheck(long ... threadIds) {
+    long currentThreadId = Thread.currentThread().getId();
+    
+    if(currentThreadId == thread) {
+      return true;
+    }
+    
+    for(long threadId : threadIds) {
+      if(currentThreadId == threadId) {
+        return true;
+      }
+    }
+    
+    return false;
   }
   
   synchronized static public void printTraceCount() {

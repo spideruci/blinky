@@ -3,9 +3,7 @@ package org.spideruci.analysis.statik.instrumentation;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.spideruci.analysis.trace.DeclPropNames;
 import org.spideruci.analysis.trace.EventBuilder;
-import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.TraceEvent;
 
 import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
