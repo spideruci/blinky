@@ -7,9 +7,18 @@ public class Namaste {
     System.out.println(hello);
     
     for(int i = 0; i < 10; i += 1) {
-      System.out.println(i + ":: " + hello);
+      new Namaste().sayHi();
+      new Namaste().sayHiTo("interation" + i);
     }
 
+  }
+  
+  public void sayHi() {
+    System.out.println("Hi there stranger! :D");
+  }
+  
+  public void sayHiTo(String name) {
+    System.out.printf("Hi %s!\n", name);
   }
 
 }

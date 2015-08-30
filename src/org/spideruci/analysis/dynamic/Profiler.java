@@ -3,7 +3,6 @@ package org.spideruci.analysis.dynamic;
 import java.io.PrintStream;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
-import org.spideruci.analysis.statik.instrumentation.MethodProperties;
 
 public class Profiler {
 
@@ -15,8 +14,8 @@ public class Profiler {
   public static boolean logMethodInvoke = false;
   public static boolean logSourceLineNumber = false;
   
-  private static final PrintStream REAL_OUT = System.out;
-  private static final PrintStream REAL_ERR = System.err;
+  public static final PrintStream REAL_OUT = System.out;
+  public static final PrintStream REAL_ERR = System.err;
   
   private static long thread = -1;
   private static long count = 0;
@@ -117,9 +116,9 @@ public class Profiler {
   }
   
   synchronized static public void 
-  printLnMethodEnterLog(String className, String methodName, String methodDesc,
-      String instruction, String tag) {
-    if(getUnsetGuardCondition(className, methodName, methodDesc)) 
+  printLnMethodEnterLog(String className, String methodName, String instruction,
+      String tag) {
+    if(getUnsetGuardCondition(methodName)) 
       unsetGuard1();
     if(methodName.startsWith("main")) {
       unsetGuard1();
@@ -137,8 +136,8 @@ public class Profiler {
   }
 
   synchronized static public void 
-  printLnMethodExitLog(String className, String methodName, String methodDesc, 
-      String instruction, String tag) {
+  printLnMethodExitLog(String className, String methodName, String instruction, 
+      String tag) {
     if($guard1$) return;
     
     boolean guard = guard();    
@@ -150,7 +149,7 @@ public class Profiler {
     }
     $guard1$ = guard;
 
-    if(getSetGuardCondition(className, methodName, methodDesc)) {
+    if(getSetGuardCondition(className, methodName)) {
       setGuard1();
     }
   }
@@ -211,22 +210,6 @@ public class Profiler {
     $guard1$ = true;
   }
   
-  synchronized private static boolean getUnsetGuardCondition(String className, 
-      String methodName, String methodDesc) {
-    MethodProperties mid = 
-        new MethodProperties(className, methodName, 1, methodDesc);
-    boolean condition = getUnsetGuardCondition(mid);
-    return condition;
-  }
-  
-  synchronized private static boolean getSetGuardCondition(String className,
-      String methodName, String methodDesc) {
-    MethodProperties mid = 
-        new MethodProperties(className, methodName, 1, methodDesc);
-    boolean condition = getSetGuardCondition(mid);
-    return condition; 
-  }
-  
   /**
    * Checks if the method is main(String[]); If so it returns a true value 
    * suggesting that we unset the guard that prevents the execution of the 
@@ -237,11 +220,11 @@ public class Profiler {
    * current method is defined using mid.MethodName and mid.MethodDescription
    */
   synchronized public static boolean 
-  getUnsetGuardCondition(MethodProperties mid) {
-    
-    boolean regCondition = mid.MethodName.equals("main")  &&
-        mid.MethodDescription.equals("([Ljava/lang/String;)V");
-    if(regCondition) REAL_OUT.println(regCondition);
+  getUnsetGuardCondition(String methodName) {
+    boolean regCondition = methodName.equals("main([Ljava/lang/String;)V");
+    if(regCondition) {
+      REAL_OUT.println(regCondition);
+    }
     return regCondition;
   }
 
@@ -255,13 +238,11 @@ public class Profiler {
    * current method is defined using mid.MethodName and mid.MethodDescription
    */
   synchronized public static boolean 
-  getSetGuardCondition(MethodProperties mid) {
-    boolean regular = (mid.MethodName.equals("main") 
-        || mid.MethodName.equals("realMain"))  
-        && mid.MethodDescription.equals("([Ljava/lang/String;)V");
-    regular =  (mid.MethodName.equals("run")  &&
-        mid.MethodDescription.equals("()V") &&
-        mid.MethodOwnerName.equals("net/percederberg/tetris/Game$GameThread"));
+  getSetGuardCondition(String ownerName, String methodName) {
+    boolean regular = methodName.equals("main([Ljava/lang/String;)V") 
+        || methodName.equals("realMain([Ljava/lang/String;)V");
+    regular =  (methodName.equals("run()V") &&
+        ownerName.equals("net/percederberg/tetris/Game$GameThread"));
     return regular;
   }
   

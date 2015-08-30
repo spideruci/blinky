@@ -1,89 +1,87 @@
 package org.spideruci.analysis.statik.instrumentation;
 
+import static org.spideruci.analysis.trace.EventBuilder.*;
+
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.trace.DeclPropNames;
+import org.spideruci.analysis.trace.EventBuilder;
+import org.spideruci.analysis.trace.EventType;
+import org.spideruci.analysis.trace.InsnPropNames;
+import org.spideruci.analysis.trace.TraceEvent;
 
 public class SourcelineMethodAdapter extends AdviceAdapter {
   
-  private MethodProperties methodProps;
+  private TraceEvent methodDecl;
   private boolean shouldInstrument;
   
-  public SourcelineMethodAdapter(MethodProperties methodProps, MethodVisitor mv) {
-    super(Opcodes.ASM4, mv, methodProps.MethodAccess, methodProps.MethodName, 
-        methodProps.MethodDescription);
-    this.methodProps = methodProps;
+  public SourcelineMethodAdapter(TraceEvent methodDecl, int access, String name, 
+      String desc, MethodVisitor mv) {
+    super(Opcodes.ASM4, mv, access, name, desc);
+    this.methodDecl = methodDecl;
     this.shouldInstrument = false;
   }
   
+  @SuppressWarnings("deprecation")
   @Override
   protected void onMethodEnter() {
-
     int lineNum = Profiler.latestLineNumber;
-
-    int opcode = ((this.methodProps.MethodAccess & Opcodes.ACC_STATIC) == 
-        Opcodes.ACC_STATIC) ? -3 : -2;
-    if(methodProps.MethodName.contains("<init>")) {
+    int access = Integer.parseInt(methodDecl.getDeclAccess());
+    int opcode = ((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) ? -3 : -2;
+    if(methodDecl.getDeclAccess().contains("<init>")) {
       opcode = -5;
     }
     
-    String instructionLog = buildInstructionLog(-1, Deputy.ENTER, opcode);
+    String instructionLog =
+        buildInstructionLog(-1, EventType.$enter$, opcode, methodDecl.getId());
     //instruction log the arguments for the call
     StringBuffer callbackDesc = new StringBuffer();
-    callbackDesc.append("(");
     
-    mv.visitLdcInsn(methodProps.MethodOwnerName); 
-    callbackDesc.append(Deputy.STRING_DESC);
+    mv.visitLdcInsn(methodDecl.getDeclOwner());
+    callbackDesc.append("(").append(Deputy.STRING_DESC);
     
-    mv.visitLdcInsn(methodProps.MethodName); 
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    mv.visitLdcInsn(methodProps.MethodDescription); 
+    mv.visitLdcInsn(methodDecl.getDeclName());
     callbackDesc.append(Deputy.STRING_DESC);
     
     mv.visitLdcInsn(instructionLog); 
     callbackDesc.append(Deputy.STRING_DESC);
     
     this.loadRecieverObjectId(); 
-    callbackDesc.append(Deputy.STRING_DESC);
+    callbackDesc.append(Deputy.STRING_DESC).append(")V");
     
-    callbackDesc.append(")V");
-    mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-                       Deputy.PROFILER_NAME, 
-                       Deputy.PROFILER_METHODENTER, 
-                       callbackDesc.toString());
+    mv.visitMethodInsn(Opcodes.INVOKESTATIC, Deputy.PROFILER_NAME,
+        Deputy.PROFILER_METHODENTER, callbackDesc.toString());
 
     Profiler.latestLineNumber = lineNum;
     shouldInstrument = true;
   }
   
+  @SuppressWarnings("deprecation")
   @Override
   protected void onMethodExit(int opcode) {
     int lineNum = Profiler.latestLineNumber;
-    String symbolicName = (opcode == Opcodes.ATHROW) ? Deputy.ATHORW : Deputy.RETURN; 
-    String instructionLog = buildInstructionLog(lineNum, symbolicName, opcode);
+    EventType eventType = 
+        (opcode == Opcodes.ATHROW) ? EventType.$athrow$ : EventType.$return$; 
+    String instructionLog =
+        buildInstructionLog(lineNum, eventType, opcode, methodDecl.getId());
     
     StringBuffer callbackDesc = new StringBuffer();
-    callbackDesc.append("(");
     
-    mv.visitLdcInsn(methodProps.MethodOwnerName);
-    callbackDesc.append(Deputy.STRING_DESC);
+    mv.visitLdcInsn(methodDecl.getDeclOwner());
+    callbackDesc.append("(").append(Deputy.STRING_DESC);
     
-    mv.visitLdcInsn(methodProps.MethodName);
-    callbackDesc.append(Deputy.STRING_DESC);
-    
-    mv.visitLdcInsn(methodProps.MethodDescription);
+    mv.visitLdcInsn(methodDecl.getDeclName());
     callbackDesc.append(Deputy.STRING_DESC);
     
     mv.visitLdcInsn(instructionLog);
     callbackDesc.append(Deputy.STRING_DESC);
     
     this.loadRecieverObjectId();
-    callbackDesc.append(Deputy.STRING_DESC);
+    callbackDesc.append(Deputy.STRING_DESC).append(")V");
     
-    callbackDesc.append(")V");
     mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
                        Deputy.PROFILER_NAME, 
                        Deputy.PROFILER_METHODEXIT, 
@@ -92,6 +90,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     Profiler.latestLineNumber = lineNum;
   }
   
+  @SuppressWarnings("deprecation")
   @Override
   public void visitLineNumber(int line, Label start) {
     Profiler.latestLineNumber = line;
@@ -102,25 +101,24 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     }
     
     super.visitLineNumber(line, start); //make the actual call.
+    String instructionLog =
+        buildInstructionLog(line, EventType.$line$, -1, methodDecl.getId());
     
     StringBuffer callbackDesc = new StringBuffer();
-    callbackDesc.append("(");
-    
-    String instructionLog = buildInstructionLog(line, Deputy.LINE, -1);
     
     mv.visitLdcInsn(instructionLog);
-    callbackDesc.append(Deputy.STRING_DESC);
+    callbackDesc.append("(").append(Deputy.STRING_DESC);
     
     this.loadRecieverObjectId();
-    callbackDesc.append(Deputy.STRING_DESC);
+    callbackDesc.append(Deputy.STRING_DESC).append(")V");
     
-    callbackDesc.append(")V");
-    mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
+    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                        Deputy.PROFILER_NAME, 
                        Deputy.PROFILER_LINENUMER, 
                        callbackDesc.toString());
   }
   
+  @SuppressWarnings("deprecation")
   @Override
   public void visitMethodInsn(int opcode, String owner, String name, String desc) {
     int lineNum = Profiler.latestLineNumber;
@@ -133,7 +131,8 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     callbackDesc.append("(");
     
     String methodName = owner + "/" + name + desc;
-    String instructionLog = buildInstructionLog(lineNum, methodName, opcode);
+    String instructionLog = buildInstructionLog(lineNum, EventType.$invoke$, 
+        opcode, methodDecl.getId(), methodName);
     
     mv.visitLdcInsn(instructionLog);
     callbackDesc.append(Deputy.STRING_DESC);
@@ -152,14 +151,14 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitMaxs(int MaxStack, int maxLocals) {
-//    MaxStack += 15; 
     super.visitMaxs(MaxStack, maxLocals);
   }
   
+    @SuppressWarnings("deprecation")
     private void loadRecieverObjectId() {
-      if((this.methodProps.MethodAccess & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
-        //if the method is static
-        mv.visitLdcInsn(this.methodProps.MethodOwnerName);
+      int access = Integer.parseInt(methodDecl.getDeclAccess());
+      if((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
+        mv.visitLdcInsn("C");
       } else {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
@@ -170,16 +169,6 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       }
     }
     
-    private String buildInstructionLog(int lineNum, 
-                                       String symbolicName, 
-                                       int opcode) {
-      String[] instructionLogElements = new String[5];
-      instructionLogElements[0] = String.valueOf(lineNum);
-      instructionLogElements[1] = methodProps.MethodOwnerName;
-      instructionLogElements[2] = methodProps.MethodName + methodProps.MethodDescription; 
-      instructionLogElements[3] = symbolicName; 
-      instructionLogElements[4] = String.valueOf(opcode);
-      return Deputy.joinStrings(instructionLogElements, ",");
-    }
+
 
 }

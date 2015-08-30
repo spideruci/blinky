@@ -1,6 +1,6 @@
-#!/bin/sh
-jars=/home/vijay/phd-open-source/blinky/jars
-bin=/home/vijay/phd-open-source/blinky/bin
+#!/bin/bash
+jars=/Users/vpalepu/phd-open-source/blinky/jars
+bin=/Users/vpalepu/phd-open-source/blinky/bin
 snitchMF=SnitchManifest
 dataMF=DataManifest
 controlMF=Manifest

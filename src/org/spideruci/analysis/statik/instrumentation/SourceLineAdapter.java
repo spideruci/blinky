@@ -3,7 +3,12 @@ package org.spideruci.analysis.statik.instrumentation;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.AdviceAdapter;
+import org.spideruci.analysis.trace.DeclPropNames;
+import org.spideruci.analysis.trace.EventBuilder;
+import org.spideruci.analysis.trace.EventType;
+import org.spideruci.analysis.trace.TraceEvent;
+
+import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 
 public class SourceLineAdapter extends ClassVisitor {
   private String className;
@@ -22,8 +27,10 @@ public class SourceLineAdapter extends ClassVisitor {
     
     if (mv != null 
         && ((access & Opcodes.ACC_NATIVE) == 0)) {
-      MethodProperties mid = new MethodProperties(className, name, access, desc);
-      mv = new SourcelineMethodAdapter(mid, mv);
+
+      TraceEvent methodDecl = EventBuilder.buildMethodDecl(className, access, name);
+      mv = new SourcelineMethodAdapter(methodDecl, access, name, desc, mv);
+      REAL_OUT.println(methodDecl.getLog());
     }
     return mv;
   }

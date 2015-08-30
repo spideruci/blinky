@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 blinky_args="xile"
 

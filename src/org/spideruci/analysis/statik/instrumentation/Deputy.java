@@ -3,6 +3,8 @@ package org.spideruci.analysis.statik.instrumentation;
 import java.util.ArrayList;
 
 public class Deputy {
+  public static int LINE_COUNT = 0;
+  
   public static final ArrayList<String> exclusionList;
   public static final ArrayList<String> inclusionList;
   public static boolean checkInclusionList = false;
@@ -24,12 +26,6 @@ public class Deputy {
   public static final String LONG_TYPEDESC = "J";
     
   public static final String PROFILER_GETHASH_DESC = "(" + OBJECT_DESC + ")" + STRING_DESC;
-  
-  public static final String ENTER = "$enter$";
-  public static final String ATHORW = "$athrow$";
-  public static final String RETURN = "$return$";
-  public static final String LINE = "$sourcelinenumber$";
-  public static final String INVOKE = "$methodinvoke$";
   
   static {
     exclusionList = new ArrayList<String>();

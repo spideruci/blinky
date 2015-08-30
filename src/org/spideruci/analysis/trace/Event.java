@@ -6,7 +6,7 @@ public class Event {
   public static final String SOURCELINE_EVENT = "$sourcelinenumber$";
   
   private final String id;
-  @SuppressWarnings("unused") private final String threadId;
+  private final String threadId;
   @SuppressWarnings("unused") private final String objectId;
   @SuppressWarnings("unused") private final String time;
   private final String sourceLine;
