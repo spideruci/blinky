@@ -1,6 +1,7 @@
 package org.spideruci.analysis.trace;
 
 public enum EventType {
+  $$$,
   $enter$,
   $exit$,
   $line$,
@@ -20,6 +21,7 @@ public enum EventType {
     case $invoke$:
     case $line$:
     case $return$:
+    case $$$:
       return false;
     default:
       throw new UnsupportedOperationException();

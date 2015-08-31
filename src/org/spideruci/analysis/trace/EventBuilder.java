@@ -4,6 +4,18 @@ import org.spideruci.analysis.dynamic.Profiler;
 import org.spideruci.analysis.statik.instrumentation.Count;
 
 public class EventBuilder {
+  
+  public static TraceEvent buildInsnExecEvent(int id, long threadId, 
+      String dynamicHostId, String insnId, EventType insnType, long timestamp) {
+    TraceEvent event = TraceEvent.createInsnExecEvent(id);
+    event.setProp(InsnExecPropNames.DYN_HOST_ID, dynamicHostId);
+    event.setProp(InsnExecPropNames.INSN_EVENT_ID, insnId);
+    event.setProp(InsnExecPropNames.THREAD_ID, String.valueOf(threadId));
+    event.setProp(InsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
+    event.setProp(InsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    return event;
+  }
+  
   public static TraceEvent buildMethodDecl(String className, int access, String name) {
     TraceEvent methodDecl = 
         TraceEvent.createDeclEvent(Count.anotherMethod(), EventType.$$method$$);

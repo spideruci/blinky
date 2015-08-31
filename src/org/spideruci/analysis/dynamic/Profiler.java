@@ -3,6 +3,9 @@ package org.spideruci.analysis.dynamic;
 import java.io.PrintStream;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
+import org.spideruci.analysis.trace.EventBuilder;
+import org.spideruci.analysis.trace.EventType;
+import org.spideruci.analysis.trace.TraceEvent;
 
 public class Profiler {
 
@@ -18,7 +21,7 @@ public class Profiler {
   public static final PrintStream REAL_ERR = System.err;
   
   private static long thread = -1;
-  private static long count = 0;
+  private static int count = 0;
   private static long time = 0;
 
   synchronized static public void initProfiler(String args) {
@@ -126,9 +129,7 @@ public class Profiler {
     boolean guard = guard();
     
     if(logMethodEnter) {
-      String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
-          + instruction + "\n";
-      handleLog(log);
+      handleLog(instruction, tag, EventType.$exit$);
     }
     $guard1$ = guard;
   }
@@ -141,9 +142,7 @@ public class Profiler {
     boolean guard = guard();    
     
     if(logMethodExit) {
-      String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
-          + instruction + "\n";
-      handleLog(log);
+      handleLog(instruction, tag, EventType.$exit$);
     }
     $guard1$ = guard;
 
@@ -155,10 +154,8 @@ public class Profiler {
   synchronized static public void printlnInvokeLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if((Thread.currentThread().getId() == thread || Thread.currentThread().getId() == 12) && logMethodInvoke) {
-      String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
-          + instruction + "\n";
-      handleLog(log);
+    if(logMethodInvoke) {
+      handleLog(instruction, tag, EventType.$invoke$);
     }
     reguard(guard);
   }
@@ -166,11 +163,8 @@ public class Profiler {
   synchronized static public void printLnLineNumber(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-//    System.out.println(Thread.currentThread().getId());
     if(logSourceLineNumber) {
-      String log = "*" + Thread.currentThread().getId() + "*" + tag + "," 
-          + instruction + "\n";
-      handleLog(log);
+      handleLog(instruction, tag, EventType.$line$);
     }
     reguard(guard);
   }
@@ -261,35 +255,12 @@ public class Profiler {
   
   /**************************Trace Logging**************************/
   
-    synchronized static private void handleLog(String log) {
-      log = modifyLog(log, ++count);
-      REAL_OUT.print(log);
-    }
-    
-    synchronized static private String modifyLog(String log, long count) {
-      int firstAsterix = -1;
-      int secondAsterix = -1;
-      for(int i = 0; i < log.length(); i += 1) {
-        if(log.charAt(i) != '*') 
-          continue;
-        
-        if(firstAsterix == -1) {
-          firstAsterix = i;
-        } else {
-          secondAsterix = i;
-          break;
-        }
-      }
-      
+    synchronized static private void handleLog(String insnId, String tag,
+        EventType insnType) {
+      long threadId = Thread.currentThread().getId();
       long time = System.currentTimeMillis() - Profiler.time;
-      
-      String logPrefix = log.substring(firstAsterix, secondAsterix + 1);
-      StringBuffer replacement = new StringBuffer();
-      
-      replacement.append(logPrefix)
-                 .append(count).append(",")
-                 .append(time).append(","); 
-      return log.replace(logPrefix, replacement);
+      TraceEvent event = EventBuilder.buildInsnExecEvent(++count, 
+          threadId, tag, insnId, insnType, time);
+      REAL_OUT.println(event.getLog());
     }
-  
 }

@@ -20,19 +20,18 @@ public final class TraceEvent {
   /**
    * Creates a trace event that can store properties for the 
    * execution of a static instruction, and its properties are specified
-   * with {@link org.spideruci.analysis.trace.InsnExecPropNames}.
+   * with {@link InsnExecPropNames}.
    * @param id Unique id for the event.
    * @param type The type of this event (can be null).
    * @return
    */
   public static TraceEvent createInsnExecEvent(int id) {
-    return new TraceEvent(id, null, InsnExecPropNames.values);
+    return new TraceEvent(id, EventType.$$$, InsnExecPropNames.values);
   }
   
   /**
-   * Creates a trace event that can store properties for a 
-   * static instruction in a method definition, as specified by 
-   * {@link org.spideruci.analysis.trace.InsnPropNames}.
+   * Creates a trace event that can store properties for a static instruction 
+   * in a method definition, as specified by {@link InsnPropNames}.
    * @param id Unique id for the event.
    * @param type The type of this event (can be null).
    * @return
@@ -43,8 +42,7 @@ public final class TraceEvent {
   
   /**
    * Creates a trace event that can store properties for a method or class
-   * declaration, as specified by 
-   * {@link org.spideruci.analysis.trace.DeclPropNames}.
+   * declaration, as specified by {@link DeclPropNames}.
    * @param id Unique id for the event.
    * @param type The type of this event (can be null).
    * @return
@@ -59,15 +57,13 @@ public final class TraceEvent {
     int id = Integer.parseInt(split[1]);
     
     TraceEvent event;
-    if(typeString.isEmpty()) {
+    EventType type = EventType.valueOf(typeString);
+    if(type == EventType.$$$) {
       event = TraceEvent.createInsnExecEvent(id);
+    } else if(type.isDecl()) {
+      event = TraceEvent.createInsnEvent(id, type);
     } else {
-      EventType type = EventType.valueOf(typeString);
-      if(type.isDecl()) {
-        event = TraceEvent.createInsnEvent(id, type);
-      } else {
-        event = TraceEvent.createDeclEvent(id, type);
-      }
+      event = TraceEvent.createDeclEvent(id, type);
     }
     
     final int offset = 2;
