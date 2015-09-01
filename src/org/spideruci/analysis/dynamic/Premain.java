@@ -8,7 +8,7 @@ public class Premain {
     boolean tempGuard = Profiler.$guard1$; 
     Profiler.$guard1$ = true;
     Profiler.initProfiler(agentArguments);
-    instrumentation.addTransformer(new Transformer());
+    instrumentation.addTransformer(new Blinksformer());
     Profiler.$guard1$ = tempGuard;
   }
 }

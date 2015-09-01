@@ -10,9 +10,9 @@ import org.spideruci.analysis.statik.instrumentation.SourceLineInstrumenter;
 import org.spideruci.util.ByteCodePrinter;
 import org.spideruci.util.Constants;
 
-public class Transformer implements ClassFileTransformer {
+public class Blinksformer implements ClassFileTransformer {
 
-  public Transformer() {
+  public Blinksformer() {
     super();
   }
 
