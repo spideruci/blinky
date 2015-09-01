@@ -2,7 +2,6 @@ package org.spideruci.analysis.dynamic;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
-import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
