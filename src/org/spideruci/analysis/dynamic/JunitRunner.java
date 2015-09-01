@@ -21,8 +21,8 @@ public class JunitRunner {
 
     for(String testClass : getClasses(args[0])){
       try {
-        System.out.println(testClass);
-        core.run(Class.forName(testClass));
+        Class<?> testClazz = Class.forName(testClass);
+        core.run(testClazz);
       } catch (ClassNotFoundException e) {
         e.printStackTrace();
       }
@@ -32,19 +32,19 @@ public class JunitRunner {
   private static ArrayList<String> getClasses(final String p) {
     System.out.println("p:" + p);
     final ArrayList<String> ret = new ArrayList<String>();
-
+    final String dotClass = ".class";
     try {
       Files.walkFileTree(Paths.get(p), new SimpleFileVisitor<Path>() {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
             throws IOException {
-          String str = file.toString();
-          if(str.endsWith(".class") && !str.matches("(.*)\\$(.*)")) {
-            String x = str.replaceAll(p.endsWith("/")?p:p+"/","")
-                .replace('/','.')
-                .replaceAll("\\.class","");
-            System.out.println(x);
-            ret.add(x);
+          String filePath = file.toString();
+          if(filePath.endsWith(dotClass) && !filePath.matches("(.*)\\$(.*)")) {
+            String trimmedPath = filePath.substring(p.length())
+                .replace('/',' ').trim().replace(' ', '.');
+            String qualifiedClassName = 
+                trimmedPath.substring(0, trimmedPath.length() - dotClass.length());
+            ret.add(qualifiedClassName);
           }
           return FileVisitResult.CONTINUE;
         }
