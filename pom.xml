@@ -41,6 +41,11 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 		</dependency>
+		<dependency>
+		  <groupId>linloglayout</groupId>
+		  <artifactId>linloglayout</artifactId>
+		  <version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 

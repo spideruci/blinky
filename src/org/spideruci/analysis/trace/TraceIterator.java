@@ -18,6 +18,10 @@ public class TraceIterator implements Iterator<TraceEvent> {
     while(scanner.hasNextLine()) {
       String eventString = scanner.nextLine();
       
+      if(!eventString.startsWith("$")) {
+        continue;
+      }
+      
       this.event = TraceEvent.valueOf(eventString);
       if(this.event != null) {
         return true;

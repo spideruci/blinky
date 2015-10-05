@@ -12,7 +12,7 @@ This instrumenter and execution tracer has the capability to log the execution o
 ## EXTERNAL DEPENDENCIES
 
 - ASM: Java Bytecode Manipulation And Ananlysis Framework (http://asm.ow2.org/index.html), v4.0
- 
+- LinLog Layout: (https://github.com/VijayKrishna/linloglayout) ... Run `git clone https://github.com/VijayKrishna/linloglayout.git && mvn compile && mvn install` to start using this as a dependency.
 
 ## INSTALLATION & USAGE INSTRUCTIONS
 

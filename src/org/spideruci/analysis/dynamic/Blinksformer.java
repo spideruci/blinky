@@ -20,11 +20,8 @@ public class Blinksformer implements ClassFileTransformer {
       Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
       byte[] classBytes) throws IllegalClassFormatException {
     byte[] instrumentedBytes = null;
-    boolean shouldNotInstrument = false;
 
-    shouldNotInstrument = shouldNotInstrument(className);
-
-    if(shouldNotInstrument) {
+    if(!shouldInstrument(className)) {
       System.err.println("instrumentation skipped for " + className);
       return classBytes;
     }
@@ -43,42 +40,41 @@ public class Blinksformer implements ClassFileTransformer {
     return instrumentedBytes;
   }
 
-  private boolean shouldNotInstrument(String className) {
-    boolean shouldNotInstrument = false;
+  private boolean shouldInstrument(String className) {
+    final boolean shouldInstrument = true;
     if(className.startsWith(Constants.SPIDER_NAMESPACE)
         || className.startsWith(Constants.SPIDER_NAMESPACE2)) {
       if(className.contains("test")) {
-        return false; // shouldInstrument
+        return shouldInstrument; // shouldInstrument
       } else {
-        return true; // shouldNotInstrument
+        return !shouldInstrument; // shouldNotInstrument
       }
     }
 
     if(className.contains("Test")) {
-      return true; // shouldNotInstrument;
+      return !shouldInstrument; // shouldNotInstrument;
     }
 
     if(className.contains("Mockito") || className.contains("Mock")) {
-      return true; // shouldNotInstrument;
+      return !shouldInstrument; // shouldNotInstrument;
     }
 
     for(String item : Deputy.exclusionList) {
       if(className.startsWith(item)) {
-        return true;
+        return !shouldInstrument;
       }
     }
 
-    if(!Deputy.checkInclusionList) {
-      return shouldNotInstrument;
-    }
-
-    for(String item : Deputy.inclusionList) {
-      if(className.startsWith(item)) {
-        return false;
+    if(Deputy.checkInclusionList) {
+      for(String item : Deputy.inclusionList) {
+        if(className.startsWith(item)) {
+          return shouldInstrument;
+        }
       }
+      return !shouldInstrument;
+    } else {
+      return shouldInstrument;
     }
-
-    return true;
   }
 
 }

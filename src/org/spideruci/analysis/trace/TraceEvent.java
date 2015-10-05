@@ -61,14 +61,13 @@ public final class TraceEvent {
     if(type == EventType.$$$) {
       event = TraceEvent.createInsnExecEvent(id);
     } else if(type.isDecl()) {
-      event = TraceEvent.createInsnEvent(id, type);
-    } else {
       event = TraceEvent.createDeclEvent(id, type);
+    } else {
+      event = TraceEvent.createInsnEvent(id, type);
     }
     
     final int offset = 2;
-    MyAssert.assertThat(event.getPropCount() == 
-        (event.propNames.length  - offset));
+    MyAssert.assertThat(event.getPropCount() == (split.length  - offset));
     
     for(int i = offset; i < split.length; i += 1) {
       event.setProp(i - offset, split[i]);
@@ -153,6 +152,22 @@ public final class TraceEvent {
   
   public String getDeclOwner() {
     return getProp(DeclPropNames.OWNER);
+  }
+  
+  public String getExecThreadId() {
+    return getProp(InsnExecPropNames.THREAD_ID);
+  }
+  
+  public String getExecTimestamp() {
+    return getProp(InsnExecPropNames.TIMESTAMP);
+  }
+  
+  public String getExecInsnId() {
+    return getProp(InsnExecPropNames.INSN_EVENT_ID);
+  }
+  
+  public EventType getExecInsnType() {
+    return EventType.valueOf(getProp(InsnExecPropNames.INSN_EVENT_TYPE));
   }
   
   @Override
