@@ -32,6 +32,12 @@ public class Profiler {
       return;
     }
     
+    if(args.equals("0")) {
+      logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = false;
+      Deputy.checkInclusionList = false;
+      return;
+    }
+    
     String[] split = args.split(",");
     
     String profileConfig = split[0];

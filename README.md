@@ -16,21 +16,51 @@ This instrumenter and execution tracer has the capability to log the execution o
 
 ## INSTALLATION & USAGE INSTRUCTIONS
 
-The installation and usage of Blinky is currently based on Maven.
-To install, make sure that you have the latest installation of Maven (3.3.3) installed.
-Assuming that you have already cloned the project and changed into the project's
-directory, run `mvn compile` to do a sanity check. This should make sure that the 
+### Installation
+The installation of Blinky is currently based on Maven.
+To install, 
+
+1. make sure that you have the latest installation of Maven (3.3.3) installed.  
+2. Clone this git project and change into the project's
+directory. 
+3. Run `mvn compile` to do a sanity check. This should make sure that the 
 project source is building properly. Any compilation issues will be best detected
-here. There after run `mvn package` to generate the `.jar` file, which can then
+here. 
+4. There after run `mvn package` to generate the `.jar` file, which can then
 be used as a java-agent in other test-running environments.
 
-Command line Example Usage:
+### Usage
+
+#### Argument's to Blinky's Java Agent
+xile ... profiler configuration, to control the kind of traces that are generated  
+- `x` stands for method e**x**it events;
+- `i` stands for method **i**nvocation events;
+- `l` stands for source **l**ine execution events;
+- `e` stands for method **e**nter events.
+
+`whitelist` ... read a selection of classes, a.k.a. whitelist, to ensure that they are instrumented.
+
+`0` ... no execution tracing.
+
+Examples:
+
+`xle,whitelist` will force the instrumenter to check against the whitelist, and trace method enter, exit and source line execution events.
+
+`l` will trace only source line execution events, while ignoring the whitelist.
+`i` will trace only method invocation events, while ignoring the whitelist.
+
+#### Command line Example Usage
 `java -Xbootclasspath/p:/path/to/asm-all-5.0.jar:/path/to/blinky-0.0.1-SNAPSHOT.jar -javaagent:/path/to/blinky-0.0.1-SNAPSHOT.jar com.example.SystemUnderAnalysis`
 
-In order to run your Junit test cases with Blinky's instrumentation, use Tacoco.
+#### Junit Support
+In order to run your Junit test cases with Blinky's instrumentation, use Tacoco (http://github.com/spideruci/tacoco).
 *More to come.*
 
 ### EXECUTION TRACES and .trc file format
+
+
+**THIS FORMAT IS UNDERGOING MAJOR CHANGES. FOR FURTHER INFORMATION PLEASE CONTACT vpalepu [at] uci [dot] edu **
+
 Execution Traces, for software program runs, are stored in trace files or *.trc files. These traces have been tailored for Java programs.
 Each line in a trace file (.trc) represents the execution of a Java source code instruction and it has the following format:
 
