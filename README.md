@@ -24,6 +24,9 @@ project source is building properly. Any compilation issues will be best detecte
 here. There after run `mvn package` to generate the `.jar` file, which can then
 be used as a java-agent in other test-running environments.
 
+Command line Example Usage:
+`java -Xbootclasspath/p:/path/to/asm-all-5.0.jar:/path/to/blinky-0.0.1-SNAPSHOT.jar -javaagent:/path/to/blinky-0.0.1-SNAPSHOT.jar com.example.SystemUnderAnalysis`
+
 In order to run your Junit test cases with Blinky's instrumentation, use Tacoco.
 *More to come.*
 

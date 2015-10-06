@@ -3,6 +3,14 @@ package org.spideruci.analysis.statik.instrumentation;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * This class presents an abstraction to create bytecode instruction sequences
+ * pertaining to the instrumentation probes that are meant to call the Profiler
+ * code when such probes are executed with the rest of the program during 
+ * execution.
+ * @author vpalepu
+ *
+ */
 public class ProfilerCallBack {
   private final StringBuffer callbackDesc;
   private final MethodVisitor mv;
