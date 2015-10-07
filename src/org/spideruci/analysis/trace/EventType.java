@@ -27,4 +27,22 @@ public enum EventType {
       throw new UnsupportedOperationException();
     }
   }
+
+  public boolean isInsn() {
+    switch(this) {
+    case $$class$$:
+    case $$method$$:
+      return false;
+    case $athrow$:
+    case $enter$:
+    case $invoke$:
+    case $line$:
+    case $return$:
+      return true;
+    case $$$:
+      return false;
+    default:
+      throw new UnsupportedOperationException();
+    }
+  }
 }

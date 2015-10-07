@@ -154,6 +154,14 @@ public final class TraceEvent {
     return getProp(DeclPropNames.OWNER);
   }
   
+  public int getInsnLine() {
+    return Integer.parseInt(getProp(InsnPropNames.LINE_NUMBER));
+  }
+  
+  public int getInsnDeclHostId() {
+    return Integer.parseInt(getProp(InsnPropNames.DECL_HOST_ID));
+  }
+  
   public String getExecThreadId() {
     return getProp(InsnExecPropNames.THREAD_ID);
   }
@@ -164,6 +172,10 @@ public final class TraceEvent {
   
   public String getExecInsnId() {
     return getProp(InsnExecPropNames.INSN_EVENT_ID);
+  }
+  
+  public String getExecInsnDynHost() {
+    return getProp(InsnExecPropNames.DYN_HOST_ID);
   }
   
   public EventType getExecInsnType() {

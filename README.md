@@ -31,8 +31,8 @@ be used as a java-agent in other test-running environments.
 
 ### Usage
 
-#### Argument's to Blinky's Java Agent
-xile ... profiler configuration, to control the kind of traces that are generated  
+#### Arguments to Blinky's Java Agent
+`xile` ... profiler configuration, to control the kind of traces that are generated  
 - `x` stands for method e**x**it events;
 - `i` stands for method **i**nvocation events;
 - `l` stands for source **l**ine execution events;
@@ -44,13 +44,12 @@ xile ... profiler configuration, to control the kind of traces that are generate
 
 Examples:
 
-`xle,whitelist` will force the instrumenter to check against the whitelist, and trace method enter, exit and source line execution events.
-
-`l` will trace only source line execution events, while ignoring the whitelist.
+`xle,whitelist` will force the instrumenter to check against the whitelist, and trace method enter, exit and source line execution events.  
+`l` will trace only source line execution events, while ignoring the whitelist.  
 `i` will trace only method invocation events, while ignoring the whitelist.
 
 #### Command line Example Usage
-`java -Xbootclasspath/p:/path/to/asm-all-5.0.jar:/path/to/blinky-0.0.1-SNAPSHOT.jar -javaagent:/path/to/blinky-0.0.1-SNAPSHOT.jar com.example.SystemUnderAnalysis`
+`java -Xbootclasspath/p:/path/to/asm-all-5.0.jar:/path/to/blinky-0.0.1-SNAPSHOT.jar -javaagent:/path/to/blinky-0.0.1-SNAPSHOT.jar=l,whitelist com.example.SystemUnderAnalysis`
 
 #### Junit Support
 In order to run your Junit test cases with Blinky's instrumentation, use Tacoco (http://github.com/spideruci/tacoco).
