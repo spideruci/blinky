@@ -47,8 +47,8 @@ public class TraceReader {
     return null;
   }
   
-  public boolean isExecutedEventMethodInvocation(TraceEvent execEvent) {
-    return execEvent.getExecInsnType() == EventType.$$method$$;
+  public boolean isExecEventMethodInvoke(TraceEvent execEvent) {
+    return execEvent.getExecInsnType() == EventType.$invoke$;
   }
   
   public int getExecutedEventSourceLine(TraceEvent execEvent) {
