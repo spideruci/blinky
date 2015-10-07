@@ -8,7 +8,7 @@ import org.spideruci.util.MyAssert;
  *
  */
 @SuppressWarnings("rawtypes")
-public final class TraceEvent {
+public class TraceEvent {
   
   private static final String SEP = ",";
   
@@ -67,7 +67,8 @@ public final class TraceEvent {
     }
     
     final int offset = 2;
-    MyAssert.assertThat(event.getPropCount() == (split.length  - offset));
+    MyAssert.assertThat(event.getPropCount() == (split.length  - offset), 
+        String.valueOf(split.length));
     
     for(int i = offset; i < split.length; i += 1) {
       event.setProp(i - offset, split[i]);

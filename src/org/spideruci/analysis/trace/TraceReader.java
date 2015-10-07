@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.spideruci.util.MyAssert;
-
 public class TraceReader {
   
   private final Iterator<TraceEvent> traceIterator;
@@ -47,8 +45,9 @@ public class TraceReader {
     return null;
   }
   
-  public boolean isExecEventMethodInvoke(TraceEvent execEvent) {
-    return execEvent.getExecInsnType() == EventType.$invoke$;
+  public boolean isMethodInvokeExec(TraceEvent event) {
+    return (event.getType() == EventType.$$$ 
+        && event.getExecInsnType() == EventType.$invoke$);
   }
   
   public int getExecutedEventSourceLine(TraceEvent execEvent) {
