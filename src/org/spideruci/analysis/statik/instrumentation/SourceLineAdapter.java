@@ -26,7 +26,7 @@ public class SourceLineAdapter extends ClassVisitor {
     if (mv != null 
         && ((access & Opcodes.ACC_NATIVE) == 0)) {
 
-      TraceEvent methodDecl = EventBuilder.buildMethodDecl(className, access, name);
+      TraceEvent methodDecl = EventBuilder.buildMethodDecl(className, access, name+desc);
       mv = new SourcelineMethodAdapter(methodDecl, access, name, desc, mv);
       REAL_OUT.println(methodDecl.getLog());
     }

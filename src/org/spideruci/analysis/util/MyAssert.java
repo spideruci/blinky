@@ -1,4 +1,4 @@
-package org.spideruci.util;
+package org.spideruci.analysis.util;
 
 public class MyAssert {
   

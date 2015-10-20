@@ -6,8 +6,8 @@ import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
 import org.spideruci.analysis.statik.instrumentation.SourceLineInstrumenter;
-import org.spideruci.util.ByteCodePrinter;
-import org.spideruci.util.Constants;
+import org.spideruci.analysis.util.ByteCodePrinter;
+import org.spideruci.analysis.util.Constants;
 
 public class Blinksformer implements ClassFileTransformer {
 
@@ -46,8 +46,6 @@ public class Blinksformer implements ClassFileTransformer {
         || className.startsWith(Constants.SPIDER_NAMESPACE2)) {
       if(className.contains("test")) {
         return shouldInstrument; // shouldInstrument
-      } else {
-        return !shouldInstrument; // shouldNotInstrument
       }
     }
 
@@ -58,6 +56,14 @@ public class Blinksformer implements ClassFileTransformer {
     if(className.contains("Mockito") || className.contains("Mock")) {
       return !shouldInstrument; // shouldNotInstrument;
     }
+    
+    if(Deputy.checkInclusionList) {
+      for(String item : Deputy.inclusionList) {
+        if(className.startsWith(item)) {
+          return shouldInstrument;
+        }
+      }
+    }
 
     for(String item : Deputy.exclusionList) {
       if(className.startsWith(item)) {
@@ -65,16 +71,7 @@ public class Blinksformer implements ClassFileTransformer {
       }
     }
 
-    if(Deputy.checkInclusionList) {
-      for(String item : Deputy.inclusionList) {
-        if(className.startsWith(item)) {
-          return shouldInstrument;
-        }
-      }
-      return !shouldInstrument;
-    } else {
-      return shouldInstrument;
-    }
+    return shouldInstrument;
   }
 
 }

@@ -38,7 +38,9 @@ public class Profiler {
       return;
     }
     
+    System.out.println(args);
     String[] split = args.split(",");
+    
     
     String profileConfig = split[0];
     
@@ -82,18 +84,15 @@ public class Profiler {
       }
       String[] arg_split = arg.split("=");
       String arg_name = arg_split[0];
-      String arg_value = arg_split[1].trim().toLowerCase();
+      String arg_value = arg_split.length == 1 ? "" : arg_split[1].trim().toLowerCase();
       REAL_OUT.printf("'%s':%s\n", arg_name , arg_value);
       
       switch(arg_name) {
       case "whitelist":
-      {
-        if(arg_value.equals("true")) {
-          Deputy.checkInclusionList = true;
-        } else {
-          Deputy.checkInclusionList = false;
-        }
-      }
+        Deputy.checkInclusionList = true;
+        break;
+       default:
+         break;
       }
     }
   }

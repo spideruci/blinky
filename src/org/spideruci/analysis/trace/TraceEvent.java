@@ -1,6 +1,6 @@
 package org.spideruci.analysis.trace;
 
-import org.spideruci.util.MyAssert;
+import org.spideruci.analysis.util.MyAssert;
 
 /**
  * TODO: rename to Event.

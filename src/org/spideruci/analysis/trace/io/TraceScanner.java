@@ -1,9 +1,12 @@
-package org.spideruci.analysis.trace;
+package org.spideruci.analysis.trace.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
 import java.util.Scanner;
+
+import org.spideruci.analysis.trace.TraceEvent;
+import org.spideruci.analysis.trace.TraceIterator;
 
 public class TraceScanner implements Iterable<TraceEvent> {
   

@@ -8,6 +8,7 @@ import java.util.Scanner;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.internal.matchers.Any;
+import org.spideruci.analysis.trace.io.TraceScanner;
 
 public class TraceIteratorTests {
 

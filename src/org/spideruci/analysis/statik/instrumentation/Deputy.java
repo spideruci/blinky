@@ -43,7 +43,7 @@ public class Deputy {
     exclusionList.add("com/google");
     exclusionList.add("sun");
     exclusionList.add("com/sun");
-//    exclusionList.add("javax/");
+    exclusionList.add("javax/");
     exclusionList.add("org/ietf");
     exclusionList.add("org/jcp");
     exclusionList.add("org/omg");
@@ -70,7 +70,7 @@ public class Deputy {
     inclusionList = new ArrayList<String>();
     inclusionList.add("org/gjt/sp/");
     inclusionList.add("DumpXML");
-    
+    inclusionList.add("org/spideruci/patternabstraction/benckmark");
   }
   
   public static String joinStrings(String[] strings, String sep) {

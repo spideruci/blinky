@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.TraceEvent;
-import org.spideruci.analysis.trace.TraceScanner;
+import org.spideruci.analysis.trace.io.TraceScanner;
 
 import linloglayout.Edge;
 import linloglayout.LinLogLayout;

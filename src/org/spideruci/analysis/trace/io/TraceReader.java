@@ -1,8 +1,11 @@
-package org.spideruci.analysis.trace;
+package org.spideruci.analysis.trace.io;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import org.spideruci.analysis.trace.EventType;
+import org.spideruci.analysis.trace.TraceEvent;
 
 public class TraceReader {
   
