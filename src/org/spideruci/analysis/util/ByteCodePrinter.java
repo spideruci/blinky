@@ -9,13 +9,9 @@ import org.objectweb.asm.util.Textifier;
 
 public class ByteCodePrinter {
 
-  private static final String bytecodePrintPath = 
-      "~/ProgramAnalysis/TestLogs/CollectedClasses/";
-
-
-
-
-
+  public static final String bytecodePrintPath = 
+      System.getProperty("user.dir") + "/BlinkyTestLogs/CollectedClasses/";
+  
   public static void printToFile(String className, byte[] bytes, byte[] iBytes) {
     if(bytes != null) bytes_toFile(bytes, className);
     if(iBytes != null) bytes_toFile(iBytes, className + "2");

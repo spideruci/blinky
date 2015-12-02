@@ -46,7 +46,10 @@ public class EventBuilder {
     insnEvent.setProp(InsnPropNames.OPERAND2, op2);
 
     String instructionLog = insnEvent.getLog();
-    Profiler.REAL_OUT.println(instructionLog);
+    if(Profiler.log) {
+      Profiler.REAL_OUT.println(instructionLog);
+    }
+    
     return String.valueOf(insnId);
   }
 }

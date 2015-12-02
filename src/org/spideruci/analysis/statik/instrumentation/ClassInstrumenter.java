@@ -12,7 +12,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.CheckClassAdapter;
 
-public class SourceLineInstrumenter {
+public class ClassInstrumenter {
   public byte[] instrument(String className, byte[] bytecode, File classFile) {
     ClassReader cr = null;
     if(bytecode == null || bytecode.length == 0) {
@@ -57,7 +57,7 @@ public class SourceLineInstrumenter {
     }
         
     try {
-      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
       SourceLineAdapter sourcelineAdapter = new SourceLineAdapter(cw, className);
       cr.accept(sourcelineAdapter, ClassReader.EXPAND_FRAMES);
       bytecode2 = cw.toByteArray();

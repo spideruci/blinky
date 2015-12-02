@@ -17,8 +17,13 @@ public class Profiler {
   public static boolean logMethodInvoke = false;
   public static boolean logSourceLineNumber = false;
   
+  public static boolean log = true;
+  
   public static final PrintStream REAL_OUT = System.out;
   public static final PrintStream REAL_ERR = System.err;
+  
+  public static String entryMethod = null;
+  public static String entryClass = null;
   
   private static long thread = -1;
   private static int count = 0;
@@ -32,17 +37,18 @@ public class Profiler {
       return;
     }
     
-    if(args.equals("0")) {
-      logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = false;
-      Deputy.checkInclusionList = false;
-      return;
-    }
-    
     System.out.println(args);
     String[] split = args.split(",");
     
     
     String profileConfig = split[0];
+    
+    if(profileConfig.startsWith("0")) {
+      logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = false;
+      log = false;
+      Deputy.checkInclusionList = false;
+      return;
+    }
     
     char[] processedArgs = profileConfig.trim().toLowerCase().toCharArray();
     
@@ -91,6 +97,12 @@ public class Profiler {
       case "whitelist":
         Deputy.checkInclusionList = true;
         break;
+      case "entry-method":
+        entryMethod = arg_value;
+        break;
+      case "entry-class":
+        entryClass = arg_value;
+        break;
        default:
          break;
       }
@@ -124,9 +136,8 @@ public class Profiler {
   synchronized static public void 
   printLnMethodEnterLog(String className, String methodName, String instruction,
       String tag) {
-    if(getUnsetGuardCondition(methodName)) 
-      unsetGuard1();
-    if(methodName.startsWith("main")) {
+    if(getUnsetGuardCondition(className, methodName)) {
+//        || methodName.startsWith("main")) {
       unsetGuard1();
     }
 
@@ -144,7 +155,7 @@ public class Profiler {
       String tag) {
     if($guard1$) return;
     
-    boolean guard = guard();    
+    boolean guard = guard();
     
     if(logMethodExit) {
       handleLog(instruction, tag, EventType.$exit$);
@@ -232,7 +243,13 @@ public class Profiler {
    * current method is defined using mid.MethodName and mid.MethodDescription
    */
   synchronized public static boolean 
-  getUnsetGuardCondition(String methodName) {
+  getUnsetGuardCondition(String ownerName, String methodName) {
+    if(entryMethod != null && entryClass != null) {
+      return methodName.equals(entryMethod) && entryClass.equals(ownerName);
+    } else if(entryMethod != null) {
+      return methodName.equals(entryMethod);
+    }
+    
     boolean regCondition = methodName.equals("main([Ljava/lang/String;)V");
     if(regCondition) {
       REAL_OUT.println(regCondition);
@@ -251,6 +268,12 @@ public class Profiler {
    */
   synchronized public static boolean 
   getSetGuardCondition(String ownerName, String methodName) {
+    if(entryMethod != null && entryClass != null) {
+      return methodName.equals(entryMethod) && entryClass.equals(ownerName);
+    } else if(entryMethod != null) {
+      return methodName.equals(entryMethod);
+    }
+    
     boolean regular = methodName.equals("main([Ljava/lang/String;)V") 
         || methodName.equals("realMain([Ljava/lang/String;)V");
     regular =  (methodName.equals("run()V") &&

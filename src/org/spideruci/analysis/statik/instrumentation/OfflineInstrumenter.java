@@ -101,7 +101,7 @@ public class OfflineInstrumenter {
     String classFullName = classItem.getFullName();
     File inFile = new File(source + classFullName + ".class");
 
-    SourceLineInstrumenter instrumenter = new SourceLineInstrumenter();
+    ClassInstrumenter instrumenter = new ClassInstrumenter();
     byte[] bytecode = instrumenter.instrument(classFullName, null, inFile);
 
     ByteCodeHelper.print(bytecode, 

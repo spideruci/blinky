@@ -1,11 +1,15 @@
 package org.spideruci.analysis.dynamic;
 
+import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
+import static org.spideruci.analysis.dynamic.Profiler.log;
+
+import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
-import org.spideruci.analysis.statik.instrumentation.SourceLineInstrumenter;
+import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.util.ByteCodePrinter;
 import org.spideruci.analysis.util.Constants;
 
@@ -20,20 +24,32 @@ public class Blinksformer implements ClassFileTransformer {
       Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
       byte[] classBytes) throws IllegalClassFormatException {
     byte[] instrumentedBytes = null;
+    
+    File blinkyErrorLogPath = new File(ByteCodePrinter.bytecodePrintPath); 
+    
+    if(!blinkyErrorLogPath.exists() || !blinkyErrorLogPath.isDirectory()) {
+      blinkyErrorLogPath.mkdirs();
+    }
 
     if(!shouldInstrument(className)) {
-      System.err.println("instrumentation skipped for " + className);
+      if (log) {
+        REAL_ERR.println("instrumentation skipped for " + className);
+      }
       return classBytes;
     }
 
     try {
-      SourceLineInstrumenter ins = new SourceLineInstrumenter();
+      ClassInstrumenter ins = new ClassInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
-      System.err.println("instrumentation successful for " + className);
+      if (log) {
+        REAL_ERR.println("instrumentation successful for " + className);
+      }
     } catch(Exception ex) {
       ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
       ex.printStackTrace();
-      System.err.println("instrumentation failed for " + className);
+      if (log) {
+        REAL_ERR.println("instrumentation failed for " + className);
+      }
       instrumentedBytes = classBytes;
     }
 
