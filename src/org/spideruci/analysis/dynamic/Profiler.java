@@ -16,6 +16,10 @@ public class Profiler {
   public static boolean logMethodExit = false;
   public static boolean logMethodInvoke = false;
   public static boolean logSourceLineNumber = false;
+  public static boolean logVar = false;
+  public static boolean logZero = false;
+  public static boolean logJump = false;
+  public static boolean logField = false;
   
   public static boolean log = true;
   
@@ -32,7 +36,14 @@ public class Profiler {
   synchronized static public void initProfiler(String args) {
     
     if(args == null || args.isEmpty()) {
-      logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = true;
+      logMethodEnter = 
+          logMethodExit = 
+          logMethodInvoke = 
+          logSourceLineNumber = 
+          logVar = 
+          logJump = 
+          logZero = 
+          logField = true;
       Deputy.checkInclusionList = false;
       return;
     }
@@ -44,7 +55,14 @@ public class Profiler {
     String profileConfig = split[0];
     
     if(profileConfig.startsWith("0")) {
-      logMethodEnter = logMethodExit = logMethodInvoke = logSourceLineNumber = false;
+      logMethodEnter = 
+          logMethodExit = 
+          logMethodInvoke = 
+          logSourceLineNumber = 
+          logVar =
+          logJump = 
+          logZero = 
+          logField = false;
       log = false;
       Deputy.checkInclusionList = false;
       return;
@@ -77,6 +95,18 @@ public class Profiler {
         continue;
       case 'i': 
         logMethodInvoke = true;
+        continue;
+      case 'v':
+        logVar = true;
+        continue;
+      case 's':
+        logZero = true;
+        continue;
+      case 'j':
+        logJump = true;
+        continue;
+      case 'f':
+        logField = true;
         continue;
       default: continue;
       }
@@ -145,7 +175,7 @@ public class Profiler {
     boolean guard = guard();
     
     if(logMethodEnter) {
-      handleLog(instruction, tag, EventType.$exit$);
+      handleLog(instruction, tag, EventType.$enter$);
     }
     $guard1$ = guard;
   }
@@ -172,6 +202,46 @@ public class Profiler {
     boolean guard = guard();
     if(logMethodInvoke) {
       handleLog(instruction, tag, EventType.$invoke$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String VAR = "printlnVarLog";
+  synchronized static public void printlnVarLog(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logVar) {
+      handleLog(instruction, tag, EventType.$var$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String FIELD = "printlnField";
+  synchronized static public void printlnField(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logField) {
+      handleLog(instruction, tag, EventType.$field$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String ZERO_OP = "printlnZeroOpLog";
+  synchronized static public void printlnZeroOpLog(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logZero) {
+      handleLog(instruction, tag, EventType.$zero$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String JUMP = "printlnJumpLog";
+  synchronized static public void printlnJumpLog(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logJump) {
+      handleLog(instruction, tag, EventType.$jump$);
     }
     reguard(guard);
   }

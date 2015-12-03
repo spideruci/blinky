@@ -8,6 +8,10 @@ public enum EventType {
   $athrow$,
   $return$,
   $invoke$,
+  $var$,
+  $jump$,
+  $field$,
+  $zero$,
   $$class$$,
   $$method$$;
   
@@ -19,6 +23,10 @@ public enum EventType {
     case $athrow$:
     case $enter$:
     case $invoke$:
+    case $var$:
+    case $jump$:
+    case $field$:
+    case $zero$:
     case $line$:
     case $return$:
     case $$$:
@@ -36,6 +44,10 @@ public enum EventType {
     case $athrow$:
     case $enter$:
     case $invoke$:
+    case $var$:
+    case $jump$:
+    case $field$:
+    case $zero$:
     case $line$:
     case $return$:
       return true;

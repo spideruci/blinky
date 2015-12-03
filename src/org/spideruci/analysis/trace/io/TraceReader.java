@@ -37,6 +37,10 @@ public class TraceReader {
       case $enter$:
       case $exit$:
       case $invoke$:
+      case $var$:
+      case $jump$:
+      case $field$:
+      case $zero$:
       case $line$:
       case $return$:
         insnTable.put(event.getId(), event);
