@@ -9,11 +9,6 @@ public class Deputy {
   public static final ArrayList<String> inclusionList;
   public static boolean checkInclusionList = false;
   public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
-  public static final String PROFILER_METHODENTER = "printLnMethodEnterLog";
-  public static final String PROFILER_METHODEXIT = "printLnMethodExitLog";
-  public static final String PROFILER_LINENUMER = "printLnLineNumber";
-  public static final String PROFILER_INVOKE = "printlnInvokeLog";
-  public static final String PROFILER_GETHASH = "getHash";
   
   public static final String STRING_DESC = "Ljava/lang/String;";
   public static final String OBJECT_DESC = "Ljava/lang/Object;";
@@ -24,8 +19,6 @@ public class Deputy {
   public static final String BYTE_TYPEDESC = "B";
   public static final String DOUBLE_TYPEDESC = "D";
   public static final String LONG_TYPEDESC = "J";
-    
-  public static final String PROFILER_GETHASH_DESC = "(" + OBJECT_DESC + ")" + STRING_DESC;
   
   static {
     exclusionList = new ArrayList<String>();

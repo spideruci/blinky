@@ -11,6 +11,7 @@ public enum EventType {
   $var$,
   $jump$,
   $field$,
+  $iinc$,
   $zero$,
   $$class$$,
   $$method$$;
@@ -26,6 +27,7 @@ public enum EventType {
     case $var$:
     case $jump$:
     case $field$:
+    case $iinc$:
     case $zero$:
     case $line$:
     case $return$:
@@ -47,6 +49,7 @@ public enum EventType {
     case $var$:
     case $jump$:
     case $field$:
+    case $iinc$:
     case $zero$:
     case $line$:
     case $return$:

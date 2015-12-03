@@ -163,6 +163,7 @@ public class Profiler {
     return guard;
   }
   
+  public static final String PROFILER_METHODENTER = "printLnMethodEnterLog";
   synchronized static public void 
   printLnMethodEnterLog(String className, String methodName, String instruction,
       String tag) {
@@ -179,7 +180,8 @@ public class Profiler {
     }
     $guard1$ = guard;
   }
-
+  
+  public static final String METHODEXIT = "printLnMethodExitLog";
   synchronized static public void 
   printLnMethodExitLog(String className, String methodName, String instruction, 
       String tag) {
@@ -197,6 +199,7 @@ public class Profiler {
     }
   }
   
+  public static final String INVOKE = "printlnInvokeLog";
   synchronized static public void printlnInvokeLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
@@ -246,6 +249,17 @@ public class Profiler {
     reguard(guard);
   }
   
+  public static final String IINC = "printlnIinc";
+  synchronized static public void printlnIinc(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logVar) {
+      handleLog(instruction, tag, EventType.$iinc$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String LINENUMER = "printLnLineNumber";
   synchronized static public void printLnLineNumber(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
@@ -284,7 +298,8 @@ public class Profiler {
     time = System.currentTimeMillis();
   }
   
-  
+  public static final String GETHASH = "getHash";
+  public static final String GETHASH_DESC = "(" + Deputy.OBJECT_DESC + ")" + Deputy.STRING_DESC;
   synchronized static public 
   String getHash(Object obj) {
     return String.valueOf(System.identityHashCode(obj));

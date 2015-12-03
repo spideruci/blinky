@@ -40,6 +40,7 @@ public class TraceReader {
       case $var$:
       case $jump$:
       case $field$:
+      case $iinc$:
       case $zero$:
       case $line$:
       case $return$:

@@ -39,7 +39,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     .passArg(methodDecl.getDeclName())
     .passArg(instructionLog)
     .passThis(methodDecl.getDeclAccess())
-    .build(Deputy.PROFILER_METHODENTER);
+    .build(Profiler.PROFILER_METHODENTER);
     
     Profiler.latestLineNumber = lineNum;
     shouldInstrument = true;
@@ -58,7 +58,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     .passArg(methodDecl.getDeclName())
     .passArg(instructionLog)
     .passThis(methodDecl.getDeclAccess())
-    .build(Deputy.PROFILER_METHODEXIT);
+    .build(Profiler.METHODEXIT);
     
     Profiler.latestLineNumber = lineNum;
   }
@@ -79,7 +79,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     ProfilerCallBack.start(mv)
     .passArg(instructionLog)
     .passThis(methodDecl.getDeclAccess())
-    .build(Deputy.PROFILER_LINENUMER);
+    .build(Profiler.LINENUMER);
   }
   
   @SuppressWarnings("deprecation")
@@ -98,7 +98,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     ProfilerCallBack.start(mv)
     .passArg(instructionLog)
     .passThis(methodDecl.getDeclAccess())
-    .build(Deputy.PROFILER_INVOKE);
+    .build(Profiler.INVOKE);
 
     Profiler.latestLineNumber = lineNum;
     super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
@@ -183,6 +183,66 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     
     Profiler.latestLineNumber = lineNum;
     super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
+  }
+  
+  @Override
+  public void visitIincInsn(int var, int increment) {
+    if(shouldInstrument) {
+      int lineNum = Profiler.latestLineNumber;
+      String instructionLog = buildInstructionLog(lineNum, EventType.$iinc$, 
+          Opcodes.IINC, methodDecl.getId(), String.valueOf(increment));
+      
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.IINC);
+      
+      Profiler.latestLineNumber = lineNum;
+    }
+    
+    super.visitIincInsn(var, increment);
+  }
+  
+  @Override
+  public void visitIntInsn(int opcode, int operand) {
+    super.visitIntInsn(opcode, operand);
+  }
+  
+  @Override
+  public void visitTypeInsn(int opcode, String type) {
+    super.visitTypeInsn(opcode, type);
+  }
+  
+  @Override
+  public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+    super.visitLookupSwitchInsn(dflt, keys, labels);
+  }
+  
+  @Override
+  public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+    super.visitTableSwitchInsn(min, max, dflt, labels);
+  }
+  
+  @Override
+  public void visitLdcInsn(Object cst) {
+    super.visitLdcInsn(cst);
+  }
+  
+  @Override
+  public void visitMultiANewArrayInsn(String desc, int dims) {
+    super.visitMultiANewArrayInsn(desc, dims);
+  }
+  
+  @Override
+  public void visitTryCatchBlock(Label start, Label end, 
+      Label handler, String type) {
+    super.visitTryCatchBlock(start, end, handler, type);
+  }
+  
+  @Override
+  public void visitLocalVariable(String name, String desc, String signature, 
+      Label start, Label end, int index) {
+    super.visitLocalVariable(name, desc, signature, start, end, index);
   }
   
   @Override

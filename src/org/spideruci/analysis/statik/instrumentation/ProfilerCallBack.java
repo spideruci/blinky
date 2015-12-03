@@ -2,6 +2,7 @@ package org.spideruci.analysis.statik.instrumentation;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.spideruci.analysis.dynamic.Profiler;
 
 /**
  * This class presents an abstraction to create bytecode instruction sequences
@@ -42,8 +43,8 @@ public class ProfilerCallBack {
       mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
       mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
                          Deputy.PROFILER_NAME, 
-                         Deputy.PROFILER_GETHASH, 
-                         Deputy.PROFILER_GETHASH_DESC);
+                         Profiler.GETHASH, 
+                         Profiler.GETHASH_DESC);
     }
     this.callbackDesc.append(Deputy.STRING_DESC);
     return this;
