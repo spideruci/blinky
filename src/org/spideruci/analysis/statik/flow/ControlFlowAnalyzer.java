@@ -38,7 +38,7 @@ public class ControlFlowAnalyzer
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static Graph getCFG(String owner, MethodNode mn) throws AnalyzerException {
 
-    Analyzer a = new Analyzer(new BasicInterpreter()) {
+    Analyzer analyzer = new Analyzer(new BasicInterpreter()) {
 
       protected Frame newFrame(int nLocals, int nStack) {
         return new ByteNode<BasicValue>(nLocals, nStack);
@@ -73,9 +73,9 @@ public class ControlFlowAnalyzer
       }
     };
 
-    a.analyze(owner, mn);
+    analyzer.analyze(owner, mn);
     AbstractInsnNode[] insnArray = mn.instructions.toArray();
-    Frame[] byte_nodes = a.getFrames();
+    Frame[] byte_nodes = analyzer.getFrames();
     checkState(insnArray.length == byte_nodes.length);
 
     Graph control_flow_graph = Graph.create(); //new Graph();
