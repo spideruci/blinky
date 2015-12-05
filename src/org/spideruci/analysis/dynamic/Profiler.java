@@ -233,11 +233,12 @@ public class Profiler {
   }
   
   public static final String ZERO_OP = "printlnZeroOpLog";
-  synchronized static public void printlnZeroOpLog(String instruction, String tag) {
+  synchronized static public void printlnZeroOpLog(
+      String instruction, String tag, EventType type) {
     if($guard1$) return;
     boolean guard = guard();
     if(logZero) {
-      handleLog(instruction, tag, EventType.$zero$);
+      handleLog(instruction, tag, type);
     }
     reguard(guard);
   }

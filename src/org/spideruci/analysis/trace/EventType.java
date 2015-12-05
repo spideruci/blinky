@@ -1,63 +1,47 @@
 package org.spideruci.analysis.trace;
 
 public enum EventType {
-  $$$,
-  $enter$,
-  $exit$,
-  $line$,
-  $athrow$,
-  $return$,
-  $invoke$,
-  $var$,
-  $jump$,
-  $field$,
-  $iinc$,
-  $zero$,
-  $$class$$,
-  $$method$$;
+  $$$ (1),
+  
+  $enter$ (2),
+  $exit$ (2),
+  $line$ (2),
+  $athrow$ (2),
+  $return$ (2),
+  $invoke$ (2),
+  $var$ (2),
+  $jump$ (2),
+  $field$ (2),
+  $iinc$ (2),
+  $zero$ (2),
+  $constant$ (2),
+  $arrayload$ (2),
+  $arraystore$ (2),
+  $math$ (2),
+  $stack$ (2),
+  $type$ (2),
+  $compare$ (2),
+  $arraylen$ (2),
+  $monitor$ (2),
+  
+  $$class$$ (4),
+  $$method$$ (4);
+  
+  private final int kind;
+  
+  EventType(final int kind) {
+    this.kind = kind;
+  }
   
   public boolean isDecl() {
-    switch(this) {
-    case $$class$$:
-    case $$method$$:
-      return true;
-    case $athrow$:
-    case $enter$:
-    case $invoke$:
-    case $var$:
-    case $jump$:
-    case $field$:
-    case $iinc$:
-    case $zero$:
-    case $line$:
-    case $return$:
-    case $$$:
-      return false;
-    default:
-      throw new UnsupportedOperationException();
-    }
+    return (kind & 4) == 4;
   }
 
   public boolean isInsn() {
-    switch(this) {
-    case $$class$$:
-    case $$method$$:
-      return false;
-    case $athrow$:
-    case $enter$:
-    case $invoke$:
-    case $var$:
-    case $jump$:
-    case $field$:
-    case $iinc$:
-    case $zero$:
-    case $line$:
-    case $return$:
-      return true;
-    case $$$:
-      return false;
-    default:
-      throw new UnsupportedOperationException();
-    }
+    return (kind & 2) == 2;
+  }
+  
+  public boolean isExec() {
+    return (kind & 1) == 1;
   }
 }

@@ -12,6 +12,7 @@ public class Deputy {
   
   public static final String STRING_DESC = "Ljava/lang/String;";
   public static final String OBJECT_DESC = "Ljava/lang/Object;";
+  public static final String EVENT_TYPE_DESC = "Lorg/spideruci/analysis/trace/EventType;";
   public static final String INT_TYPEDESC = "I";
   public static final String FLOAT_TYPEDESC = "F";
   public static final String CHAR_TYPEDESC = "C";

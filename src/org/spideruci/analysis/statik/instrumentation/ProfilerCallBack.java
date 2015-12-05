@@ -3,6 +3,7 @@ package org.spideruci.analysis.statik.instrumentation;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.trace.EventType;
 
 /**
  * This class presents an abstraction to create bytecode instruction sequences
@@ -30,6 +31,12 @@ public class ProfilerCallBack {
   public ProfilerCallBack passArg(String arg) {
     this.mv.visitLdcInsn(arg);
     this.callbackDesc.append(Deputy.STRING_DESC);
+    return this;
+  }
+  
+  public ProfilerCallBack passArg(EventType type) {
+    this.mv.visitLdcInsn(type);
+    this.callbackDesc.append(Deputy.EVENT_TYPE_DESC);
     return this;
   }
   

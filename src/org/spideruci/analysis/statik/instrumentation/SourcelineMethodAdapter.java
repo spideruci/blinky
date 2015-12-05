@@ -65,131 +65,123 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitLineNumber(int line, Label start) {
-    Profiler.latestLineNumber = line;
-    
-    if(!shouldInstrument) {
-      super.visitLineNumber(line, start); //make the actual call.
-      return;
-    }
-    
     super.visitLineNumber(line, start); //make the actual call.
-    String instructionLog =
-        buildInstructionLog(line, EventType.$line$, -1, methodDecl.getId());
     
-    ProfilerCallBack.start(mv)
-    .passArg(instructionLog)
-    .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.LINENUMER);
+    if(shouldInstrument && Profiler.logSourceLineNumber) {
+      Profiler.latestLineNumber = line;
+      
+      String instructionLog =
+          buildInstructionLog(line, EventType.$line$, -1, methodDecl.getId());
+      
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.LINENUMER);
+    }
   }
   
   @SuppressWarnings("deprecation")
   @Override
   public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-    int lineNum = Profiler.latestLineNumber;
-    if(!(shouldInstrument && Profiler.logMethodInvoke)) {
-      super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
-      return;
+    if(shouldInstrument && Profiler.logMethodInvoke) {
+      final int lineNum = Profiler.latestLineNumber;
+      
+      String methodName = owner + "/" + name + desc;
+      String instructionLog = buildInstructionLog(lineNum, EventType.$invoke$, 
+          opcode, methodDecl.getId(), methodName);
+      
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.INVOKE);
+      
+      Profiler.latestLineNumber = lineNum;
     }
-    
-    String methodName = owner + "/" + name + desc;
-    String instructionLog = buildInstructionLog(lineNum, EventType.$invoke$, 
-        opcode, methodDecl.getId(), methodName);
-    
-    ProfilerCallBack.start(mv)
-    .passArg(instructionLog)
-    .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.INVOKE);
 
-    Profiler.latestLineNumber = lineNum;
     super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
   }
   
   @Override
   public void visitVarInsn(int opcode, int operand) {
-    int lineNum = Profiler.latestLineNumber;
-    if(!(shouldInstrument && Profiler.logVar)) {
-      super.visitVarInsn(opcode, operand); //make the actual call.
-      return;
+    if(shouldInstrument && Profiler.logVar) {
+      final int lineNum = Profiler.latestLineNumber;
+      
+      String instructionLog = buildInstructionLog(lineNum, EventType.$var$, 
+          opcode, methodDecl.getId(), String.valueOf(operand));
+
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.VAR);
+
+      Profiler.latestLineNumber = lineNum;
     }
-    
-    String instructionLog = buildInstructionLog(lineNum, EventType.$var$, 
-        opcode, methodDecl.getId(), String.valueOf(operand));
-    
-    ProfilerCallBack.start(mv)
-    .passArg(instructionLog)
-    .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.VAR);
-    
-    Profiler.latestLineNumber = lineNum;
     super.visitVarInsn(opcode, operand); //make the actual call.
   }
   
   @Override
   public void visitInsn(int opcode) {
-    int lineNum = Profiler.latestLineNumber;
-    if(!(shouldInstrument && Profiler.logZero)) {
-      super.visitInsn(opcode); //make the actual call.
-      return;
+    if(shouldInstrument && Profiler.logZero) {
+      final int lineNum = Profiler.latestLineNumber;
+      
+      String instructionLog = buildInstructionLog(lineNum, EventType.$zero$, 
+          opcode, methodDecl.getId());
+
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.ZERO_OP);
+
+      Profiler.latestLineNumber = lineNum;
     }
     
-    String instructionLog = buildInstructionLog(lineNum, EventType.$zero$, 
-        opcode, methodDecl.getId());
-    
-    ProfilerCallBack.start(mv)
-    .passArg(instructionLog)
-    .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.ZERO_OP);
-    
-    Profiler.latestLineNumber = lineNum;
     super.visitInsn(opcode); //make the actual call.
   }
   
   @Override
   public void visitJumpInsn(int opcode, Label label) {
-    if(!(shouldInstrument && Profiler.logJump)) {
-      super.visitJumpInsn(opcode, label); //make the actual call.
-      return;
+    if(shouldInstrument && Profiler.logJump) {
+      final int lineNum = Profiler.latestLineNumber;
+      
+      String instructionLog = buildInstructionLog(lineNum, EventType.$jump$, 
+          opcode, methodDecl.getId());
+      
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.JUMP);
+      
+      Profiler.latestLineNumber = lineNum;
     }
     
-    int lineNum = Profiler.latestLineNumber;
-    
-    String instructionLog = buildInstructionLog(lineNum, EventType.$jump$, 
-        opcode, methodDecl.getId());
-    
-    ProfilerCallBack.start(mv)
-    .passArg(instructionLog)
-    .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.JUMP);
-    
-    Profiler.latestLineNumber = lineNum;
     super.visitJumpInsn(opcode, label); //make the actual call.
   }
   
   @Override
   public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-    int lineNum = Profiler.latestLineNumber;
-    if(!(shouldInstrument && Profiler.logField)) {
-      super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
-      return;
+    if(shouldInstrument && Profiler.logField) {
+      final int lineNum = Profiler.latestLineNumber;
+      
+      String fieldName = owner + "/" + name + desc;
+      String instructionLog = buildInstructionLog(lineNum, EventType.$field$, 
+          opcode, methodDecl.getId(), fieldName);
+
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.FIELD);
+
+      Profiler.latestLineNumber = lineNum;
     }
     
-    String fieldName = owner + "/" + name + desc;
-    String instructionLog = buildInstructionLog(lineNum, EventType.$field$, 
-        opcode, methodDecl.getId(), fieldName);
-    
-    ProfilerCallBack.start(mv)
-    .passArg(instructionLog)
-    .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.FIELD);
-    
-    Profiler.latestLineNumber = lineNum;
     super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
   }
   
   @Override
   public void visitIincInsn(int var, int increment) {
     if(shouldInstrument && Profiler.logVar) {
-      int lineNum = Profiler.latestLineNumber;
+      final int lineNum = Profiler.latestLineNumber;
+      
       String instructionLog = buildInstructionLog(lineNum, EventType.$iinc$, 
           Opcodes.IINC, methodDecl.getId(), String.valueOf(increment));
       

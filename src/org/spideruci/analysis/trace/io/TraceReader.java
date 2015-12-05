@@ -25,30 +25,24 @@ public class TraceReader {
     TraceEvent event = null;
     while(traceIterator.hasNext()) {
       event = traceIterator.next();
-      switch(event.getType()) {
-      case $$$:
+      EventType type = event.getType();
+      
+      if(type == EventType.$$$) {
         currentEvent = event;
         return event;
-      case $$class$$:
-      case $$method$$:
+      }
+      
+      if(type.isDecl()) {
         methodDeclTable.put(event.getId(), event);
         continue;
-      case $athrow$:
-      case $enter$:
-      case $exit$:
-      case $invoke$:
-      case $var$:
-      case $jump$:
-      case $field$:
-      case $iinc$:
-      case $zero$:
-      case $line$:
-      case $return$:
+      }
+      
+      if(type.isInsn()) {
         insnTable.put(event.getId(), event);
         continue;
-      default:
-        throw new RuntimeException("Unhandled Event Type: " + event.getType());
       }
+      
+      throw new RuntimeException("Unhandled Event Type: " + event.getType());
     }
     return null;
   }
