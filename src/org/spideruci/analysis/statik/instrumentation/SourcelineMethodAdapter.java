@@ -86,7 +86,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   @Override
   public void visitMethodInsn(int opcode, String owner, String name, String desc) {
     int lineNum = Profiler.latestLineNumber;
-    if(!shouldInstrument) {
+    if(!(shouldInstrument && Profiler.logMethodInvoke)) {
       super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
       return;
     }
@@ -107,7 +107,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   @Override
   public void visitVarInsn(int opcode, int operand) {
     int lineNum = Profiler.latestLineNumber;
-    if(!shouldInstrument) {
+    if(!(shouldInstrument && Profiler.logVar)) {
       super.visitVarInsn(opcode, operand); //make the actual call.
       return;
     }
@@ -127,7 +127,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   @Override
   public void visitInsn(int opcode) {
     int lineNum = Profiler.latestLineNumber;
-    if(!shouldInstrument) {
+    if(!(shouldInstrument && Profiler.logZero)) {
       super.visitInsn(opcode); //make the actual call.
       return;
     }
@@ -146,11 +146,12 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitJumpInsn(int opcode, Label label) {
-    int lineNum = Profiler.latestLineNumber;
-    if(!shouldInstrument) {
+    if(!(shouldInstrument && Profiler.logJump)) {
       super.visitJumpInsn(opcode, label); //make the actual call.
       return;
     }
+    
+    int lineNum = Profiler.latestLineNumber;
     
     String instructionLog = buildInstructionLog(lineNum, EventType.$jump$, 
         opcode, methodDecl.getId());
@@ -167,7 +168,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   @Override
   public void visitFieldInsn(int opcode, String owner, String name, String desc) {
     int lineNum = Profiler.latestLineNumber;
-    if(!shouldInstrument) {
+    if(!(shouldInstrument && Profiler.logField)) {
       super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
       return;
     }
@@ -187,7 +188,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitIincInsn(int var, int increment) {
-    if(shouldInstrument) {
+    if(shouldInstrument && Profiler.logVar) {
       int lineNum = Profiler.latestLineNumber;
       String instructionLog = buildInstructionLog(lineNum, EventType.$iinc$, 
           Opcodes.IINC, methodDecl.getId(), String.valueOf(increment));

@@ -2,6 +2,7 @@ package org.spideruci.analysis.dynamic;
 
 import java.io.PrintStream;
 
+import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.statik.instrumentation.Deputy;
 import org.spideruci.analysis.trace.EventBuilder;
 import org.spideruci.analysis.trace.EventType;
@@ -112,7 +113,7 @@ public class Profiler {
       }
     }
     displayBits(bits);
-    
+
     for(int count = 1; count < split.length; count += 1) {
       String arg = split[count]; 
       if(arg == null || arg.length() == 0) {
@@ -133,6 +134,8 @@ public class Profiler {
       case "entry-class":
         entryClass = arg_value;
         break;
+      case "frames":
+        ClassInstrumenter.FRAMES = true;
        default:
          break;
       }
