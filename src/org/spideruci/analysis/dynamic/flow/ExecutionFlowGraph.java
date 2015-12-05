@@ -1,4 +1,4 @@
-package org.spideruci.analysis.dynamic.cfg;
+package org.spideruci.analysis.dynamic.flow;
 
 import java.util.ArrayList;
 import java.util.HashMap;

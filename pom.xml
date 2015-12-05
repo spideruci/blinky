@@ -52,6 +52,11 @@
 			<artifactId>linloglayout</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.spideruci.analysis.util</groupId>
+			<artifactId>caryatid</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 
@@ -72,21 +77,10 @@
 			</build>
 		</profile>
 
-<!-- 		<profile>
-			<id>methodinvokescanner</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.4.0</version>
-						<configuration>
-							<mainClass>org.spideruci.analysis.trace.MethodInvokeScanner</mainClass>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile> -->
+		<!-- <profile> <id>methodinvokescanner</id> <build> <plugins> <plugin> 
+			<groupId>org.codehaus.mojo</groupId> <artifactId>exec-maven-plugin</artifactId> 
+			<version>1.4.0</version> <configuration> <mainClass>org.spideruci.analysis.trace.MethodInvokeScanner</mainClass> 
+			</configuration> </plugin> </plugins> </build> </profile> -->
 
 		<profile>
 			<id>tracescanner</id>
