@@ -7,6 +7,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.statik.instrumentation.zerooperand.ZeroOperandSwitcher;
+import org.spideruci.analysis.statik.instrumentation.zerooperand.ZeroOperandSwitchListerner;
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.TraceEvent;
 
@@ -124,13 +126,10 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     if(shouldInstrument && Profiler.logZero) {
       final int lineNum = Profiler.latestLineNumber;
       
-      String instructionLog = buildInstructionLog(lineNum, EventType.$zero$, 
-          opcode, methodDecl.getId());
-
-      ProfilerCallBack.start(mv)
-      .passArg(instructionLog)
-      .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.ZERO_OP);
+      ZeroOperandSwitchListerner listerner = 
+          ZeroOperandSwitchListerner.create(mv, lineNum, methodDecl);
+      ZeroOperandSwitcher switcher = new ZeroOperandSwitcher(listerner);
+      switcher.svitch(opcode);
 
       Profiler.latestLineNumber = lineNum;
     }

@@ -81,15 +81,15 @@ public class ZeroOperandSwitchListerner {
   }
 
   public void onArraylength(final int opcode) {
-    
+    onZeroOperandEvent(opcode, EventType.$arraylen$);
   }
 
   public void onAthrow(final int opcode) {
-    
+    onZeroOperandEvent(opcode, EventType.$athrow$);
   }
 
   public void onMonitor(final int opcode) {
-    
+    onZeroOperandEvent(opcode, EventType.$monitor$);
   }
 
     private void onZeroOperandEvent(final int opcode, final EventType eventType) {
@@ -99,7 +99,7 @@ public class ZeroOperandSwitchListerner {
       ProfilerCallBack.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .passArg(eventType)
+      .passArg(eventType.toString())
       .build(Profiler.ZERO_OP);
     }
 

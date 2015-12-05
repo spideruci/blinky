@@ -100,7 +100,7 @@ public class Profiler {
       case 'v':
         logVar = true;
         continue;
-      case 's':
+      case 'z':
         logZero = true;
         continue;
       case 'j':
@@ -234,11 +234,11 @@ public class Profiler {
   
   public static final String ZERO_OP = "printlnZeroOpLog";
   synchronized static public void printlnZeroOpLog(
-      String instruction, String tag, EventType type) {
+      String instruction, String tag, String type) {
     if($guard1$) return;
     boolean guard = guard();
     if(logZero) {
-      handleLog(instruction, tag, type);
+      handleLog(instruction, tag, EventType.valueOf(type));
     }
     reguard(guard);
   }

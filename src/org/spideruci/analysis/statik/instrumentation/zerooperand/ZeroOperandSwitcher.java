@@ -2,15 +2,15 @@ package org.spideruci.analysis.statik.instrumentation.zerooperand;
 
 import org.objectweb.asm.Opcodes;
 
-public class ZeroOperandSwitch implements Opcodes {
+public class ZeroOperandSwitcher implements Opcodes {
 
   private final ZeroOperandSwitchListerner listener;
 
-  public ZeroOperandSwitch(ZeroOperandSwitchListerner listerner) {
+  public ZeroOperandSwitcher(ZeroOperandSwitchListerner listerner) {
     this.listener = listerner;
   }
 
-  public void swtich(final int opcode) {
+  public void svitch(final int opcode) {
     switch(opcode) {
     case NOP:
       return;
