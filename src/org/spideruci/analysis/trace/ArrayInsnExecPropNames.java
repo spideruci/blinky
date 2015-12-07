@@ -1,0 +1,15 @@
+package org.spideruci.analysis.trace;
+
+public enum ArrayInsnExecPropNames {
+  THREAD_ID,
+  TIMESTAMP,
+  DYN_HOST_ID,
+  INSN_EVENT_ID,
+  INSN_EVENT_TYPE,
+  ARRAYREF_ID,
+  ELEMENT_INDEX,
+  ARRAY_ELEMENT,
+  ARRAY_LENGTH;
+  
+  public static final ArrayInsnExecPropNames[] values = ArrayInsnExecPropNames.values();
+}

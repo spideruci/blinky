@@ -2,6 +2,8 @@ package org.spideruci.analysis.statik.instrumentation;
 
 import static org.spideruci.analysis.trace.EventBuilder.*;
 
+import java.rmi.UnexpectedException;
+
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -197,33 +199,106 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitIntInsn(int opcode, int operand) {
+    switch(opcode) {
+    case BIPUSH:
+    case SIPUSH:
+      onConstantInsn(opcode, String.valueOf(operand));
+      break;
+    case NEWARRAY:
+      onTypeInsn(opcode, Deputy.primitiveCode2String(operand));
+      break;
+    default:
+      throw new RuntimeException("unexpected opcode: " + opcode);
+    }
+    
     super.visitIntInsn(opcode, operand);
   }
   
   @Override
+  public void visitLdcInsn(Object cst) {
+    
+    String metadata;
+    if(cst instanceof Long || cst instanceof Double) {
+      metadata = Deputy.LDC_16;
+    } else {
+      metadata = Deputy.LDC_8;
+    }
+    
+    onConstantInsn(Opcodes.LDC, metadata);
+    super.visitLdcInsn(cst);
+  }
+  
+    private void onConstantInsn(int opcode, String value) {
+      if(shouldInstrument && Profiler.logConstant) {
+        final int lineNum = Profiler.latestLineNumber;
+        
+        String instructionLog = buildInstructionLog(lineNum, EventType.$constant$, 
+            opcode, methodDecl.getId(), value);
+        
+        ProfilerCallBack.start(mv)
+        .passArg(instructionLog)
+        .passThis(methodDecl.getDeclAccess())
+        .build(Profiler.CONSTANT);
+        
+        Profiler.latestLineNumber = lineNum;
+      }
+    }
+  
+  @Override
   public void visitTypeInsn(int opcode, String type) {
+    onTypeInsn(opcode, type);
     super.visitTypeInsn(opcode, type);
   }
   
   @Override
+  public void visitMultiANewArrayInsn(String desc, int dims) {
+    onTypeInsn(Opcodes.MULTIANEWARRAY, desc);
+    super.visitMultiANewArrayInsn(desc, dims);
+  }
+  
+    private void onTypeInsn(int opcode, String type) {
+      if(shouldInstrument && Profiler.logType) {
+        final int lineNum = Profiler.latestLineNumber;
+        
+        String instructionLog = buildInstructionLog(lineNum, EventType.$type$, 
+            opcode, methodDecl.getId(), type);
+        
+        ProfilerCallBack.start(mv)
+        .passArg(instructionLog)
+        .passThis(methodDecl.getDeclAccess())
+        .build(Profiler.TYPE);
+        
+        Profiler.latestLineNumber = lineNum;
+      }
+    }
+  
+  @Override
   public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+    onSwtich(Opcodes.LOOKUPSWITCH);
     super.visitLookupSwitchInsn(dflt, keys, labels);
   }
   
   @Override
   public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+    onSwtich(Opcodes.TABLESWITCH);
     super.visitTableSwitchInsn(min, max, dflt, labels);
   }
   
-  @Override
-  public void visitLdcInsn(Object cst) {
-    super.visitLdcInsn(cst);
-  }
-  
-  @Override
-  public void visitMultiANewArrayInsn(String desc, int dims) {
-    super.visitMultiANewArrayInsn(desc, dims);
-  }
+    private void onSwtich(int opcode) {
+      if(shouldInstrument && Profiler.logSwitch) {
+        final int lineNum = Profiler.latestLineNumber;
+        
+        String instructionLog = buildInstructionLog(lineNum, EventType.$switch$, 
+            opcode, methodDecl.getId());
+        
+        ProfilerCallBack.start(mv)
+        .passArg(instructionLog)
+        .passThis(methodDecl.getDeclAccess())
+        .build(Profiler.TYPE);
+        
+        Profiler.latestLineNumber = lineNum;
+      }
+    }
   
   @Override
   public void visitTryCatchBlock(Label start, Label end, 

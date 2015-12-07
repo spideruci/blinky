@@ -23,6 +23,7 @@ public enum EventType {
   $compare$ (2),
   $arraylen$ (2),
   $monitor$ (2),
+  $switch$ (2),
   
   $$class$$ (4),
   $$method$$ (4);

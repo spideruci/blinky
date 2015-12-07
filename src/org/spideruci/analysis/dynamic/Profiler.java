@@ -1,6 +1,7 @@
 package org.spideruci.analysis.dynamic;
 
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 
 import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.statik.instrumentation.Deputy;
@@ -21,6 +22,9 @@ public class Profiler {
   public static boolean logZero = false;
   public static boolean logJump = false;
   public static boolean logField = false;
+  public static boolean logConstant = false;
+  public static boolean logType = false;
+  public static boolean logSwitch = false;
   
   public static boolean log = true;
   
@@ -33,18 +37,26 @@ public class Profiler {
   private static long thread = -1;
   private static int count = 0;
   private static long time = 0;
+  
+  synchronized static private void setLogFlags(final boolean value) {
+    logMethodEnter = 
+        logMethodExit = 
+        logMethodInvoke = 
+        logSourceLineNumber = 
+        logVar = 
+        logJump = 
+        logZero = 
+        logConstant = 
+        logField = 
+        logType = 
+        logSwitch = 
+        log = value;
+  }
 
   synchronized static public void initProfiler(String args) {
     
     if(args == null || args.isEmpty()) {
-      logMethodEnter = 
-          logMethodExit = 
-          logMethodInvoke = 
-          logSourceLineNumber = 
-          logVar = 
-          logJump = 
-          logZero = 
-          logField = true;
+      setLogFlags(true);
       Deputy.checkInclusionList = false;
       return;
     }
@@ -56,17 +68,14 @@ public class Profiler {
     String profileConfig = split[0];
     
     if(profileConfig.startsWith("0")) {
-      logMethodEnter = 
-          logMethodExit = 
-          logMethodInvoke = 
-          logSourceLineNumber = 
-          logVar =
-          logJump = 
-          logZero = 
-          logField = false;
-      log = false;
+      setLogFlags(false);
       Deputy.checkInclusionList = false;
       return;
+    }
+    
+    if(profileConfig.equals("A")) {
+      setLogFlags(true);
+      profileConfig = "";
     }
     
     char[] processedArgs = profileConfig.trim().toLowerCase().toCharArray();
@@ -108,6 +117,15 @@ public class Profiler {
         continue;
       case 'f':
         logField = true;
+        continue;
+      case 'c':
+        logConstant = true;
+        continue;
+      case 't':
+        logType = true;
+        continue;
+      case 's':
+        logType = true;
         continue;
       default: continue;
       }
@@ -239,6 +257,74 @@ public class Profiler {
     boolean guard = guard();
     if(logZero) {
       handleLog(instruction, tag, EventType.valueOf(type));
+    }
+    reguard(guard);
+  }
+  
+  public static final String CONSTANT = "printlnConstantLog";
+  synchronized static public void printlnConstantLog(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logConstant) {
+      handleLog(instruction, tag, EventType.$constant$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String TYPE = "printlnTypeLog";
+  synchronized static public void printlnTypeLog(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logType) {
+      handleLog(instruction, tag, EventType.$type$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String SWITCH = "printlnSwtichLog";
+  synchronized static public void printlnSwitchLog(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logSwitch) {
+      handleLog(instruction, tag, EventType.$switch$);
+    }
+    reguard(guard);
+  }  
+  
+  public static final String ARRAY = "printlnArrayLog";
+  synchronized static public void printlnArrayLog(Object arrayref, int index,
+      String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logZero) {
+      
+      Object element = Array.get(arrayref, index);
+      int length = Array.getLength(arrayref);
+      REAL_OUT.println("arraylength: " + length);
+      String elementId;
+      
+      String arrayType = arrayref.getClass().getName();
+      if(arrayType.length() == 2) {
+        elementId = String.valueOf(element);
+      } else {
+        elementId = String.valueOf(System.identityHashCode(element));
+      }
+      
+      handleArrayLog(instruction, tag, EventType.$arrayload$,
+          System.identityHashCode(arrayref), index, elementId, length);
+    }
+    reguard(guard);
+  }
+  
+  synchronized static public void printlnArrayLog(Object arrayref, int index,
+      String elementId, String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logZero) {
+      int length = Array.getLength(arrayref);
+      REAL_OUT.println("arraylength: " + length);
+      handleArrayLog(instruction, tag, EventType.$arraystore$,
+          System.identityHashCode(arrayref), index, elementId, length);
     }
     reguard(guard);
   }
@@ -378,6 +464,16 @@ public class Profiler {
       long time = System.currentTimeMillis() - Profiler.time;
       TraceEvent event = EventBuilder.buildInsnExecEvent(++count, 
           threadId, tag, insnId, insnType, time);
+      REAL_OUT.println(event.getLog());
+    }
+    
+    synchronized static private void handleArrayLog(String insnId, String tag,
+        EventType insnType, int arrayrefId, int index, String elementId, int length) {
+      
+      long threadId = Thread.currentThread().getId();
+      long time = System.currentTimeMillis() - Profiler.time;
+      TraceEvent event = EventBuilder.buildArrayInsnExecEvent(++count, threadId, 
+          tag, insnId, insnType, time, arrayrefId, index, elementId, length);
       REAL_OUT.println(event.getLog());
     }
 }

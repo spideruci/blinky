@@ -17,12 +17,15 @@ public class TraceEvent {
   private final String[] propValues;
   private final Enum[] propNames;
   
+  public static TraceEvent createArrayInsnExecEvent(int id) {
+    return new TraceEvent(id, EventType.$$$, ArrayInsnExecPropNames.values);
+  }
+  
   /**
    * Creates a trace event that can store properties for the 
    * execution of a static instruction, and its properties are specified
    * with {@link InsnExecPropNames}.
    * @param id Unique id for the event.
-   * @param type The type of this event (can be null).
    * @return
    */
   public static TraceEvent createInsnExecEvent(int id) {
@@ -67,7 +70,7 @@ public class TraceEvent {
     }
     
     final int offset = 2;
-    MyAssert.assertThat(event.getPropCount() == (split.length  - offset), 
+    MyAssert.assertThat(event.getPropCount() <= (split.length  - offset), 
         String.valueOf(split.length));
     
     for(int i = offset; i < split.length; i += 1) {
@@ -81,6 +84,7 @@ public class TraceEvent {
     if(propNames == null || propNames.length <= 0) {
       throw new UnsupportedOperationException();
     }
+    
     this.id = id;
     this.type = type;
     this.propNames = propNames;
@@ -105,6 +109,7 @@ public class TraceEvent {
       buffer.append(value == null ? "" : value).append(SEP);
     }
     buffer.append(propValues[lastIndex]);
+    
     return buffer.toString();
   }
   

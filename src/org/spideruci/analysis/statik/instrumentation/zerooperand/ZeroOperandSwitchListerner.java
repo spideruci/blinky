@@ -33,66 +33,66 @@ public class ZeroOperandSwitchListerner {
   }
   
   public void onConstantLoad(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$constant$);
+    onConstantEvent(opcode);
   }
 
   public void onPrimitiveArrayLoad(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$arrayload$);
+    onArrayLoadEvent(opcode);
   }
 
   public void onWidePrimitiveArrayLoad(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$arrayload$);
+    onArrayLoadEvent(opcode);
   }
 
   public void onReferenceArrayLoad(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$arrayload$);
+    onArrayLoadEvent(opcode);
   }
 
   public void onWidePrimitiveArrayStore(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$arraystore$);
+    onArrayStoreEvent(opcode);
   }
 
   public void onPrimitiveArrayStore(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$arraystore$);
+    onArrayStoreEvent(opcode);
   }
 
   public void onReferenceArrayStore(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$arraystore$);
+    onArrayStoreEvent(opcode);
   }
 
   public void onStackManipulation(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$stack$);
+    onRegularZeroOperandEvent(opcode, EventType.$stack$);
   }
 
   public void onMathBoolOrBit(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$math$);
+    onRegularZeroOperandEvent(opcode, EventType.$math$);
   }
 
   public void onPrimitiveTypeConversion(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$type$);
+    onRegularZeroOperandEvent(opcode, EventType.$type$);
   }
 
   public void onComparison(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$compare$);
+    onRegularZeroOperandEvent(opcode, EventType.$compare$);
   }
 
   public void onReturn(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$return$);
+    // do nothing.
   }
 
   public void onArraylength(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$arraylen$);
+    onRegularZeroOperandEvent(opcode, EventType.$arraylen$);
   }
 
   public void onAthrow(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$athrow$);
+    // do nothing.
   }
 
   public void onMonitor(final int opcode) {
-    onZeroOperandEvent(opcode, EventType.$monitor$);
+    onRegularZeroOperandEvent(opcode, EventType.$monitor$);
   }
 
-    private void onZeroOperandEvent(final int opcode, final EventType eventType) {
+    private void onRegularZeroOperandEvent(final int opcode, final EventType eventType) {
       String instructionLog = buildInstructionLog(linenumber, eventType, 
           opcode, methodDecl.getId());
   
@@ -101,6 +101,38 @@ public class ZeroOperandSwitchListerner {
       .passThis(methodDecl.getDeclAccess())
       .passArg(eventType.toString())
       .build(Profiler.ZERO_OP);
+    }
+    
+    private void onConstantEvent(final int opcode) {
+      String instructionLog = buildInstructionLog(linenumber, EventType.$constant$, 
+          opcode, methodDecl.getId());
+  
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.CONSTANT);
+    }
+    
+    private void onArrayLoadEvent(final int opcode) {
+      String instructionLog = buildInstructionLog(linenumber, 
+          EventType.$arrayload$, opcode, methodDecl.getId());
+  
+      ProfilerCallBack.start(mv)
+      .passArrayLoadStackArgs(opcode)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.ARRAY);
+    }
+    
+    private void onArrayStoreEvent(final int opcode) {
+      String instructionLog = buildInstructionLog(linenumber, 
+          EventType.$arraystore$, opcode, methodDecl.getId());
+  
+      ProfilerCallBack.start(mv)
+      .passArrayStoreStackArgs(opcode)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.ARRAY);
     }
 
 }

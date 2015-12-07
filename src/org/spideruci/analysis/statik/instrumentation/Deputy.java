@@ -2,6 +2,8 @@ package org.spideruci.analysis.statik.instrumentation;
 
 import java.util.ArrayList;
 
+import org.objectweb.asm.Opcodes;
+
 public class Deputy {
   public static int LINE_COUNT = 0;
   
@@ -20,6 +22,9 @@ public class Deputy {
   public static final String BYTE_TYPEDESC = "B";
   public static final String DOUBLE_TYPEDESC = "D";
   public static final String LONG_TYPEDESC = "J";
+  
+  public static final String LDC_16 = "$ldc_16$";
+  public static final String LDC_8 = "$ldc_8$";
   
   static {
     exclusionList = new ArrayList<String>();
@@ -84,6 +89,29 @@ public class Deputy {
     if(desc.charAt(0) != 'L') return desc;
     String type = desc.substring(1, desc.length() - 1);
     return type;
+  }
+  
+  public static String primitiveCode2String(int primitiveCode) {
+    switch(primitiveCode) {
+    case Opcodes.T_BOOLEAN:
+      return "Z";
+    case Opcodes.T_BYTE:
+      return "B";
+    case Opcodes.T_CHAR:
+      return "C";
+    case Opcodes.T_DOUBLE:
+      return "D";
+    case Opcodes.T_FLOAT:
+      return "F";
+    case Opcodes.T_INT:
+      return "I";
+    case Opcodes.T_LONG:
+      return "J";
+    case Opcodes.T_SHORT:
+      return "S";
+    default:
+      throw new RuntimeException("Unexpected primitive code: " + primitiveCode);
+    }
   }
   
 }

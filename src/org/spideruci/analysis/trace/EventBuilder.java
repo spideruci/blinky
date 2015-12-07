@@ -16,6 +16,22 @@ public class EventBuilder {
     return event;
   }
   
+  public static TraceEvent buildArrayInsnExecEvent(int id, long threadId,
+      String dynamicHostId, String insnId, EventType insnType, long timestamp,
+      int arrayRefId, int index, String arrayElement, int arraylength) {
+    TraceEvent event = TraceEvent.createArrayInsnExecEvent(id);
+    event.setProp(ArrayInsnExecPropNames.DYN_HOST_ID, dynamicHostId);
+    event.setProp(ArrayInsnExecPropNames.INSN_EVENT_ID, insnId);
+    event.setProp(ArrayInsnExecPropNames.THREAD_ID, String.valueOf(threadId));
+    event.setProp(ArrayInsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
+    event.setProp(ArrayInsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    event.setProp(ArrayInsnExecPropNames.ARRAY_ELEMENT, arrayElement);
+    event.setProp(ArrayInsnExecPropNames.ARRAYREF_ID, String.valueOf(arrayRefId));
+    event.setProp(ArrayInsnExecPropNames.ELEMENT_INDEX, String.valueOf(index));
+    event.setProp(ArrayInsnExecPropNames.ARRAY_LENGTH, String.valueOf(arraylength));
+    return event;
+  }
+  
   public static TraceEvent buildMethodDecl(String className, int access, String name) {
     TraceEvent methodDecl = 
         TraceEvent.createDeclEvent(Count.anotherMethod(), EventType.$$method$$);
