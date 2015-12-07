@@ -124,6 +124,26 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   }
   
   @Override
+  public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+    if(shouldInstrument && Profiler.logField) {
+      final int lineNum = Profiler.latestLineNumber;
+      
+      String fieldName = owner + "/" + name + desc;
+      String instructionLog = buildInstructionLog(lineNum, EventType.$field$, 
+          opcode, methodDecl.getId(), fieldName);
+
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.FIELD);
+
+      Profiler.latestLineNumber = lineNum;
+    }
+    
+    super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
+  }
+  
+  @Override
   public void visitInsn(int opcode) {
     if(shouldInstrument && Profiler.logZero) {
       final int lineNum = Profiler.latestLineNumber;
@@ -155,27 +175,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       Profiler.latestLineNumber = lineNum;
     }
     
-    super.visitJumpInsn(opcode, label); //make the actual call.
-  }
-  
-  @Override
-  public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-    if(shouldInstrument && Profiler.logField) {
-      final int lineNum = Profiler.latestLineNumber;
-      
-      String fieldName = owner + "/" + name + desc;
-      String instructionLog = buildInstructionLog(lineNum, EventType.$field$, 
-          opcode, methodDecl.getId(), fieldName);
-
-      ProfilerCallBack.start(mv)
-      .passArg(instructionLog)
-      .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.FIELD);
-
-      Profiler.latestLineNumber = lineNum;
-    }
-    
-    super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
+    super.visitJumpInsn(opcode, label);
   }
   
   @Override

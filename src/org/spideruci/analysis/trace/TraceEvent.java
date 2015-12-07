@@ -1,5 +1,9 @@
 package org.spideruci.analysis.trace;
 
+import org.spideruci.analysis.trace.eventprops.ArrayInsnExecPropNames;
+import org.spideruci.analysis.trace.eventprops.DeclPropNames;
+import org.spideruci.analysis.trace.eventprops.InsnExecPropNames;
+import org.spideruci.analysis.trace.eventprops.InsnPropNames;
 import org.spideruci.analysis.util.MyAssert;
 
 /**

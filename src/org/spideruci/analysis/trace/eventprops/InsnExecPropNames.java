@@ -1,4 +1,4 @@
-package org.spideruci.analysis.trace;
+package org.spideruci.analysis.trace.eventprops;
 
 public enum InsnExecPropNames {
   THREAD_ID,
