@@ -13,6 +13,7 @@ import org.spideruci.analysis.statik.instrumentation.zerooperand.ZeroOperandSwit
 import org.spideruci.analysis.statik.instrumentation.zerooperand.ZeroOperandSwitchListerner;
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.TraceEvent;
+import org.spideruci.analysis.util.MyAssert;
 
 public class SourcelineMethodAdapter extends AdviceAdapter {
   
@@ -130,22 +131,40 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+    ProfilerCallBack getProbeCallback = null;
+    String instructionLog = null;
     if(shouldInstrument && Profiler.logField) {
       final int lineNum = Profiler.latestLineNumber;
       
       String fieldName = owner + "/" + name + desc;
-      String instructionLog = buildInstructionLog(lineNum, EventType.$field$, 
+      instructionLog = buildInstructionLog(lineNum, EventType.$field$, 
           opcode, methodDecl.getId(), fieldName);
-
-      ProfilerCallBack.start(mv)
-      .passArg(instructionLog)
-      .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.FIELD);
+      
+      if(opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
+        ProfilerCallBack.start(mv)
+        .passPutInsnStackArgs(opcode, desc, owner)
+        .passArg(instructionLog)
+        .passThis(methodDecl.getDeclAccess())
+        .build(Profiler.FIELD);
+      } else {
+        getProbeCallback = ProfilerCallBack.start(mv)
+        .setupGetInsnStackArgs(opcode, owner);
+      }
 
       Profiler.latestLineNumber = lineNum;
     }
     
     super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
+    
+    if(shouldInstrument && Profiler.logField 
+        && (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC)) {
+      MyAssert.assertThat(getProbeCallback != null && instructionLog != null);
+      
+      getProbeCallback.passGetInsnStackArgs(opcode, desc)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.FIELD);
+    }
   }
   
   @Override

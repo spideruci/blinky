@@ -4,6 +4,7 @@ import org.spideruci.analysis.dynamic.Profiler;
 import org.spideruci.analysis.statik.instrumentation.Count;
 import org.spideruci.analysis.trace.eventprops.ArrayInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.DeclPropNames;
+import org.spideruci.analysis.trace.eventprops.FieldInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnPropNames;
 import org.spideruci.analysis.trace.eventprops.VarInsnExecPropNames;
@@ -47,6 +48,20 @@ public class EventBuilder {
     event.setProp(VarInsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
     event.setProp(VarInsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
     event.setProp(VarInsnExecPropNames.VAR_ID, varId);
+    return event;
+  }
+  
+  public static TraceEvent buildFieldInsnExecEvent(int id, long threadId,
+      String dynamicHostId, String insnId, EventType insnType, long timestamp,
+      String fieldId, String fieldOwnerId) {
+    TraceEvent event = TraceEvent.createFieldInsnExecEvent(id);
+    event.setProp(FieldInsnExecPropNames.DYN_HOST_ID, dynamicHostId);
+    event.setProp(FieldInsnExecPropNames.INSN_EVENT_ID, insnId);
+    event.setProp(FieldInsnExecPropNames.THREAD_ID, String.valueOf(threadId));
+    event.setProp(FieldInsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
+    event.setProp(FieldInsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    event.setProp(FieldInsnExecPropNames.FIELD_ID, fieldId);
+    event.setProp(FieldInsnExecPropNames.FIELD_OWNER_ID, fieldOwnerId);
     return event;
   }
   

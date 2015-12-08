@@ -1,5 +1,11 @@
 package org.spideruci.analysis.statik.instrumentation;
 
+import static org.spideruci.analysis.statik.instrumentation.Deputy.STRING_DESC;
+import static org.spideruci.analysis.statik.instrumentation.Deputy.OBJECT_DESC;
+import static org.spideruci.analysis.statik.instrumentation.Deputy.PROFILER_NAME;
+import static org.spideruci.analysis.dynamic.Profiler.GETHASH;
+import static org.spideruci.analysis.dynamic.Profiler.GETHASH_DESC;
+
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.spideruci.analysis.dynamic.Profiler;
@@ -14,7 +20,7 @@ import org.spideruci.analysis.util.MyAssert;
  * @author vpalepu
  *
  */
-public class ProfilerCallBack {
+public class ProfilerCallBack implements Opcodes {
   private final StringBuffer callbackDesc;
   private final MethodVisitor mv;
   
@@ -116,6 +122,75 @@ public class ProfilerCallBack {
     return this;
   }
   
+  public ProfilerCallBack setupGetInsnStackArgs(int opcode, String owner) {
+    MyAssert.assertThat(GETFIELD == opcode || GETSTATIC == opcode);
+    
+    if(opcode == GETSTATIC) {
+      mv.visitLdcInsn(owner);
+    } else {
+      mv.visitInsn(DUP);
+      visitLoadHash();
+      mv.visitInsn(SWAP);
+    }
+    
+    this.callbackDesc.append(STRING_DESC);
+    return this;
+  }
+  
+  public ProfilerCallBack passGetInsnStackArgs(int opcode, String desc) {
+    boolean isWide = desc.equals("D") || desc.equals("J");
+    
+    if(isWide) {
+      mv.visitInsn(DUP2_X1);
+    } else {
+      mv.visitInsn(DUP_X1);
+    }
+    
+    visitLoadStringValue(desc);
+    this.callbackDesc.append(STRING_DESC);
+    
+    return this;
+  }
+  
+  public ProfilerCallBack passPutInsnStackArgs(int opcode, String desc, String owner) {
+    MyAssert.assertThat(PUTFIELD == opcode || PUTSTATIC == opcode);
+    
+    boolean isWide = desc.equals("D") || desc.equals("J");
+    
+    if(opcode == Opcodes.PUTFIELD) { //visiting non-static field dereferences.
+      if(isWide) { // ref, val1, val2
+        mv.visitInsn(DUP2_X1); // val1, val2, ref, val1, val2
+        mv.visitInsn(POP2); // val1, val2, ref
+        mv.visitInsn(DUP_X2); // ref, val1, val2, ref
+        mv.visitInsn(DUP_X2); //  ref, ref, val1, val2, ref
+        mv.visitInsn(POP); //  ref, ref, val1, val2
+        mv.visitInsn(DUP2_X1); //  ref, val1, val2, ref, val1, val2
+      }
+      else { // ref, val
+        mv.visitInsn(Opcodes.DUP2); // ref, val, ref, val
+      }
+      
+      visitLoadStringValue(desc);
+      mv.visitInsn(SWAP); // ref, val, String.valueOf(val) ref
+      visitLoadHash(); // ref, val, String.valueOf(val) string_hash(ref)
+      mv.visitInsn(SWAP); // ref, val, string_hash(ref), valId
+    } else {
+      if(isWide) {
+        mv.visitInsn(DUP2);
+      } else {
+        mv.visitInsn(DUP);
+      }
+      visitLoadStringValue(desc);
+      mv.visitLdcInsn(owner);
+      mv.visitInsn(SWAP);
+    }
+    
+    this.callbackDesc.append(STRING_DESC);
+    this.callbackDesc.append(STRING_DESC);
+    
+    return this;
+  }
+  
   public ProfilerCallBack passArrayLoadStackArgs(int opcode) {
     MyAssert.assertThat(Opcodes.IALOAD <= opcode && opcode <= Opcodes.SALOAD,
         "not an array load.");
@@ -182,6 +257,28 @@ public class ProfilerCallBack {
     this.callbackDesc.append(Deputy.STRING_DESC);
     return this;
   }
+  
+    private void visitLoadStringValue(String desc) {
+      switch(desc) {
+      case "I":
+      case "B":
+      case "S":
+        desc = "I";
+        break;
+      }
+      
+      if(desc.startsWith("L") || desc.startsWith("[")) {
+        visitLoadHash();
+      } else {
+        String methodDesc = "(" + desc + ")" + STRING_DESC;
+        mv.visitMethodInsn(INVOKESTATIC, STRING_DESC, "valueOf", methodDesc, false);
+      }
+    }
+    
+    private void visitLoadHash() {
+      mv.visitTypeInsn(CHECKCAST, OBJECT_DESC);
+      mv.visitMethodInsn(INVOKESTATIC, PROFILER_NAME, GETHASH, GETHASH_DESC, false);
+    }
   
   @SuppressWarnings("deprecation")
   public void build(String callBackName) {
