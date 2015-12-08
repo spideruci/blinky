@@ -113,8 +113,13 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(lineNum, EventType.$var$, 
           opcode, methodDecl.getId(), String.valueOf(operand));
 
-      ProfilerCallBack.start(mv)
-      .passArg(instructionLog)
+      ProfilerCallBack callback = ProfilerCallBack.start(mv);
+      
+      if(opcode != Opcodes.RET) {
+        callback.passVar(opcode, operand);
+      }
+      
+      callback.passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.VAR);
 

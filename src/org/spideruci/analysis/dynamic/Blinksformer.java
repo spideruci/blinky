@@ -41,6 +41,7 @@ public class Blinksformer implements ClassFileTransformer {
     try {
       ClassInstrumenter ins = new ClassInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
+      ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
       if (log) {
         REAL_ERR.println("instrumentation successful for " + className);
       }

@@ -6,6 +6,7 @@ import org.spideruci.analysis.trace.eventprops.ArrayInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.DeclPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnPropNames;
+import org.spideruci.analysis.trace.eventprops.VarInsnExecPropNames;
 
 public class EventBuilder {
   
@@ -33,6 +34,19 @@ public class EventBuilder {
     event.setProp(ArrayInsnExecPropNames.ARRAYREF_ID, String.valueOf(arrayRefId));
     event.setProp(ArrayInsnExecPropNames.ELEMENT_INDEX, String.valueOf(index));
     event.setProp(ArrayInsnExecPropNames.ARRAY_LENGTH, String.valueOf(arraylength));
+    return event;
+  }
+  
+  public static TraceEvent buildVarInsnExecEvent(int id, long threadId,
+      String dynamicHostId, String insnId, EventType insnType, long timestamp,
+      String varId) {
+    TraceEvent event = TraceEvent.createArrayInsnExecEvent(id);
+    event.setProp(VarInsnExecPropNames.DYN_HOST_ID, dynamicHostId);
+    event.setProp(VarInsnExecPropNames.INSN_EVENT_ID, insnId);
+    event.setProp(VarInsnExecPropNames.THREAD_ID, String.valueOf(threadId));
+    event.setProp(VarInsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
+    event.setProp(VarInsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    event.setProp(VarInsnExecPropNames.VAR_ID, varId);
     return event;
   }
   

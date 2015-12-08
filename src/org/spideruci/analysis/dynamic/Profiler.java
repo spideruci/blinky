@@ -240,6 +240,15 @@ public class Profiler {
     reguard(guard);
   }
   
+  synchronized static public void printlnVarLog(String instruction, String tag, String varTag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logVar) {
+      handleVarLog(instruction, tag, varTag);
+    }
+    reguard(guard);
+  }
+  
   public static final String FIELD = "printlnField";
   synchronized static public void printlnField(String instruction, String tag) {
     if($guard1$) return;
@@ -474,6 +483,15 @@ public class Profiler {
       long time = System.currentTimeMillis() - Profiler.time;
       TraceEvent event = EventBuilder.buildArrayInsnExecEvent(++count, threadId, 
           tag, insnId, insnType, time, arrayrefId, index, elementId, length);
+      REAL_OUT.println(event.getLog());
+    }
+    
+    synchronized static private void handleVarLog(String insnId, String tag, 
+        String varTag) {
+      long threadId = Thread.currentThread().getId();
+      long time = System.currentTimeMillis() - Profiler.time;
+      TraceEvent event = EventBuilder.buildVarInsnExecEvent(++count, threadId, 
+          tag, insnId, EventType.$var$, time, varTag);
       REAL_OUT.println(event.getLog());
     }
 }
