@@ -125,7 +125,7 @@ public class Profiler {
         logType = true;
         continue;
       case 's':
-        logType = true;
+        logSwitch = true;
         continue;
       default: continue;
       }

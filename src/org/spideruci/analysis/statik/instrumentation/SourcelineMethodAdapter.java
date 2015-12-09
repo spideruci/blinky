@@ -108,6 +108,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitVarInsn(int opcode, int operand) {
+    super.visitVarInsn(opcode, operand); //make the actual call.
     if(shouldInstrument && Profiler.logVar) {
       final int lineNum = Profiler.latestLineNumber;
       
@@ -126,7 +127,6 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
 
       Profiler.latestLineNumber = lineNum;
     }
-    super.visitVarInsn(opcode, operand); //make the actual call.
   }
   
   @Override

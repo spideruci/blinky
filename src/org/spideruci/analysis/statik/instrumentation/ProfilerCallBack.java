@@ -64,53 +64,21 @@ public class ProfilerCallBack implements Opcodes {
   }
   
   public ProfilerCallBack passVar(int opcode, int var) {
-    final String stringType = Deputy.desc2type(Deputy.STRING_DESC);
-    
-    switch(opcode) {
-      case Opcodes.ILOAD:
-      case Opcodes.FLOAD:
-      case Opcodes.DLOAD:
-      case Opcodes.LLOAD:
-      case Opcodes.ALOAD:
-        mv.visitVarInsn(opcode, var);
-        break;
-      case Opcodes.ISTORE:
-      case Opcodes.FSTORE:
-      case Opcodes.ASTORE:
-        mv.visitInsn(Opcodes.DUP);
-        break;
-      case Opcodes.DSTORE:
-      case Opcodes.LSTORE:
-        mv.visitInsn(Opcodes.DUP2);
-        break;
-      default:
-        throw new RuntimeException("");
-    }
-    
     switch(opcode) {
     case Opcodes.ILOAD:
     case Opcodes.ISTORE:
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-          stringType, "valueOf", "(I)Ljava/lang/String;", false);
-      break;
     case Opcodes.LLOAD:
     case Opcodes.LSTORE:
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-          stringType, "valueOf", "(J)Ljava/lang/String;", false);
-      break;
     case Opcodes.FLOAD:
     case Opcodes.FSTORE:
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-          stringType, "valueOf", "(F)Ljava/lang/String;", false);
-      break;
     case Opcodes.DLOAD:
     case Opcodes.DSTORE:
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-          stringType, "valueOf", "(D)Ljava/lang/String;", false);
+      mv.visitLdcInsn("0");
       break;
     case Opcodes.ALOAD:
     case Opcodes.ASTORE:
-      mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
+      mv.visitVarInsn(ALOAD, var);
+//      mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
       mv.visitMethodInsn(Opcodes.INVOKESTATIC, Deputy.PROFILER_NAME, 
           Profiler.GETHASH, Profiler.GETHASH_DESC, false);
       break;
