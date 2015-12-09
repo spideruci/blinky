@@ -73,14 +73,9 @@ public class ProfilerCallBack implements Opcodes {
     case Opcodes.FSTORE:
     case Opcodes.DLOAD:
     case Opcodes.DSTORE:
-      mv.visitLdcInsn("0");
-      break;
     case Opcodes.ALOAD:
     case Opcodes.ASTORE:
-      mv.visitVarInsn(ALOAD, var);
-//      mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, Deputy.PROFILER_NAME, 
-          Profiler.GETHASH, Profiler.GETHASH_DESC, false);
+      mv.visitLdcInsn("0");
       break;
     default:
       throw new RuntimeException("");

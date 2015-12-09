@@ -108,25 +108,21 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitVarInsn(int opcode, int operand) {
-    super.visitVarInsn(opcode, operand); //make the actual call.
     if(shouldInstrument && Profiler.logVar) {
       final int lineNum = Profiler.latestLineNumber;
       
       String instructionLog = buildInstructionLog(lineNum, EventType.$var$, 
           opcode, methodDecl.getId(), String.valueOf(operand));
 
-      ProfilerCallBack callback = ProfilerCallBack.start(mv);
-      
-      if(opcode != Opcodes.RET) {
-        callback.passVar(opcode, operand);
-      }
-      
-      callback.passArg(instructionLog)
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.VAR);
 
       Profiler.latestLineNumber = lineNum;
     }
+    
+    super.visitVarInsn(opcode, operand); //make the actual call.
   }
   
   @Override
