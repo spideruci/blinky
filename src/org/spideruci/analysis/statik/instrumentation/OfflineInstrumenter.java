@@ -15,7 +15,8 @@ public class OfflineInstrumenter {
   static final String JavacSource = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_o/";
   static final String JavacDestination = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_i/";
 
-  public static void main(String[] args) throws FileNotFoundException, IOException {
+  public static void main(String[] args) 
+      throws FileNotFoundException, IOException {
     String source, destination;
     if(args == null || args.length == 0) {
       source = JavacSource;
@@ -67,17 +68,14 @@ public class OfflineInstrumenter {
     System.out.println("i am done!");
   }
 
-  private void transferAndPrintExecption(ClassItem classItem, 
-      String source, 
-      String destination,
-      Throwable e)
-          throws FileNotFoundException, IOException {
-    File inFile = new File(source+classItem.getFullName()+".class");
+  private void transferAndPrintExecption(ClassItem classItem,  String source, 
+      String destination, Throwable e) throws FileNotFoundException, IOException {
+    File inFile = new File(source + classItem.getFullName() + ".class");
     FileInputStream in = new FileInputStream(inFile);
     ClassReader classReader = new ClassReader(in);
     ByteCodeHelper.print(classReader.b, 
-        destination+classItem.Package, 
-        destination+classItem.getFullName()+".class");
+        destination + classItem.Package, 
+        destination + classItem.getFullName() + ".class");
     in.close();
 
     if(e == null) {
@@ -144,7 +142,6 @@ public class OfflineInstrumenter {
       return classList; 
     }
   }
-
 
   public static class SummaryStatistics {
     private int skippedClasses = 0;

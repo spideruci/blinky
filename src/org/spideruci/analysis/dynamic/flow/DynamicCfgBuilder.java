@@ -59,7 +59,7 @@ public class DynamicCfgBuilder {
 //        Node node = new Node(event.getExecInsnId(), 0);
         if(previousRawNode != null) {
           if(!rawGraph.containsKey(previousRawNode)) {
-            rawGraph.put(previousRawNode, new HashMap<>());
+            rawGraph.put(previousRawNode, new HashMap<String, Double>());
           }
           
           Map<String, Double> destRawNodes = rawGraph.get(previousRawNode);
