@@ -6,24 +6,78 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.spideruci.analysis.util.MyAssert;
 
 public class OfflineInstrumenter {
 
-  static final String JavacSource = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_o/";
-  static final String JavacDestination = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_i/";
+//  static final String JavacSource = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_o/";
+//  static final String JavacDestination = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_i/";
 
+  private static PrintStream out;
+  private static PrintStream err;
+  private static PrintStream skipped;
+  
+  private static final ArrayList<String> permittedClasses = new ArrayList<>();
+  private static final ArrayList<String> restrictedClasses = new ArrayList<>();
+  
+  static {
+    final String permitsPath = System.getProperty("permits");
+    final String restrictsPath = System.getProperty("restricts");
+    
+    if(permitsPath != null) {
+      readClassList(permittedClasses, permitsPath);
+    }
+    
+    if(restrictsPath != null) {
+      readClassList(restrictedClasses, restrictsPath);
+    }
+    
+    restrictedClasses.add("javax/swing/plaf/");
+    restrictedClasses.add("java/lang/");
+  }
+  
+  private static void readClassList(final ArrayList<String> classes, 
+      final String classListPath) {
+    final File permits = new File(classListPath);
+    Scanner scanner;
+    
+    try {
+      scanner = new Scanner(permits);
+      
+      while(scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        String className = line == null ? "" : line.trim();
+        
+        if(className.isEmpty()) {
+          continue;
+        }
+        
+        
+        classes.add(className);
+      }
+      
+    } catch(FileNotFoundException fileEx) {
+      throw new RuntimeException(fileEx);
+    }
+    
+    scanner.close();
+  }
+  
   public static void main(String[] args) 
       throws FileNotFoundException, IOException {
-    String source, destination;
-    if(args == null || args.length == 0) {
-      source = JavacSource;
-      destination = JavacDestination;
-    } else {
-      source = args[0];
-      destination = args[1];
+    String source = System.getProperty("src");
+    String destination = System.getProperty("dest");
+    
+    out = new PrintStream(new File("offline-instrumenter.log"));
+    skipped = new PrintStream(new File("offline-instrumenter.skip"));
+    err = new PrintStream(new File("offline-instrumenter.err"));
+    
+    if(source == null || destination == null) {
+      throw new RuntimeException("specify source and destination with -Dsrc and -Ddest options.");
     }
 
     ArrayList<ClassItem> classItems = ClassItem.getClassItems(source,"");
@@ -50,7 +104,7 @@ public class OfflineInstrumenter {
     for (ClassItem classItem : classItems) {
       String className = classItem.getFullName();
 
-      if(javacRestrictions(className)) {
+      if(isRestricted(className)) {
         transferAndPrintExecption(classItem, source, destination, null);
         instrumentStats.instrumentationSkipped();
       } else {
@@ -65,7 +119,7 @@ public class OfflineInstrumenter {
     }
 
     instrumentStats.displayStatistics();
-    System.out.println("i am done!");
+    out.println("i am done!");
   }
 
   private void transferAndPrintExecption(ClassItem classItem,  String source, 
@@ -79,7 +133,7 @@ public class OfflineInstrumenter {
     in.close();
 
     if(e == null) {
-      System.out.println(classItem.getFullName());
+      skipped.println(classItem.getFullName());
       return;
     }
     StringBuffer buffer = new StringBuffer();
@@ -90,7 +144,7 @@ public class OfflineInstrumenter {
     for(Object object : (Object[]) e.getStackTrace()) {
       buffer.append(object).append("\n");
     }
-    System.err.println(buffer.toString());
+    err.println(buffer.toString());
   }
 
   private void transferAndInstrument(ClassItem classItem,
@@ -105,16 +159,28 @@ public class OfflineInstrumenter {
     ByteCodeHelper.print(bytecode, 
         destination + classItem.Package, 
         destination + classFullName + ".class");
-    System.out.println(classFullName);
+    out.println(classFullName);
   }
 
-
-  private boolean javacRestrictions(String classFullName) {
-    boolean resitrictionsApply = false;
-    resitrictionsApply = resitrictionsApply || 
-        classFullName.startsWith("java/lang/") || 
-        classFullName.startsWith("javax/swing/plaf/");
-    return resitrictionsApply;    
+  /**
+   * 
+   * @param classFullName
+   * @return
+   */
+  private boolean isRestricted(String classFullName) {
+    for(String classname : restrictedClasses) {
+      if(classFullName.startsWith(classname)) {
+        return true;
+      }
+    }
+    
+    for(String classname : permittedClasses) {
+      if(classFullName.startsWith(classname)) {
+        return false;
+      }
+    }
+    
+    return true;
   }
 
   public static class ClassItem {
@@ -191,15 +257,15 @@ public class OfflineInstrumenter {
     }
 
     public void displayStatistics() {
-      System.out.println("total classes instrumented:" + instrumentationPasses);
-      System.out.println("total classes summary instrumented:" + summaryInstrumentationPasses);
-      System.out.println("total classes failed to instrument:" + instrumentationFails);
-      System.out.println("total classes skipped from instrument:" + skippedClasses);
-      System.out.println("total classes:" + ((int)(instrumentationFails + instrumentationPasses + skippedClasses)));
-      System.out.println("total classes detected:" + classesDetected); 
-      System.out.println("source:" + source);
-      System.out.println("destination:" + destination);
-      System.out.println("restrictions:" + restrictions);
+      out.println("total classes instrumented:" + instrumentationPasses);
+      out.println("total classes summary instrumented:" + summaryInstrumentationPasses);
+      out.println("total classes failed to instrument:" + instrumentationFails);
+      out.println("total classes skipped from instrument:" + skippedClasses);
+      out.println("total classes:" + ((int)(instrumentationFails + instrumentationPasses + skippedClasses)));
+      out.println("total classes detected:" + classesDetected); 
+      out.println("source:" + source);
+      out.println("destination:" + destination);
+      out.println("restrictions:" + restrictions);
     }
   }
 
@@ -223,6 +289,6 @@ public class OfflineInstrumenter {
     }
   }
 
-  //jar cvfm javac-i.jar META-INF/MANIFEST.MF com javax jdk & cp javac-i.jar ../javac-i.jar
+  //jar cvfm javac-i.jar META-INF/MANIFEST.MF com javax jdk && cp javac-i.jar ../javac-i.jar
 
 }

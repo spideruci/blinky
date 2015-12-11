@@ -1,5 +1,8 @@
-#traces and graphs
+#traces, graphs, and logs
 
+*.skip
+*.err
+*.log
 *.trc
 *.ps
 *.dep
