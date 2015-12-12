@@ -14,11 +14,11 @@ public class Count {
   }
   
   public static int anotherInsn() {
-    return ++LOG_COUNT;
-  }
-  
-  public static int anotherInsn(int linenumber, int hostId) {
-    return -1;
+    int count = ++LOG_COUNT;
+    if(OfflineInstrumenter.isActive) {
+      count *= -1;
+    }
+    return count;
   }
 
 }

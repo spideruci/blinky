@@ -1,5 +1,6 @@
 package org.spideruci.analysis.dynamic;
 
+import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
 import static org.spideruci.analysis.dynamic.Profiler.log;
 
@@ -23,19 +24,20 @@ public class Blinksformer implements ClassFileTransformer {
   public byte[] transform(ClassLoader loader, String className,
       Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
       byte[] classBytes) throws IllegalClassFormatException {
+    
     File blinkyErrorLogPath = new File(ByteCodePrinter.bytecodePrintPath);
     
     if(!blinkyErrorLogPath.exists() || !blinkyErrorLogPath.isDirectory()) {
       blinkyErrorLogPath.mkdirs();
     }
-
+    
     if(!shouldInstrument(className)) {
       if (log) {
         REAL_ERR.println("instrumentation skipped for " + className);
       }
       return classBytes;
     }
-
+    
     byte[] instrumentedBytes = instrumentClass(className, classBytes, 
         false /*isRuntime*/);
 
@@ -93,7 +95,7 @@ public class Blinksformer implements ClassFileTransformer {
         }
       }
     }
-
+    
     for(String item : Deputy.exclusionList) {
       if(className.startsWith(item)) {
         return !shouldInstrument;

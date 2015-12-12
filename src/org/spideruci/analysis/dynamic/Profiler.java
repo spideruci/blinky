@@ -26,7 +26,7 @@ public class Profiler {
   public static boolean logType = false;
   public static boolean logSwitch = false;
   
-  public static final boolean log = true;
+  public static boolean log = true;
   
   public static final PrintStream REAL_OUT = System.out;
   public static final PrintStream REAL_ERR = System.err;
@@ -49,7 +49,8 @@ public class Profiler {
         logConstant = 
         logField = 
         logType = 
-        logSwitch = value;
+        logSwitch = 
+        log = value;
   }
 
   synchronized static public void initProfiler(String args) {
@@ -155,7 +156,7 @@ public class Profiler {
         ClassInstrumenter.FRAMES = true;
         break;
       case "retransform":
-        Deputy.allowRetransform = true;
+        Premain.allowRetransform = true;
         break;
        default:
          break;

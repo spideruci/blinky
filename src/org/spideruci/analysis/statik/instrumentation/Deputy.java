@@ -11,7 +11,6 @@ public class Deputy {
   public static final ArrayList<String> inclusionList;
   
   public static boolean checkInclusionList = false;
-  public static boolean allowRetransform = false;
   
   public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
   
@@ -44,6 +43,7 @@ public class Deputy {
     exclusionList.add("Harness");
     exclusionList.add("com/google");
     exclusionList.add("sun");
+    exclusionList.add("apple/");
     exclusionList.add("com/sun");
     exclusionList.add("javax/");
     exclusionList.add("org/ietf");

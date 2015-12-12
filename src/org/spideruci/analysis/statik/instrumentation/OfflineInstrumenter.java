@@ -24,6 +24,8 @@ public class OfflineInstrumenter {
   private static final ArrayList<String> permittedClasses = new ArrayList<>();
   private static final ArrayList<String> restrictedClasses = new ArrayList<>();
   
+  public static boolean isActive = false;
+  
   static {
     final String permitsPath = System.getProperty("permits");
     final String restrictsPath = System.getProperty("restricts");
@@ -68,6 +70,7 @@ public class OfflineInstrumenter {
   
   public static void main(String[] args) 
       throws FileNotFoundException, IOException {
+    isActive = true;
     String source = System.getProperty("src");
     String destination = System.getProperty("dest");
     

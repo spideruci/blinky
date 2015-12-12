@@ -5,9 +5,16 @@ import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
-import org.spideruci.analysis.statik.instrumentation.Deputy;
-
+/**
+ * WARNING: DO NOT HAVE ANY NON_STATIC IMPORTS (i.e. DEPENDENCIES) 
+ * IN PREMAIN. FOR SOME REASON IT BLOCKS THE INSTRUMENTAION.
+ * @author vpalepu
+ *
+ */
 public class Premain {
+  
+  public static boolean allowRetransform = false;
+  
   public static void premain(String agentArguments, 
       Instrumentation instrumentation) {
     boolean tempGuard = Profiler.$guard1$; 
@@ -16,26 +23,26 @@ public class Premain {
     
     instrumentation.addTransformer(new Blinksformer());
     
-//    if(Deputy.allowRetransform 
-//        && instrumentation.isRetransformClassesSupported()) {
-//      REAL_ERR.println("retransforming!");
-//      instrumentation.addTransformer(new RuntimeClassRedefiner(), true);
-//      
-//      Class<?>[] loadedClasses = instrumentation.getAllLoadedClasses();
-//      for(Class<?> loadedClass : loadedClasses) {
-//        if(!instrumentation.isModifiableClass(loadedClass)) {
-//          continue;
-//        }
-//        try {
-//          instrumentation.retransformClasses(loadedClass);
-//        } catch (UnmodifiableClassException e) {
-//          REAL_ERR.println(loadedClass);
-//          e.printStackTrace(REAL_ERR);
-//        }
-//      }
-//    } else {
-//      REAL_ERR.println("FEEDBACK: Class Retransformation is disabled.");
-//    }
+    if(Premain.allowRetransform 
+        && instrumentation.isRetransformClassesSupported()) {
+      REAL_ERR.println("retransforming!");
+      instrumentation.addTransformer(new RuntimeClassRedefiner(), true);
+      
+      Class<?>[] loadedClasses = instrumentation.getAllLoadedClasses();
+      for(Class<?> loadedClass : loadedClasses) {
+        if(!instrumentation.isModifiableClass(loadedClass)) {
+          continue;
+        }
+        try {
+          instrumentation.retransformClasses(loadedClass);
+        } catch (UnmodifiableClassException e) {
+          REAL_ERR.println(loadedClass);
+          e.printStackTrace(REAL_ERR);
+        }
+      }
+    } else {
+      REAL_ERR.println("FEEDBACK: Class Retransformation is disabled.");
+    }
     
     Profiler.$guard1$ = tempGuard;
   }
