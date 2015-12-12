@@ -154,6 +154,10 @@ public class Profiler {
         break;
       case "frames":
         ClassInstrumenter.FRAMES = true;
+        break;
+      case "retransform":
+        Deputy.allowRetransform = true;
+        break;
        default:
          break;
       }

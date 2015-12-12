@@ -9,7 +9,10 @@ public class Deputy {
   
   public static final ArrayList<String> exclusionList;
   public static final ArrayList<String> inclusionList;
+  
   public static boolean checkInclusionList = false;
+  public static boolean allowRetransform = false;
+  
   public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
   
   public static final String STRING_DESC = "Ljava/lang/String;";

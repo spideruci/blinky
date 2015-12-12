@@ -23,7 +23,7 @@ public class Blinksformer implements ClassFileTransformer {
   public byte[] transform(ClassLoader loader, String className,
       Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
       byte[] classBytes) throws IllegalClassFormatException {
-    byte[] instrumentedBytes = null;
+    
     
     File blinkyErrorLogPath = new File(ByteCodePrinter.bytecodePrintPath); 
     
@@ -38,22 +38,36 @@ public class Blinksformer implements ClassFileTransformer {
       return classBytes;
     }
 
+    byte[] instrumentedBytes = instrumentClass(className, classBytes, 
+        false /*isRuntime*/);
+
+    return instrumentedBytes;
+  }
+
+  /**
+   * @param className
+   * @param classBytes
+   * @return
+   */
+  static byte[] instrumentClass(String className, byte[] classBytes, 
+      boolean isRuntime) {
+    byte[] instrumentedBytes = null;
+    final String dynTxTag = isRuntime ? "runtime-" : "";
     try {
       ClassInstrumenter ins = new ClassInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
-//      ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
       if (log) {
-        REAL_ERR.println("instrumentation successful for " + className);
+//        ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
+        REAL_ERR.println(dynTxTag + "instrumentation successful for " + className);
       }
     } catch(Exception ex) {
-      ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
-      ex.printStackTrace();
+//      ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
+      ex.printStackTrace(REAL_ERR);
       if (log) {
-        REAL_ERR.println("instrumentation failed for " + className);
+        REAL_ERR.println(dynTxTag + "instrumentation failed for  " + className);
       }
       instrumentedBytes = classBytes;
     }
-
     return instrumentedBytes;
   }
 
