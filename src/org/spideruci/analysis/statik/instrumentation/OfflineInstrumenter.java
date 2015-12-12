@@ -28,11 +28,11 @@ public class OfflineInstrumenter {
     final String permitsPath = System.getProperty("permits");
     final String restrictsPath = System.getProperty("restricts");
     
-    if(permitsPath != null) {
+    if(permitsPath != null && !permitsPath.trim().isEmpty()) {
       readClassList(permittedClasses, permitsPath);
     }
     
-    if(restrictsPath != null) {
+    if(restrictsPath != null && !restrictsPath.trim().isEmpty()) {
       readClassList(restrictedClasses, restrictsPath);
     }
     
@@ -55,7 +55,6 @@ public class OfflineInstrumenter {
         if(className.isEmpty()) {
           continue;
         }
-        
         
         classes.add(className);
       }
@@ -275,6 +274,7 @@ public class OfflineInstrumenter {
 
 
     public static void print(byte[] bytecode, String dirStructure, String filePath) {
+      final String err = "transfer of bytecode file - " + filePath + " - failed.";
       try {
         File dir = new File(dirStructure);
         dir.mkdirs();
@@ -282,9 +282,11 @@ public class OfflineInstrumenter {
         byteStream.write(bytecode);
         byteStream.close();
       } catch (FileNotFoundException e) {
-        e.printStackTrace();
+        System.err.println(err);
+        throw new RuntimeException(err);
       } catch (IOException e) {
-        e.printStackTrace();
+        System.err.println(err);
+        throw new RuntimeException(err);
       }
     }
   }

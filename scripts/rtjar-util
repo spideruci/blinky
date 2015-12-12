@@ -1,0 +1,109 @@
+#!/bin/bash
+
+bold=$(tput bold)
+normal=$(tput sgr0)
+
+INSUFFICIENT_ARGUMENTS="${bold}ERROR: Need more user inputs; read below...${normal}"
+CAUTION="${bold}CAUTION: make sure that you are running this from inside the scripts folder in the blinky maven project!${normal}"
+DONE="${bold}What is DONE is DONE!${normal}"
+
+function checkarg {
+	if [ ! "$1" ]; then
+		echo $INSUFFICIENT_ARGUMENTS
+    	echo "$2"
+    	exit
+	fi
+}
+
+function instrumentrt {
+	if [ ! "$1" ]; then
+		echo $INSUFFICIENT_ARGUMENTS
+    	echo "Specify full-path to the original rt/ as 1st arg to 'instrument'"
+    	exit
+	fi
+
+	if [ ! "$2" ]; then
+		echo $INSUFFICIENT_ARGUMENTS
+    	echo "Specify full-path to the target instrumented rt/ as 2nd arg to 'instrument'"
+    	exit
+	fi
+
+	if [ ! "$3" ] && [ ! "$4" ]; then
+		echo $INSUFFICIENT_ARGUMENTS
+    	echo "Specify full-path to either/both class-lists:"
+    	echo "* classlist to instrument as 3rd arg to 'instrument';"
+    	echo "* classlist not to instrument as 4th arg to 'instrument'."
+    	exit
+	fi
+
+	echo "rtjar-utils will now instrument rt.jar"
+
+	original_rt=$1 #/Users/vpalepu/testsubjects/java-rt/rt-original/
+	insn_rt=$2 #/Users/vpalepu/testsubjects/java-rt/rt-ins/
+	permits=$3 #/Users/vpalepu/testsubjects/dacapo/errs
+	restricts=$4 #null
+
+	mvn exec:java -Poffline \
+	-Dsrc=$original_rt \
+	-Ddest=$insn_rt \
+	-Dpermits=$permits \
+	-Drestricts=$restricts > rtjar.log 2> rtjar.err
+}
+
+function package {
+	checkarg "$1" "Specify full-path to the instrumented rt/ as 1st arg to '$FUNCNAME'"
+
+	rt="$1"
+	echo "rtjar-utils will now package the specified rt/ - [$rt] into rt.jar"
+
+	cd "$rt"
+	
+	if [ "$(uname)" == "Darwin" ]; then
+		jar cvfm0 rt.jar META-INF/MANIFEST.MF apple com java javax org sun sunw *.class > rtjar-pkg.log
+	else
+		jar cvfm0 rt.jar META-INF/MANIFEST.MF com java javax org sun sunw > rtjar-pkg.log
+	fi
+
+	ls -alh "$rt/rt.jar"
+	cd -
+	echo "$rt/rt.jar"
+} 
+
+function deploy {
+	checkarg "$1" "Specify full-path to the rt.jar as 1st arg to '$FUNCNAME'"
+
+	checkarg "$2" "Specify full-path to the jre/lib/ where rt.jar is to be deployed as 2nd arg to '$FUNCNAME'"
+
+	rtjar="$1"
+	jrelib="$2"
+
+	echo "rtjar-utils will now deploy the specified rt.jar with the specified jre."
+
+	# mv $jrelib/rt.jr $jrelib/rt.jar
+
+	cp $rtjar $jrelib
+	ls -alh $jrelib/rt.jar
+
+}
+
+echo $CAUTION
+
+cd ../
+
+case $1 in
+instrument)
+	instrumentrt $2 $3 $4 $5
+  ;;
+package)
+	package $2
+  ;;
+deploy)
+	deploy $2 $3
+  ;;
+*)
+	echo "Welcome to rtjar-utils! Your one stop solution to managing rtjar!"
+	echo "rtjar-utils needs a command"
+  ;;
+esac
+
+echo $DONE

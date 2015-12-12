@@ -26,7 +26,7 @@ public class Profiler {
   public static boolean logType = false;
   public static boolean logSwitch = false;
   
-  public static boolean log = true;
+  public static final boolean log = true;
   
   public static final PrintStream REAL_OUT = System.out;
   public static final PrintStream REAL_ERR = System.err;
@@ -49,8 +49,7 @@ public class Profiler {
         logConstant = 
         logField = 
         logType = 
-        logSwitch = 
-        log = value;
+        logSwitch = value;
   }
 
   synchronized static public void initProfiler(String args) {

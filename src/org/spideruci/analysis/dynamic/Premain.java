@@ -16,26 +16,26 @@ public class Premain {
     
     instrumentation.addTransformer(new Blinksformer());
     
-    if(Deputy.allowRetransform 
-        && instrumentation.isRetransformClassesSupported()) {
-      REAL_ERR.println("retransforming!");
-      instrumentation.addTransformer(new RuntimeClassRedefiner(), true);
-      
-      Class<?>[] loadedClasses = instrumentation.getAllLoadedClasses();
-      for(Class<?> loadedClass : loadedClasses) {
-        if(!instrumentation.isModifiableClass(loadedClass)) {
-          continue;
-        }
-        try {
-          instrumentation.retransformClasses(loadedClass);
-        } catch (UnmodifiableClassException e) {
-          REAL_ERR.println(loadedClass);
-          e.printStackTrace(REAL_ERR);
-        }
-      }
-    } else {
-      REAL_ERR.println("FEEDBACK: Class Retransformation is disabled.");
-    }
+//    if(Deputy.allowRetransform 
+//        && instrumentation.isRetransformClassesSupported()) {
+//      REAL_ERR.println("retransforming!");
+//      instrumentation.addTransformer(new RuntimeClassRedefiner(), true);
+//      
+//      Class<?>[] loadedClasses = instrumentation.getAllLoadedClasses();
+//      for(Class<?> loadedClass : loadedClasses) {
+//        if(!instrumentation.isModifiableClass(loadedClass)) {
+//          continue;
+//        }
+//        try {
+//          instrumentation.retransformClasses(loadedClass);
+//        } catch (UnmodifiableClassException e) {
+//          REAL_ERR.println(loadedClass);
+//          e.printStackTrace(REAL_ERR);
+//        }
+//      }
+//    } else {
+//      REAL_ERR.println("FEEDBACK: Class Retransformation is disabled.");
+//    }
     
     Profiler.$guard1$ = tempGuard;
   }

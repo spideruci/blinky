@@ -23,9 +23,7 @@ public class Blinksformer implements ClassFileTransformer {
   public byte[] transform(ClassLoader loader, String className,
       Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
       byte[] classBytes) throws IllegalClassFormatException {
-    
-    
-    File blinkyErrorLogPath = new File(ByteCodePrinter.bytecodePrintPath); 
+    File blinkyErrorLogPath = new File(ByteCodePrinter.bytecodePrintPath);
     
     if(!blinkyErrorLogPath.exists() || !blinkyErrorLogPath.isDirectory()) {
       blinkyErrorLogPath.mkdirs();
