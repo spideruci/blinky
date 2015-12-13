@@ -38,10 +38,10 @@ function instrumentrt {
 
 	echo "rtjar-utils will now instrument rt.jar"
 
-	original_rt=$1 #/Users/vpalepu/testsubjects/java-rt/rt-original/
-	insn_rt=$2 #/Users/vpalepu/testsubjects/java-rt/rt-ins/
-	permits=$3 #/Users/vpalepu/testsubjects/dacapo/errs
-	restricts=$4 #null
+	original_rt=$1
+	insn_rt=$2
+	permits=$3
+	restricts=$4
 
 	mvn exec:java -Poffline \
 	-Dsrc=$original_rt \
