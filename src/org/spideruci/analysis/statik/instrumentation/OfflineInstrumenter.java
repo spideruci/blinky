@@ -182,7 +182,7 @@ public class OfflineInstrumenter {
       }
     }
     
-    return true;
+    return false;
   }
 
   public static class ClassItem {

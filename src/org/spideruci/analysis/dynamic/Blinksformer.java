@@ -1,8 +1,6 @@
 package org.spideruci.analysis.dynamic;
 
-import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
-import static org.spideruci.analysis.dynamic.Profiler.log;
 
 import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
@@ -32,9 +30,7 @@ public class Blinksformer implements ClassFileTransformer {
     }
     
     if(!shouldInstrument(className)) {
-      if (log) {
-        REAL_ERR.println("instrumentation skipped for " + className);
-      }
+      REAL_ERR.println("instrumentation skipped for " + className);
       return classBytes;
     }
     
@@ -56,16 +52,12 @@ public class Blinksformer implements ClassFileTransformer {
     try {
       ClassInstrumenter ins = new ClassInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
-      if (log) {
-//        ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
-        REAL_ERR.println(dynTxTag + "instrumentation successful for " + className);
-      }
+//    ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
+      REAL_ERR.println(dynTxTag + "instrumentation successful for " + className);
     } catch(Exception ex) {
-//      ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
+//    ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
       ex.printStackTrace(REAL_ERR);
-      if (log) {
-        REAL_ERR.println(dynTxTag + "instrumentation failed for  " + className);
-      }
+      REAL_ERR.println(dynTxTag + "instrumentation failed for  " + className);
       instrumentedBytes = classBytes;
     }
     return instrumentedBytes;

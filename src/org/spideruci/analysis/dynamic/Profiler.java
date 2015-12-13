@@ -67,13 +67,10 @@ public class Profiler {
     
     String profileConfig = split[0];
     
-    if(profileConfig.startsWith("0")) {
+    if(profileConfig.equals("0")) {
       setLogFlags(false);
-      Deputy.checkInclusionList = false;
-      return;
-    }
-    
-    if(profileConfig.equals("A")) {
+      profileConfig = "";
+    } else if(profileConfig.equals("A")) {
       setLogFlags(true);
       profileConfig = "";
     }

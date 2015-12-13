@@ -12,38 +12,22 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
       byte[] classfileBuffer) throws IllegalClassFormatException {
     boolean tempGuard = Profiler.$guard1$; 
     Profiler.$guard1$ = true;
+    
+    byte[] instrumentedBytes = null;
 
-    if(!RedefinitionTargets.isTarget(className)) {
-      Profiler.$guard1$ = tempGuard;
-      return null;
+    if(RedefinitionTargets.isTarget(className)
+        && !RedefinitionTargets.isException(className)) {
+      instrumentedBytes = Blinksformer.instrumentClass(className, 
+          classfileBuffer, true /*isRuntime*/);
     }
-
-    if(RedefinitionTargets.isException(className)) {
-      Profiler.$guard1$ = tempGuard;
-      return null;
-    }
-
-    byte[] instrumented_bytes = Blinksformer.instrumentClass(className, 
-        classfileBuffer, true /*isRuntime*/);
-
+    
     Profiler.$guard1$ = tempGuard;
-    return instrumented_bytes;
+    return instrumentedBytes;
   }
 
-  public static class RedefinitionTargets {
-    private static final String[] wildCardTargets = new String[] {
-        "java/util",
-//        "java/net/URLClassLoader", 
-//        "java/security/SecureClassLoader",
-//        "java/lang/ClassLoader"
-//        "java/util/concurrent"
-        "java/security"
-    };
 
-    private static final String[] exactTargets = new String[] {
-//        "java/util/Hashtable", "java/util/regex/Pattern",  "java/util/ArrayList"
-        "java/net/URLClassLoader", "java/security/SecureClassLoader"
-    };
+
+  public static class RedefinitionTargets {
 
     public static boolean isTarget(String className) {
       for(String wildCard : wildCardTargets) {
@@ -51,7 +35,6 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
           return true;
         }
       }
-
       return false;
     }
 
@@ -63,28 +46,17 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
       }
       return false;
     }
-
-    private static final String[] wildCardExceptions = new String[] {
-//        "java/security", 
-//        "java/util/regex"
-        "java/security/AccessControl"
-    };
-
-    private static final String[] exactExceptions = new String[] {
-//        "java/util/Hashtable", "java/util/regex/Pattern", "java/util/regex/Matcher"
-        "java/net/URLClassLoader", "java/security/SecureClassLoader"
-    };
-
+    
     public static boolean isException(String className) {
       for(String wildCard : wildCardExceptions) {
         if(className.startsWith(wildCard)) {
           return true;
         }
       }
-
+      
       return false;
     }
-
+    
     public static boolean isExactException(String className) {
       for(String exactTarget : exactExceptions) {
         if(className.equals(exactTarget)) {
@@ -93,7 +65,32 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
       }
       return false;
     }
-
+    
+    
+    private static final String[] wildCardTargets = new String[] {
+        "java/util",
+//        "java/net/URLClassLoader", 
+//        "java/security/SecureClassLoader",
+//        "java/lang/ClassLoader"
+//        "java/util/concurrent"
+        "java/security"
+    };
+    
+    private static final String[] exactTargets = new String[] {
+//    "java/util/Hashtable", "java/util/regex/Pattern",  "java/util/ArrayList"
+        "java/net/URLClassLoader", "java/security/SecureClassLoader"
+    };
+    
+    private static final String[] wildCardExceptions = new String[] {
+//        "java/security", 
+//        "java/util/regex"
+        "java/security/AccessControl"
+    };
+    
+    private static final String[] exactExceptions = new String[] {
+//        "java/util/Hashtable", "java/util/regex/Pattern", "java/util/regex/Matcher"
+        "java/net/URLClassLoader", "java/security/SecureClassLoader"
+    };
   }
 
 }
