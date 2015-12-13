@@ -10,12 +10,8 @@ import java.util.Scanner;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
-import org.spideruci.analysis.util.MyAssert;
 
 public class OfflineInstrumenter {
-
-//  static final String JavacSource = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_o/";
-//  static final String JavacDestination = "~/TestSubjects/langtools-9d81ae1c417a/dist/bootstrap/lib/javac_i/";
 
   private static PrintStream out;
   private static PrintStream err;

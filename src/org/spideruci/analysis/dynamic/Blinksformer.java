@@ -1,6 +1,9 @@
 package org.spideruci.analysis.dynamic;
 
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
+import static org.spideruci.analysis.util.ErrorLogManager.SUXES;
+import static org.spideruci.analysis.util.ErrorLogManager.SKIPD;
+import static org.spideruci.analysis.util.ErrorLogManager.FAILD;
 
 import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
@@ -11,6 +14,7 @@ import org.spideruci.analysis.statik.instrumentation.Deputy;
 import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.util.ByteCodePrinter;
 import org.spideruci.analysis.util.Constants;
+import org.spideruci.analysis.util.ErrorLogManager;
 
 public class Blinksformer implements ClassFileTransformer {
 
@@ -30,6 +34,7 @@ public class Blinksformer implements ClassFileTransformer {
     }
     
     if(!shouldInstrument(className)) {
+      ErrorLogManager.logClassTxStatus(className, false, SKIPD);
       REAL_ERR.println("instrumentation skipped for " + className);
       return classBytes;
     }
@@ -48,16 +53,15 @@ public class Blinksformer implements ClassFileTransformer {
   static byte[] instrumentClass(String className, byte[] classBytes, 
       boolean isRuntime) {
     byte[] instrumentedBytes = null;
-    final String dynTxTag = isRuntime ? "runtime-" : "";
     try {
       ClassInstrumenter ins = new ClassInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
 //    ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
-      REAL_ERR.println(dynTxTag + "instrumentation successful for " + className);
+      ErrorLogManager.logClassTxStatus(className, isRuntime, SUXES);
     } catch(Exception ex) {
 //    ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
       ex.printStackTrace(REAL_ERR);
-      REAL_ERR.println(dynTxTag + "instrumentation failed for  " + className);
+      ErrorLogManager.logClassTxStatus(className, isRuntime, FAILD);
       instrumentedBytes = classBytes;
     }
     return instrumentedBytes;

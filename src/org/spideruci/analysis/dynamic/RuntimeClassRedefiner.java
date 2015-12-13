@@ -1,8 +1,12 @@
 package org.spideruci.analysis.dynamic;
 
+import static org.spideruci.analysis.util.ErrorLogManager.SKIPD;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+
+import org.spideruci.analysis.util.ErrorLogManager;
 
 public class RuntimeClassRedefiner implements ClassFileTransformer {
 
@@ -19,6 +23,8 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
         && !RedefinitionTargets.isException(className)) {
       instrumentedBytes = Blinksformer.instrumentClass(className, 
           classfileBuffer, true /*isRuntime*/);
+    } else {
+      ErrorLogManager.logClassTxStatus(className, true, SKIPD);
     }
     
     Profiler.$guard1$ = tempGuard;
