@@ -1,7 +1,22 @@
 package org.spideruci.analysis.util;
 
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
+import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+/**
+ * Prints and reads in the error logs generated as a result of running Blinky.
+ * The reading of the error logs is currently capable of the following:<br>
+ * <li> Generating classes lists for successful (or otherwise) cases of 
+ * instrumentation and indicating if the instrumentation was runtime; and,
+ * <li> Suggesting if there were any exception messages with stack traces.
+ * 
+ * @author vpalepu
+ *
+ */
 public class ErrorLogManager {
   
   public static final int SUXES = 1;
@@ -25,6 +40,158 @@ public class ErrorLogManager {
             + "status:" + status
             + "className:" + className);
     }
+  }
+  
+  public static void checkLogForStackTraces(File errLog) {
+    MyAssert.assertThat(errLog != null && errLog.exists() && errLog.isFile(), 
+        "Malformed or non-existent error log file given as input.");
+    
+    Scanner scanner;
+    
+    try {
+      scanner = new Scanner(errLog);
+      int count = 0;
+      final String causedByClause = "Caused by: ";
+      final String exceptionInThreadClause = "Exception in thread";
+      while(scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        line = line.trim();
+        if(line.contains(causedByClause) 
+            || line.contains(exceptionInThreadClause)) {
+          REAL_OUT.println("Possible stack trace detected at: L" + count);
+        }
+        count += 1;
+      }
+    } catch(FileNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+    
+    scanner.close();
+  }
+  
+  public static void listBootstrapClasses(File errLog) {
+    MyAssert.assertThat(errLog != null && errLog.exists() && errLog.isFile(), 
+        "Malformed or non-existent error log file given as input.");
+    
+    Scanner scanner;
+    
+    try {
+      scanner = new Scanner(errLog);
+      final String runtimeInstrumentationClause = "runtime-instrumentation";
+      final String forClause = "for ";
+      while(scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        line = line.trim();
+        if(line.startsWith(runtimeInstrumentationClause)) {
+          String[] split = line.split(forClause);
+          
+          if(split[1] == null) {
+            REAL_ERR.println(line);
+          } else {
+            String className = split[1].trim();
+            REAL_OUT.println(className);
+          }
+          
+        }
+      }
+    } catch(FileNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+    
+    scanner.close();
+  }
+  
+  public static void listFailedInstrumentations(File errLog) {
+    MyAssert.assertThat(errLog != null && errLog.exists() && errLog.isFile(), 
+        "Malformed or non-existent error log file given as input.");
+    
+    Scanner scanner;
+    
+    try {
+      scanner = new Scanner(errLog);
+      final String failedInstrumentationClause = "instrumentation failed for ";
+      final int clausesize = failedInstrumentationClause.length();
+      while(scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        line = line.trim();
+        if(line.startsWith(failedInstrumentationClause)) {
+          String className = line.trim().substring(clausesize).trim();
+          
+          if(className == null || className.isEmpty()) {
+            REAL_ERR.println(line);
+          } else {
+            REAL_OUT.println(className);
+          }
+          
+        }
+      }
+    } catch(FileNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+    
+    scanner.close();
+  }
+  
+  public static void listSkippedInstrumentations(File errLog) {
+    MyAssert.assertThat(errLog != null && errLog.exists() && errLog.isFile(), 
+        "Malformed or non-existent error log file given as input.");
+    
+    Scanner scanner;
+    
+    try {
+      scanner = new Scanner(errLog);
+      final String failedInstrumentationClause = "instrumentation skipped for ";
+      final int clausesize = failedInstrumentationClause.length();
+      while(scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        line = line.trim();
+        if(line.startsWith(failedInstrumentationClause)) {
+          String className = line.trim().substring(clausesize).trim();
+          
+          if(className == null || className.isEmpty()) {
+            REAL_ERR.println(line);
+          } else {
+            REAL_OUT.println(className);
+          }
+          
+        }
+      }
+    } catch(FileNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+    
+    scanner.close();
+  }
+  
+  public static void listGoodInstrumentations(File errLog) {
+    MyAssert.assertThat(errLog != null && errLog.exists() && errLog.isFile(), 
+        "Malformed or non-existent error log file given as input.");
+    
+    Scanner scanner;
+    
+    try {
+      scanner = new Scanner(errLog);
+      final String failedInstrumentationClause = "instrumentation successful for ";
+      final int clausesize = failedInstrumentationClause.length();
+      while(scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        line = line.trim();
+        if(line.startsWith(failedInstrumentationClause)) {
+          String className = line.trim().substring(clausesize).trim();
+          
+          if(className == null || className.isEmpty()) {
+            REAL_ERR.println(line);
+          } else {
+            REAL_OUT.println(className);
+          }
+          
+        }
+      }
+    } catch(FileNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+    
+    scanner.close();
   }
   
 }
