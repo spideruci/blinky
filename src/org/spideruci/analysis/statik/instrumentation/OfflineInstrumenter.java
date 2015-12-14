@@ -10,6 +10,7 @@ import java.util.Scanner;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.spideruci.analysis.dynamic.Profiler;
 
 public class OfflineInstrumenter {
 
@@ -34,8 +35,18 @@ public class OfflineInstrumenter {
       readClassList(restrictedClasses, restrictsPath);
     }
     
-    restrictedClasses.add("javax/swing/plaf/");
+    
     restrictedClasses.add("java/lang/");
+    restrictedClasses.add("java/util/");
+    restrictedClasses.add("java/security/");
+    restrictedClasses.add("javax/swing/plaf/");
+    restrictedClasses.add("com/sun/");
+    restrictedClasses.add("sun/");
+    restrictedClasses.add("java/net/URLClassLoader");
+    restrictedClasses.add("com/oracle/");
+    restrictedClasses.add("apple/");
+    restrictedClasses.add("sunw/");
+    
   }
   
   private static void readClassList(final ArrayList<String> classes, 
@@ -67,6 +78,7 @@ public class OfflineInstrumenter {
   public static void main(String[] args) 
       throws FileNotFoundException, IOException {
     isActive = true;
+    Profiler.setLogFlags(true);
     String source = System.getProperty("src");
     String destination = System.getProperty("dest");
     
@@ -178,7 +190,7 @@ public class OfflineInstrumenter {
       }
     }
     
-    return false;
+    return true;
   }
 
   public static class ClassItem {

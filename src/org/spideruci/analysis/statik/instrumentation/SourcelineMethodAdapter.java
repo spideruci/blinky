@@ -2,8 +2,6 @@ package org.spideruci.analysis.statik.instrumentation;
 
 import static org.spideruci.analysis.trace.EventBuilder.*;
 
-import java.rmi.UnexpectedException;
-
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

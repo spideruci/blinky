@@ -11,6 +11,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
+import org.spideruci.analysis.dynamic.RuntimeClassRedefiner.RedefinitionTargets;
 import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.util.ByteCodePrinter;
 import org.spideruci.analysis.util.Constants;
@@ -33,9 +34,11 @@ public class Blinksformer implements ClassFileTransformer {
       blinkyErrorLogPath.mkdirs();
     }
     
-    if(!shouldInstrument(className)) {
+    boolean isRetransformTarget = 
+        (Premain.allowRetransform && RedefinitionTargets.isTarget(className));
+
+    if(!shouldInstrument(className) && !isRetransformTarget) {
       ErrorLogManager.logClassTxStatus(className, false, SKIPD);
-      REAL_ERR.println("instrumentation skipped for " + className);
       return classBytes;
     }
     

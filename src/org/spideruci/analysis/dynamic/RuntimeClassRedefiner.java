@@ -14,6 +14,15 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
   public byte[] transform(ClassLoader loader, String className,
       Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
       byte[] classfileBuffer) throws IllegalClassFormatException {
+    
+    if(!Premain.started && Premain.ended) {
+      throw new RuntimeException("Premain signals end, with not-started signal.");
+    }
+    
+    if(!Premain.started || (Premain.started && Premain.ended)) {
+      return null;
+    }
+    
     boolean tempGuard = Profiler.$guard1$; 
     Profiler.$guard1$ = true;
     

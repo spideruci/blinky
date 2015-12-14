@@ -69,6 +69,16 @@ public class ErrorLogManager {
     scanner.close();
   }
   
+  /**
+   * Bootstrap classes are classes that were required by the JVM during the
+   * bootstrapping phase (likely) and a bit after, all the way to just before the 
+   * execution of the premain method.
+   * 
+   * Listing these classes is useful to identify if any classes should not be
+   * instrumented in an offline, compile time instrumentation step, particularly
+   * in the case of rt.jar.
+   * @param errLog
+   */
   public static void listBootstrapClasses(File errLog) {
     MyAssert.assertThat(errLog != null && errLog.exists() && errLog.isFile(), 
         "Malformed or non-existent error log file given as input.");
@@ -192,6 +202,30 @@ public class ErrorLogManager {
     }
     
     scanner.close();
+  }
+  
+  public static void main(String[] args) {
+    String errlogPath = System.getProperty("errlog");
+    File errlog = new File(errlogPath);
+    String operation = System.getProperty("command");
+    switch(operation) {
+    case "locate-stack-trace":
+      checkLogForStackTraces(errlog);
+      return;
+    case "ls-bootstrap":
+      listBootstrapClasses(errlog);
+      return;
+    case "ls-fail":
+      listFailedInstrumentations(errlog);
+      return;
+    case "ls-skip":
+      listSkippedInstrumentations(errlog);
+      return;
+    case "ls-good":
+      listGoodInstrumentations(errlog);
+    default:
+      throw new RuntimeException();
+    }
   }
   
 }

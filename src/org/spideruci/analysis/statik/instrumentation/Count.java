@@ -10,7 +10,11 @@ public class Count {
   }
   
   public static int anotherMethod() {
-    return ++METHOD_COUNT;
+    int count = ++METHOD_COUNT;
+    if(OfflineInstrumenter.isActive) {
+      count *= -1;
+    }
+    return count;
   }
   
   public static int anotherInsn() {

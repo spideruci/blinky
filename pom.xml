@@ -97,6 +97,23 @@
 				</plugins>
 			</build>
 		</profile>
+
+	<profile>
+		<id>readerr</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>1.4.0</version>
+					<configuration>
+						<mainClass>org.spideruci.analysis.util.ErrorLogManager</mainClass>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+	</profile>
+
 	</profiles>
 
 </project>

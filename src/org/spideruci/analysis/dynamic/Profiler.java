@@ -28,8 +28,8 @@ public class Profiler {
   
   public static boolean log = true;
   
-  public static final PrintStream REAL_OUT = System.out;
-  public static final PrintStream REAL_ERR = System.err;
+  public static PrintStream REAL_OUT = System.out;
+  public static PrintStream REAL_ERR = System.err;
   
   public static String entryMethod = null;
   public static String entryClass = null;
@@ -38,7 +38,7 @@ public class Profiler {
   private static int count = 0;
   private static long time = 0;
   
-  synchronized static private void setLogFlags(final boolean value) {
+  synchronized static public void setLogFlags(final boolean value) {
     logMethodEnter = 
         logMethodExit = 
         logMethodInvoke = 
@@ -54,6 +54,14 @@ public class Profiler {
   }
 
   synchronized static public void initProfiler(String args) {
+    if(REAL_ERR == null) {
+      REAL_ERR = System.err;
+    }
+    
+    if(REAL_OUT == null) {
+      REAL_OUT = System.out;
+    }
+    
     
     if(args == null || args.isEmpty()) {
       setLogFlags(true);

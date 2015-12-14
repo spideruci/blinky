@@ -14,11 +14,16 @@ import java.lang.instrument.UnmodifiableClassException;
 public class Premain {
   
   public static boolean allowRetransform = false;
+  public static boolean started = false;
+  public static boolean ended = false;
   
   public static void premain(String agentArguments, 
       Instrumentation instrumentation) {
     boolean tempGuard = Profiler.$guard1$; 
     Profiler.$guard1$ = true;
+    
+    started = true;
+    
     Profiler.initProfiler(agentArguments);
     
     instrumentation.addTransformer(new Blinksformer());
@@ -43,6 +48,8 @@ public class Premain {
     } else {
       REAL_ERR.println("FEEDBACK: Class Retransformation is disabled.");
     }
+    
+    ended = true;
     
     Profiler.$guard1$ = tempGuard;
   }
