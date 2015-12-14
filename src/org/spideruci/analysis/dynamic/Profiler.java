@@ -333,7 +333,7 @@ public class Profiler {
       
       String arrayType = arrayref.getClass().getName();
       if(arrayType.length() == 2) {
-        elementId = String.valueOf(element);
+        elementId = "0";
       } else {
         elementId = String.valueOf(System.identityHashCode(element));
       }
@@ -350,6 +350,11 @@ public class Profiler {
     boolean guard = guard();
     if(logZero) {
       int length = Array.getLength(arrayref);
+      String arrayType = arrayref.getClass().getName();
+      if(arrayType.length() == 2) {
+        elementId = "0";
+      }
+      
       REAL_OUT.println("arraylength: " + length);
       handleArrayLog(instruction, tag, EventType.$arraystore$,
           System.identityHashCode(arrayref), index, elementId, length);

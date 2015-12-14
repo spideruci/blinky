@@ -78,19 +78,36 @@ public class TraceEvent {
     String typeString = split[0];
     int id = Integer.parseInt(split[1]);
     
+    final int offset = 2;
+    
     TraceEvent event;
     EventType type = EventType.valueOf(typeString);
-    if(type == EventType.$$$) {
-      event = TraceEvent.createInsnExecEvent(id);
+    if(type.isExec()) {
+      int eventDescPos = offset + InsnExecPropNames.INSN_EVENT_TYPE.ordinal();
+      String insnType = eventString.split(",")[eventDescPos];
+      
+      switch(EventType.valueOf(insnType)) {
+      case $field$:
+        event = TraceEvent.createFieldInsnExecEvent(id);
+        break;
+      case $arrayload$:
+      case $arraystore$:
+        event = TraceEvent.createArrayInsnExecEvent(id);
+        break;
+      default:
+        event = TraceEvent.createInsnExecEvent(id);
+      }
+      
     } else if(type.isDecl()) {
       event = TraceEvent.createDeclEvent(id, type);
-    } else {
+    } else if(type.isInsn()) {
       event = TraceEvent.createInsnEvent(id, type);
+    } else {
+      throw new RuntimeException("Unfamiliar event: " + eventString);
     }
     
-    final int offset = 2;
     MyAssert.assertThat(event.getPropCount() <= (split.length  - offset), 
-        String.valueOf(split.length));
+        String.valueOf(split.length) + " event-string:" + eventString);
     
     for(int i = offset; i < split.length; i += 1) {
       event.setProp(i - offset, split[i]);
