@@ -130,9 +130,8 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     if(shouldInstrument && Profiler.logField) {
       final int lineNum = Profiler.latestLineNumber;
       
-      String fieldName = owner + "/" + name + desc;
       instructionLog = buildInstructionLog(lineNum, EventType.$field$, 
-          opcode, methodDecl.getId(), fieldName);
+          opcode, methodDecl.getId(), owner, name, desc);
       
       if(opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
         ProfilerCallBack.start(mv)
@@ -223,7 +222,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       onConstantInsn(opcode, String.valueOf(operand));
       break;
     case NEWARRAY:
-      onTypeInsn(opcode, Deputy.primitiveCode2String(operand));
+      onTypeInsn(opcode, Deputy.primitiveCode2String(operand), 1);
       break;
     default:
       throw new RuntimeException("unexpected opcode: " + opcode);
@@ -264,22 +263,26 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   @Override
   public void visitTypeInsn(int opcode, String type) {
-    onTypeInsn(opcode, type);
+    int dims = 0;
+    if(opcode == Opcodes.ANEWARRAY) {
+      dims = 1;
+    }
+    onTypeInsn(opcode, type, dims);
     super.visitTypeInsn(opcode, type);
   }
   
   @Override
   public void visitMultiANewArrayInsn(String desc, int dims) {
-    onTypeInsn(Opcodes.MULTIANEWARRAY, desc);
+    onTypeInsn(Opcodes.MULTIANEWARRAY, desc, dims);
     super.visitMultiANewArrayInsn(desc, dims);
   }
   
-    private void onTypeInsn(int opcode, String type) {
+    private void onTypeInsn(int opcode, String type, int dims) {
       if(shouldInstrument && Profiler.logType) {
         final int lineNum = Profiler.latestLineNumber;
         
         String instructionLog = buildInstructionLog(lineNum, EventType.$type$, 
-            opcode, methodDecl.getId(), type);
+            opcode, methodDecl.getId(), type, String.valueOf(dims));
         
         ProfilerCallBack.start(mv)
         .passArg(instructionLog)

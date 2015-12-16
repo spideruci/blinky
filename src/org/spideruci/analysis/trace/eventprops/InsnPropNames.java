@@ -5,7 +5,8 @@ public enum InsnPropNames {
     LINE_NUMBER,
     OPCODE, // JVM byte-code operation code.
     OPERAND1,
-    OPERAND2;
+    OPERAND2,
+    OPERAND3;
   
   public static final InsnPropNames[] values = InsnPropNames.values();
 }

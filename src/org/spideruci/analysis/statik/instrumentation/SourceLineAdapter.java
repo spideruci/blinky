@@ -13,7 +13,7 @@ public class SourceLineAdapter extends ClassVisitor {
   private String className;
 
   public SourceLineAdapter(ClassVisitor cv, String className) {
-    super(Opcodes.ASM4, cv);
+    super(Opcodes.ASM5, cv);
     this.className = className;
   }
   

@@ -86,6 +86,11 @@ public class EventBuilder {
   
   public static String buildInstructionLog(int lineNum, EventType type,
       int declHostId, int opcode, String op1, String op2) {
+    return buildInstructionLog(lineNum, type, declHostId, opcode, op1, op2, null);
+  }
+  
+  public static String buildInstructionLog(int lineNum, EventType type,
+      int declHostId, int opcode, String op1, String op2, String op3) {
     final int insnId = Count.anotherInsn();
     TraceEvent insnEvent = TraceEvent.createInsnEvent(insnId, type);
     insnEvent.setProp(InsnPropNames.DECL_HOST_ID, String.valueOf(declHostId));
@@ -93,6 +98,7 @@ public class EventBuilder {
     insnEvent.setProp(InsnPropNames.OPCODE, String.valueOf(opcode));
     insnEvent.setProp(InsnPropNames.OPERAND1, op1);
     insnEvent.setProp(InsnPropNames.OPERAND2, op2);
+    insnEvent.setProp(InsnPropNames.OPERAND3, op3);
 
     String instructionLog = insnEvent.getLog();
     if(Profiler.log) {

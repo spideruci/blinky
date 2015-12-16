@@ -204,6 +204,22 @@ public class TraceEvent {
     return Integer.parseInt(getProp(InsnPropNames.DECL_HOST_ID));
   }
   
+  public String getInsnFieldOwner() {
+    return getProp(InsnPropNames.OPERAND1);
+  }
+  
+  public String getInsnFieldName() {
+    return getProp(InsnPropNames.OPERAND2);
+  }
+  
+  public String getInsnFieldDesc() {
+    return getProp(InsnPropNames.OPERAND3);
+  }
+  
+  public String getInsnNewType() {
+    return getProp(InsnPropNames.OPERAND1);
+  }
+  
   public String getExecThreadId() {
     return getProp(InsnExecPropNames.THREAD_ID);
   }
