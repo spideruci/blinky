@@ -1,6 +1,10 @@
 package org.spideruci.analysis.statik.instrumentation;
 
 import static org.spideruci.analysis.trace.EventBuilder.*;
+import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.BUFFER_TYPE_NAME;
+import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.BUFFER_TYPE_NAME_SYSID;
+import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.CLEAR_BUFFER;
+import static org.spideruci.analysis.statik.instrumentation.Deputy.RUNTIME_TYPE_PROFILER_NAME;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -12,6 +16,7 @@ import org.spideruci.analysis.statik.instrumentation.zerooperand.ZeroOperandSwit
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.TraceEvent;
 import org.spideruci.analysis.util.MyAssert;
+import org.spideruci.analysis.util.caryatid.Helper;
 
 public class SourcelineMethodAdapter extends AdviceAdapter {
   
@@ -29,9 +34,35 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   protected void onMethodEnter() {
     int lineNum = Profiler.latestLineNumber;
     int access = Integer.parseInt(methodDecl.getDeclAccess());
-    int opcode = ((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) ? -3 : -2;
+    final boolean isStatic = (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
+    int opcode = isStatic ? -3 : -2;
     if(methodDecl.getDeclName().contains("<init>")) {
       opcode = -5;
+    }
+    
+    ProfilerCallBack.start(mv)
+    .build(CLEAR_BUFFER, RUNTIME_TYPE_PROFILER_NAME);
+    
+    final String methodName = methodDecl.getDeclName();
+    final String[] argTypes = Helper.getArgTypeSplitFromMethod(methodName);
+    for(int i = 0; i < argTypes.length; i += 1) {
+      String argType = argTypes[i];
+      int varIndex = i + (isStatic? 0 : 1);
+      if(argType.startsWith("L")) {
+        ProfilerCallBack.start(mv)
+        .passRef(varIndex)
+        .passArg(argType)
+        .build(BUFFER_TYPE_NAME_SYSID, RUNTIME_TYPE_PROFILER_NAME);
+      } else if(argType.startsWith("[")) {
+        ProfilerCallBack.start(mv)
+        .passArg(argType)
+        .passRef(varIndex)
+        .build(BUFFER_TYPE_NAME_SYSID, RUNTIME_TYPE_PROFILER_NAME);
+      } else {
+        ProfilerCallBack.start(mv)
+        .passArg(argType)
+        .build(BUFFER_TYPE_NAME, RUNTIME_TYPE_PROFILER_NAME);
+      }
     }
     
     String instructionLog =
@@ -42,7 +73,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     .passArg(methodDecl.getDeclName())
     .passArg(instructionLog)
     .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.PROFILER_METHODENTER);
+    .build(Profiler.METHODENTER);
     
     Profiler.latestLineNumber = lineNum;
     shouldInstrument = true;
@@ -89,9 +120,8 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     if(shouldInstrument && Profiler.logMethodInvoke) {
       final int lineNum = Profiler.latestLineNumber;
       
-      String methodName = owner + "/" + name + desc;
       String instructionLog = buildInstructionLog(lineNum, EventType.$invoke$, 
-          opcode, methodDecl.getId(), methodName);
+          opcode, methodDecl.getId(), owner, name, desc);
       
       ProfilerCallBack.start(mv)
       .passArg(instructionLog)
@@ -102,10 +132,24 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     }
 
     super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
+    
+    if(shouldInstrument && Profiler.logMethodInvoke) {
+      final int lineNum = Profiler.latestLineNumber;
+      
+      String instructionLog = buildInstructionLog(lineNum, EventType.$complete$, 
+          -4, methodDecl.getId(), owner, name, desc);
+      
+      ProfilerCallBack.start(mv)
+      .passArg(instructionLog)
+      .passThis(methodDecl.getDeclAccess())
+      .build(Profiler.COMPLETE);
+      
+      Profiler.latestLineNumber = lineNum;
+    }
   }
   
   @Override
-  public void visitVarInsn(int opcode, int operand) {
+  public void visitVarInsn(int opcode, int operand) { // TODO $ret$
     if(shouldInstrument && Profiler.logVar) {
       final int lineNum = Profiler.latestLineNumber;
       

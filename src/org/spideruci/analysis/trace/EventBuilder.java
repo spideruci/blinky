@@ -4,6 +4,7 @@ import org.spideruci.analysis.dynamic.Profiler;
 import org.spideruci.analysis.statik.instrumentation.Count;
 import org.spideruci.analysis.trace.eventprops.ArrayInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.DeclPropNames;
+import org.spideruci.analysis.trace.eventprops.EnterExecPropNames;
 import org.spideruci.analysis.trace.eventprops.FieldInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnPropNames;
@@ -19,6 +20,19 @@ public class EventBuilder {
     event.setProp(InsnExecPropNames.THREAD_ID, String.valueOf(threadId));
     event.setProp(InsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
     event.setProp(InsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    return event;
+  }
+  
+  public static TraceEvent buildEnterExecEvent(int id, long threadId, 
+      String dynamicHostId, String insnId, EventType insnType, long timestamp, 
+      String runtimeSignature) {
+    TraceEvent event = TraceEvent.createEnterExecEvent(id);
+    event.setProp(EnterExecPropNames.DYN_HOST_ID, dynamicHostId);
+    event.setProp(EnterExecPropNames.INSN_EVENT_ID, insnId);
+    event.setProp(EnterExecPropNames.THREAD_ID, String.valueOf(threadId));
+    event.setProp(EnterExecPropNames.TIMESTAMP, String.valueOf(timestamp));
+    event.setProp(EnterExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    event.setProp(EnterExecPropNames.RUNTIME_SIGNATURE, runtimeSignature);
     return event;
   }
   
@@ -75,22 +89,22 @@ public class EventBuilder {
   }
   
   public static String buildInstructionLog(int lineNum, EventType type, 
-      int declHostId, int opcode) {
+      int opcode, int declHostId) {
     return buildInstructionLog(lineNum, type, opcode, declHostId, null, null);
   }
   
   public static String buildInstructionLog(int lineNum, EventType type, 
-      int declHostId, int opcode, String operand) {
-    return buildInstructionLog(lineNum, type, declHostId, opcode, operand, null);
+      int opcode, int declHostId, String operand) {
+    return buildInstructionLog(lineNum, type, opcode, declHostId, operand, null);
   }
   
   public static String buildInstructionLog(int lineNum, EventType type,
-      int declHostId, int opcode, String op1, String op2) {
-    return buildInstructionLog(lineNum, type, declHostId, opcode, op1, op2, null);
+      int opcode, int declHostId, String op1, String op2) {
+    return buildInstructionLog(lineNum, type, opcode, declHostId, op1, op2, null);
   }
   
   public static String buildInstructionLog(int lineNum, EventType type,
-      int declHostId, int opcode, String op1, String op2, String op3) {
+      int opcode, int declHostId, String op1, String op2, String op3) {
     final int insnId = Count.anotherInsn();
     TraceEvent insnEvent = TraceEvent.createInsnEvent(insnId, type);
     insnEvent.setProp(InsnPropNames.DECL_HOST_ID, String.valueOf(declHostId));

@@ -9,6 +9,7 @@ public enum EventType {
   $athrow$ (2),
   $return$ (2),
   $invoke$ (2),
+  $complete$ (2),
   $var$ (2),
   $jump$ (2),
   $field$ (2),

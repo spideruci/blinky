@@ -184,7 +184,7 @@ public class Profiler {
     }
   
   synchronized static public void reguard(boolean guard) {
-    $guard1$ = false;
+    $guard1$ = false; // TODO shouldn't this be guard instead of false?
   }
 
   synchronized static public boolean guard() {
@@ -193,10 +193,9 @@ public class Profiler {
     return guard;
   }
   
-  public static final String PROFILER_METHODENTER = "printLnMethodEnterLog";
-  synchronized static public void 
-  printLnMethodEnterLog(String className, String methodName, String instruction,
-      String tag) {
+  public static final String METHODENTER = "printLnMethodEnterLog";
+  synchronized static public void printLnMethodEnterLog(String className, 
+      String methodName, String instruction, String tag) {
     if(getUnsetGuardCondition(className, methodName)) {
 //        || methodName.startsWith("main")) {
       unsetGuard1();
@@ -206,15 +205,14 @@ public class Profiler {
     boolean guard = guard();
     
     if(logMethodEnter) {
-      handleLog(instruction, tag, EventType.$enter$);
+      handleEnterLog(instruction, tag, EventType.$enter$);
     }
     $guard1$ = guard;
   }
   
   public static final String METHODEXIT = "printLnMethodExitLog";
-  synchronized static public void 
-  printLnMethodExitLog(String className, String methodName, String instruction, 
-      String tag) {
+  synchronized static public void printLnMethodExitLog(String className, 
+      String methodName, String instruction, String tag) {
     if($guard1$) return;
     
     boolean guard = guard();
@@ -235,6 +233,16 @@ public class Profiler {
     boolean guard = guard();
     if(logMethodInvoke) {
       handleLog(instruction, tag, EventType.$invoke$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String COMPLETE = "printlnCompleteLog";
+  synchronized static public void printlnCompleteLog(String instruction, String tag) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logMethodInvoke) {
+      handleLog(instruction, tag, EventType.$complete$);
     }
     reguard(guard);
   }
@@ -490,6 +498,17 @@ public class Profiler {
   }
   
   /**************************Trace Logging**************************/
+  
+    synchronized static private void handleEnterLog(String insnId, String tag,
+        EventType insnType) {
+      long threadId = Thread.currentThread().getId();
+      long time = System.currentTimeMillis() - Profiler.time;
+      final String runtimeSignature = RuntimeTypeProfiler.buffer.toString();
+      RuntimeTypeProfiler.clearBuffer();
+      TraceEvent event = EventBuilder.buildEnterExecEvent(++count, 
+          threadId, tag, insnId, insnType, time, runtimeSignature);
+      REAL_OUT.println(event.getLog());
+    }
   
     synchronized static private void handleLog(String insnId, String tag,
         EventType insnType) {

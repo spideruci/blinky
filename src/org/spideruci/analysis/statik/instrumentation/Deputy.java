@@ -13,6 +13,7 @@ public class Deputy {
   public static boolean checkInclusionList = false;
   
   public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
+  public static final String RUNTIME_TYPE_PROFILER_NAME = "org/spideruci/analysis/dynamic/RuntimeTypeProfiler";
   
   public static final String STRING_DESC = "Ljava/lang/String;";
   public static final String OBJECT_DESC = "Ljava/lang/Object;";

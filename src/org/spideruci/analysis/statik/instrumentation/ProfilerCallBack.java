@@ -63,27 +63,34 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-  public ProfilerCallBack passVar(int opcode, int var) {
-    switch(opcode) {
-    case Opcodes.ILOAD:
-    case Opcodes.ISTORE:
-    case Opcodes.LLOAD:
-    case Opcodes.LSTORE:
-    case Opcodes.FLOAD:
-    case Opcodes.FSTORE:
-    case Opcodes.DLOAD:
-    case Opcodes.DSTORE:
-    case Opcodes.ALOAD:
-    case Opcodes.ASTORE:
-      mv.visitLdcInsn("0");
-      break;
-    default:
-      throw new RuntimeException("");
-    }
-    
-    this.callbackDesc.append(Deputy.STRING_DESC);
+  public ProfilerCallBack passRef(int var) {
+    mv.visitVarInsn(Opcodes.ALOAD, var);
+    mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
+    this.callbackDesc.append(Deputy.OBJECT_DESC);
     return this;
   }
+  
+//  public ProfilerCallBack passVar(int opcode, int var) {
+//    switch(opcode) {
+//    case Opcodes.ILOAD:
+//    case Opcodes.ISTORE:
+//    case Opcodes.LLOAD:
+//    case Opcodes.LSTORE:
+//    case Opcodes.FLOAD:
+//    case Opcodes.FSTORE:
+//    case Opcodes.DLOAD:
+//    case Opcodes.DSTORE:
+//    case Opcodes.ALOAD:
+//    case Opcodes.ASTORE:
+//      mv.visitLdcInsn("0");
+//      break;
+//    default:
+//      throw new RuntimeException("");
+//    }
+//    
+//    this.callbackDesc.append(Deputy.STRING_DESC);
+//    return this;
+//  }
   
   public ProfilerCallBack setupGetInsnStackArgs(int opcode, String owner) {
     MyAssert.assertThat(GETFIELD == opcode || GETSTATIC == opcode);
@@ -243,11 +250,16 @@ public class ProfilerCallBack implements Opcodes {
       mv.visitMethodInsn(INVOKESTATIC, PROFILER_NAME, GETHASH, GETHASH_DESC, false);
     }
   
-  @SuppressWarnings("deprecation")
+  
   public void build(String callBackName) {
+    this.build(callBackName, Deputy.PROFILER_NAME);
+  }
+  
+  @SuppressWarnings("deprecation")
+  public void build(String callBackName, String classbackClassName) {
     this.callbackDesc.append(")V");
     this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-                       Deputy.PROFILER_NAME, 
+                       classbackClassName, 
                        callBackName, 
                        callbackDesc.toString());
   }
