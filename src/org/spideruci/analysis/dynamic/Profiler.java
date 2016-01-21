@@ -89,19 +89,7 @@ public class Profiler {
     
     char[] processedArgs = profileConfig.trim().toCharArray();
     
-    int bits = 0;
-    
     for(char arg : processedArgs) {
-      int index = ((int)arg) - 97;
-       
-      if(getBit(bits, index) == 1) {
-        continue;
-      } else {
-        bits = setBit(bits, index);
-      }
-      
-      displayBits(bits);
-      
       switch(arg) {
       case 'E':
         logEnterRuntimeSign = true;
@@ -143,7 +131,6 @@ public class Profiler {
       default: continue;
       }
     }
-    displayBits(bits);
 
     for(int count = 1; count < split.length; count += 1) {
       String arg = split[count]; 
@@ -177,24 +164,10 @@ public class Profiler {
     }
   }
   
-    synchronized private static int getBit(int bits, int index) {
-      int mask = 1 << index;
-      return ((bits & mask) == 0) ? 0 : 1;
-    }
-    
-    synchronized private static int setBit(int bits, int index) {
-      int mask = 1 << index;
-      return (bits | mask);
-    }
-    
-    synchronized private static void displayBits(int bits) {
-      REAL_OUT.println(Integer.toBinaryString(bits));
-    }
-  
   synchronized static public void reguard(boolean guard) {
     $guard1$ = false; // TODO shouldn't this be guard instead of false?
   }
-
+  
   synchronized static public boolean guard() {
     boolean guard = $guard1$;
     $guard1$ = true;
