@@ -70,28 +70,6 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-//  public ProfilerCallBack passVar(int opcode, int var) {
-//    switch(opcode) {
-//    case Opcodes.ILOAD:
-//    case Opcodes.ISTORE:
-//    case Opcodes.LLOAD:
-//    case Opcodes.LSTORE:
-//    case Opcodes.FLOAD:
-//    case Opcodes.FSTORE:
-//    case Opcodes.DLOAD:
-//    case Opcodes.DSTORE:
-//    case Opcodes.ALOAD:
-//    case Opcodes.ASTORE:
-//      mv.visitLdcInsn("0");
-//      break;
-//    default:
-//      throw new RuntimeException("");
-//    }
-//    
-//    this.callbackDesc.append(Deputy.STRING_DESC);
-//    return this;
-//  }
-  
   public ProfilerCallBack setupGetInsnStackArgs(int opcode, String owner) {
     MyAssert.assertThat(GETFIELD == opcode || GETSTATIC == opcode);
     

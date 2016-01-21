@@ -1,6 +1,8 @@
 package org.spideruci.analysis.statik.instrumentation;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.objectweb.asm.Opcodes;
 
@@ -11,6 +13,8 @@ public class Deputy {
   public static final ArrayList<String> inclusionList;
   
   public static boolean checkInclusionList = false;
+  
+  public static final String NA = "NA";
   
   public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
   public static final String RUNTIME_TYPE_PROFILER_NAME = "org/spideruci/analysis/dynamic/RuntimeTypeProfiler";

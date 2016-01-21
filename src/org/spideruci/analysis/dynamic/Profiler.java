@@ -25,6 +25,8 @@ public class Profiler {
   public static boolean logConstant = false;
   public static boolean logType = false;
   public static boolean logSwitch = false;
+  public static boolean logInvokeRuntimeSign = false;
+  public static boolean logEnterRuntimeSign = false;
   
   public static boolean log = true;
   
@@ -50,6 +52,8 @@ public class Profiler {
         logField = 
         logType = 
         logSwitch = 
+        logInvokeRuntimeSign = 
+        logEnterRuntimeSign = 
         log = value;
   }
 
@@ -83,7 +87,7 @@ public class Profiler {
       profileConfig = "";
     }
     
-    char[] processedArgs = profileConfig.trim().toLowerCase().toCharArray();
+    char[] processedArgs = profileConfig.trim().toCharArray();
     
     int bits = 0;
     
@@ -99,6 +103,8 @@ public class Profiler {
       displayBits(bits);
       
       switch(arg) {
+      case 'E':
+        logEnterRuntimeSign = true;
       case 'e':
         logMethodEnter = true;
         continue;
@@ -108,6 +114,8 @@ public class Profiler {
       case 'l':
         logSourceLineNumber = true;
         continue;
+      case 'I':
+        logInvokeRuntimeSign = true;
       case 'i': 
         logMethodInvoke = true;
         continue;
@@ -232,7 +240,7 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
     if(logMethodInvoke) {
-      handleLog(instruction, tag, EventType.$invoke$);
+      handleInvokeLog(instruction, tag, EventType.$invoke$);
     }
     reguard(guard);
   }
@@ -503,13 +511,24 @@ public class Profiler {
         EventType insnType) {
       long threadId = Thread.currentThread().getId();
       long time = System.currentTimeMillis() - Profiler.time;
-      final String runtimeSignature = RuntimeTypeProfiler.buffer.toString();
+      final String runtimeSignature = RuntimeTypeProfiler.getEnterRuntimeSignature();
       RuntimeTypeProfiler.clearBuffer();
       TraceEvent event = EventBuilder.buildEnterExecEvent(++count, 
           threadId, tag, insnId, insnType, time, runtimeSignature);
       REAL_OUT.println(event.getLog());
     }
-  
+    
+    synchronized static private void handleInvokeLog(String insnId, String tag,
+        EventType insnType) {
+      long threadId = Thread.currentThread().getId();
+      long time = System.currentTimeMillis() - Profiler.time;
+      final String runtimeSignature = 
+          RuntimeTypeProfiler.getInvokeRuntimeSignature();
+      TraceEvent event = EventBuilder.buildInvokeInsnExecEvent(++count, 
+          threadId, tag, insnId, insnType, time, runtimeSignature);
+      REAL_OUT.println(event.getLog());
+    }
+    
     synchronized static private void handleLog(String insnId, String tag,
         EventType insnType) {
       long threadId = Thread.currentThread().getId();

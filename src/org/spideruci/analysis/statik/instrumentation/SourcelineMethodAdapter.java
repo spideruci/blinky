@@ -40,28 +40,30 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       opcode = -5;
     }
     
-    ProfilerCallBack.start(mv)
-    .build(CLEAR_BUFFER, RUNTIME_TYPE_PROFILER_NAME);
-    
-    final String methodName = methodDecl.getDeclName();
-    final String[] argTypes = Helper.getArgTypeSplitFromMethod(methodName);
-    for(int i = 0; i < argTypes.length; i += 1) {
-      String argType = argTypes[i];
-      int varIndex = i + (isStatic? 0 : 1);
-      if(argType.startsWith("L")) {
-        ProfilerCallBack.start(mv)
-        .passRef(varIndex)
-        .passArg(argType)
-        .build(BUFFER_TYPE_NAME_SYSID, RUNTIME_TYPE_PROFILER_NAME);
-      } else if(argType.startsWith("[")) {
-        ProfilerCallBack.start(mv)
-        .passArg(argType)
-        .passRef(varIndex)
-        .build(BUFFER_TYPE_NAME_SYSID, RUNTIME_TYPE_PROFILER_NAME);
-      } else {
-        ProfilerCallBack.start(mv)
-        .passArg(argType)
-        .build(BUFFER_TYPE_NAME, RUNTIME_TYPE_PROFILER_NAME);
+    if(Profiler.logEnterRuntimeSign) {
+      ProfilerCallBack.start(mv)
+      .build(CLEAR_BUFFER, RUNTIME_TYPE_PROFILER_NAME);
+      
+      final String methodName = methodDecl.getDeclName();
+      final String[] argTypes = Helper.getArgTypeSplitFromMethod(methodName);
+      for(int i = 0; i < argTypes.length; i += 1) {
+        String argType = argTypes[i];
+        int varIndex = i + (isStatic? 0 : 1);
+        if(argType.startsWith("L")) {
+          ProfilerCallBack.start(mv)
+          .passRef(varIndex)
+          .passArg(argType)
+          .build(BUFFER_TYPE_NAME_SYSID, RUNTIME_TYPE_PROFILER_NAME);
+        } else if(argType.startsWith("[")) {
+          ProfilerCallBack.start(mv)
+          .passArg(argType)
+          .passRef(varIndex)
+          .build(BUFFER_TYPE_NAME_SYSID, RUNTIME_TYPE_PROFILER_NAME);
+        } else {
+          ProfilerCallBack.start(mv)
+          .passArg(argType)
+          .build(BUFFER_TYPE_NAME, RUNTIME_TYPE_PROFILER_NAME);
+        }
       }
     }
     
@@ -120,6 +122,10 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     if(shouldInstrument && Profiler.logMethodInvoke) {
       final int lineNum = Profiler.latestLineNumber;
       
+      if(Profiler.logInvokeRuntimeSign) {
+        InvokeSignCallBack.buildArgProfileProbe(mv, opcode, owner, name, desc);
+      }
+      
       String instructionLog = buildInstructionLog(lineNum, EventType.$invoke$, 
           opcode, methodDecl.getId(), owner, name, desc);
       
@@ -130,7 +136,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       
       Profiler.latestLineNumber = lineNum;
     }
-
+    
     super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
     
     if(shouldInstrument && Profiler.logMethodInvoke) {

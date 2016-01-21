@@ -6,6 +6,7 @@ import org.spideruci.analysis.trace.eventprops.EnterExecPropNames;
 import org.spideruci.analysis.trace.eventprops.FieldInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnPropNames;
+import org.spideruci.analysis.trace.eventprops.InvokeInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.VarInsnExecPropNames;
 import org.spideruci.analysis.util.MyAssert;
 
@@ -23,6 +24,10 @@ public class TraceEvent {
   private final EventType type;
   private final String[] propValues;
   private final Enum[] propNames;
+  
+  public static TraceEvent createInvokeInsnExecEvent(int id) {
+    return new TraceEvent(id, EventType.$$$, InvokeInsnExecPropNames.values);
+  }
   
   public static TraceEvent createEnterExecEvent(int id) {
     return new TraceEvent(id, EventType.$$$, EnterExecPropNames.values);

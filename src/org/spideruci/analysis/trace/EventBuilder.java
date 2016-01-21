@@ -8,6 +8,7 @@ import org.spideruci.analysis.trace.eventprops.EnterExecPropNames;
 import org.spideruci.analysis.trace.eventprops.FieldInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.InsnPropNames;
+import org.spideruci.analysis.trace.eventprops.InvokeInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.VarInsnExecPropNames;
 
 public class EventBuilder {
@@ -20,6 +21,19 @@ public class EventBuilder {
     event.setProp(InsnExecPropNames.THREAD_ID, String.valueOf(threadId));
     event.setProp(InsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
     event.setProp(InsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    return event;
+  }
+  
+  public static TraceEvent buildInvokeInsnExecEvent(int id, long threadId, 
+      String dynamicHostId, String insnId, EventType insnType, long timestamp, 
+      String runtimeSignature) {
+    TraceEvent event = TraceEvent.createEnterExecEvent(id);
+    event.setProp(InvokeInsnExecPropNames.DYN_HOST_ID, dynamicHostId);
+    event.setProp(InvokeInsnExecPropNames.INSN_EVENT_ID, insnId);
+    event.setProp(InvokeInsnExecPropNames.THREAD_ID, String.valueOf(threadId));
+    event.setProp(InvokeInsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
+    event.setProp(InvokeInsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    event.setProp(InvokeInsnExecPropNames.RUNTIME_SIGNATURE, runtimeSignature);
     return event;
   }
   
