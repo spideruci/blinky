@@ -45,7 +45,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       .build(CLEAR_BUFFER, RUNTIME_TYPE_PROFILER_NAME);
       
       final String methodName = methodDecl.getDeclName();
-      final String[] argTypes = Helper.getArgTypeSplitFromMethod(methodName);
+      final String[] argTypes = Helper.getArgTypeSplit(methodName);
       for(int i = 0; i < argTypes.length; i += 1) {
         String argType = argTypes[i];
         int varIndex = i + (isStatic? 0 : 1);

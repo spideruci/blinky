@@ -1,6 +1,9 @@
 package org.spideruci.analysis.statik.instrumentation;
 
 import static org.spideruci.analysis.statik.instrumentation.Deputy.RUNTIME_TYPE_PROFILER_NAME;
+
+import java.util.Arrays;
+
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.SETUP_INVOKE;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.GET;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.PUT;
@@ -94,8 +97,12 @@ public class InvokeSignCallBack {
       final String profiler = RUNTIME_TYPE_PROFILER_NAME;
       final String putObjectDesc = "(Ljava/lang/Object;Ljava/lang/String;I)V";
       int minLimit = isSpecial ? 1 : 0;
+      
       for(int i = argTypes.length - 1; i >= minLimit; i -= 1) {
         String description;
+        if(argTypes[i] == null) {
+          System.out.println("ARGTYPE-NULL>" + Arrays.asList(argTypes).toString());
+        }
         char argInitial = argTypes[i].charAt(0);
         switch(argInitial) {
         case 'L':
@@ -114,7 +121,8 @@ public class InvokeSignCallBack {
           description =  "(" + argInitial + "I)V";
           break;
         default:
-          throw new RuntimeException("unknown argTypeInitial: " + argInitial);
+          System.out.println();
+          throw new RuntimeException("ARGTYPE-UNKNOWN>" + i + ">" + Arrays.asList(argTypes).toString());
         }
         
         // BIPUSH {i}

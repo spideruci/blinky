@@ -27,7 +27,7 @@ public class EventBuilder {
   public static TraceEvent buildInvokeInsnExecEvent(int id, long threadId, 
       String dynamicHostId, String insnId, EventType insnType, long timestamp, 
       String runtimeSignature) {
-    TraceEvent event = TraceEvent.createEnterExecEvent(id);
+    TraceEvent event = TraceEvent.createInvokeInsnExecEvent(id);
     event.setProp(InvokeInsnExecPropNames.DYN_HOST_ID, dynamicHostId);
     event.setProp(InvokeInsnExecPropNames.INSN_EVENT_ID, insnId);
     event.setProp(InvokeInsnExecPropNames.THREAD_ID, String.valueOf(threadId));
