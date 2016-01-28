@@ -100,14 +100,35 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   }
   
   @Override
+  public void visitCode() {
+    final boolean isCtor = methodDecl.getDeclName().startsWith("<init>");
+    
+    if(isCtor && Profiler.logMethodEnter) {
+      final int opcode = -2;
+      String instructionLog = buildInstructionLog(-1, EventType.$enter$, opcode,
+          methodDecl.getId());
+      
+      ProfilerCallBack.start(mv)
+      .passArg(methodDecl.getDeclOwner())
+      .passArg(methodDecl.getDeclName())
+      .passArg(instructionLog)
+      .passArg("0")
+      .build(Profiler.METHODENTER);
+    }
+    
+    super.visitCode(); //make the actual call.
+  }
+  
+  @Override
   public void visitLineNumber(int line, Label start) {
     super.visitLineNumber(line, start); //make the actual call.
     
     if(shouldInstrument && Profiler.logSourceLineNumber) {
       Profiler.latestLineNumber = line;
       
-      String instructionLog =
-          buildInstructionLog(line, EventType.$line$, -1, methodDecl.getId());
+      final int opcode = -1;
+      String instructionLog = buildInstructionLog(line, EventType.$line$, 
+          opcode, methodDecl.getId());
       
       ProfilerCallBack.start(mv)
       .passArg(instructionLog)
@@ -119,7 +140,12 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   @SuppressWarnings("deprecation")
   @Override
   public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-    if(shouldInstrument && Profiler.logMethodInvoke) {
+    if(!shouldInstrument || !Profiler.logMethodInvoke) {
+      super.visitMethodInsn(opcode, owner, name, desc); // make the actual call.
+      return;
+    }
+    
+    if(Profiler.logMethodInvoke) {
       final int lineNum = Profiler.latestLineNumber;
       
       if(Profiler.logInvokeRuntimeSign) {
@@ -134,16 +160,10 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.INVOKE);
       
-      Profiler.latestLineNumber = lineNum;
-    }
-    
-    super.visitMethodInsn(opcode, owner, name, desc); //make the actual call.
-    
-    if(shouldInstrument && Profiler.logMethodInvoke) {
-      final int lineNum = Profiler.latestLineNumber;
+      super.visitMethodInsn(opcode, owner, name, desc);
       
-      String instructionLog = buildInstructionLog(lineNum, EventType.$complete$, 
-          -4, methodDecl.getId(), owner, name, desc);
+      instructionLog = buildInstructionLog(lineNum, EventType.$complete$, -4, 
+          methodDecl.getId(), owner, name, desc);
       
       ProfilerCallBack.start(mv)
       .passArg(instructionLog)

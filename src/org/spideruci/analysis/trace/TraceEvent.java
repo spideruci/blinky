@@ -97,6 +97,15 @@ public class TraceEvent {
       String insnType = eventString.split(",")[eventDescPos];
       
       switch(EventType.valueOf(insnType)) {
+      case $invoke$:
+        event = TraceEvent.createInvokeInsnExecEvent(id);
+        break;
+      case $enter$:
+        event = TraceEvent.createEnterExecEvent(id);
+        break;
+      case $var$:
+        event = TraceEvent.createVarInsnExecEvent(id);
+        break;
       case $field$:
         event = TraceEvent.createFieldInsnExecEvent(id);
         break;
@@ -107,7 +116,6 @@ public class TraceEvent {
       default:
         event = TraceEvent.createInsnExecEvent(id);
       }
-      
     } else if(type.isDecl()) {
       event = TraceEvent.createDeclEvent(id, type);
     } else if(type.isInsn()) {
@@ -231,23 +239,36 @@ public class TraceEvent {
   }
   
   public String getExecThreadId() {
-    return getProp(InsnExecPropNames.THREAD_ID);
+    final int index = InsnExecPropNames.THREAD_ID.ordinal();
+    return getProp(index);
   }
   
   public String getExecTimestamp() {
-    return getProp(InsnExecPropNames.TIMESTAMP);
-  }
-  
-  public String getExecInsnId() {
-    return getProp(InsnExecPropNames.INSN_EVENT_ID);
+    final int index = InsnExecPropNames.TIMESTAMP.ordinal();
+    return getProp(index);
   }
   
   public String getExecInsnDynHost() {
-    return getProp(InsnExecPropNames.DYN_HOST_ID);
+    final int index = InsnExecPropNames.DYN_HOST_ID.ordinal();
+    return getProp(index);
+  }
+  
+  public String getExecInsnId() {
+    final int index = InsnExecPropNames.INSN_EVENT_ID.ordinal();
+    return getProp(index);
   }
   
   public EventType getExecInsnType() {
-    return EventType.valueOf(getProp(InsnExecPropNames.INSN_EVENT_TYPE));
+    final int index = InsnExecPropNames.INSN_EVENT_TYPE.ordinal();
+    return EventType.valueOf(getProp(index));
+  }
+  
+  public String getInvokeRuntimeSign() {
+    return getProp(InvokeInsnExecPropNames.RUNTIME_SIGNATURE);
+  }
+  
+  public String getEnterRuntimeSign() {
+    return getProp(EnterExecPropNames.RUNTIME_SIGNATURE);
   }
   
   @Override

@@ -10,7 +10,10 @@ import static org.objectweb.asm.Opcodes.*;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.CheckClassAdapter;
+
+import org.spideruci.analysis.statik.instrumentation.ControlDepAdapter;
 
 public class ClassInstrumenter {
   
@@ -39,7 +42,7 @@ public class ClassInstrumenter {
     
     byte[] instrumentedBytecode = null;
     try {
-      instrumentedBytecode = instrumentSourcelines(className, cr);
+      instrumentedBytecode = instrumentBytecode(className, cr);
       checkBytecode(instrumentedBytecode);
     } catch(RuntimeException rex) {
       rex.printStackTrace();
@@ -52,7 +55,32 @@ public class ClassInstrumenter {
     return instrumentedBytecode;
   }
   
-  public byte[] instrumentSourcelines(String className, ClassReader cr) {
+  protected byte[] instrumentControlProbes(String className, byte[] bytecode) 
+      throws Exception {
+    byte[] bytecode2 = null;
+    try {
+      //1. read byte-code
+      ClassReader cr = new ClassReader(bytecode);
+      
+      if((cr.getAccess() & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE) {
+        return bytecode;
+      }
+      // 2. prepare to write byte-code
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS); 
+      // 3. adapter for the class writer above to deploy the Snitch in the class
+      ControlDepAdapter classAd = new ControlDepAdapter(cw, className);
+      cr.accept(classAd, ClassReader.EXPAND_FRAMES);//4. deploy the Snitch
+      bytecode2 = cw.toByteArray();
+      checkBytecode(bytecode2);
+    }
+    catch(Exception e) {
+      throw e;
+    }
+
+    return bytecode2;
+  }
+  
+  protected byte[] instrumentBytecode(String className, ClassReader cr) {
     byte[] bytecode2 = null;
     
     if(cr == null) {

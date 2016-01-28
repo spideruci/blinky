@@ -69,7 +69,11 @@ public class RuntimeTypeProfiler {
   
   public static String getEnterRuntimeSignature() {
     if(Profiler.logEnterRuntimeSign) {
-      return enterBuffer.toString();
+      String sign = enterBuffer.toString();
+      if(sign.trim().isEmpty()) {
+        sign = "~";
+      }
+      return sign;
     }
     
     return Deputy.NA;
@@ -77,7 +81,11 @@ public class RuntimeTypeProfiler {
   
   public static String getInvokeRuntimeSignature() {
     if(Profiler.logInvokeRuntimeSign) {
-      return invokeBuffer.toString();
+      String sign = invokeBuffer.toString();
+      if(sign.trim().isEmpty()) {
+        sign = "~";
+      }
+      return sign;
     }
     
     return Deputy.NA;

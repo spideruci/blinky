@@ -17,19 +17,20 @@ public class InvokeSignCallBack {
   
   public static void buildArgProfileProbe(MethodVisitor mv, int opcode, 
       String owner, String name, String desc) {
-    String[] argTypes; 
-
-    if(opcode == Opcodes.INVOKESTATIC) {
-      argTypes = Helper.getArgTypeSplit(desc);
-    }
-    else {
-      String[] temp = Helper.getArgTypeSplit(desc);
-      argTypes = new String[temp.length + 1];
-      argTypes[0] = "L" + owner + ";";
-      for(int i = 0; i < temp.length; i += 1) {
-        argTypes[i+1] = temp[i];
-      }
-    }
+    final String[] argTypes = 
+        Helper.getArgTypes(desc, owner, opcode == Opcodes.INVOKESTATIC);
+    
+//    if(opcode == Opcodes.INVOKESTATIC) {
+//      argTypes = Helper.getArgTypeSplit(desc);
+//    }
+//    else {
+//      String[] temp = Helper.getArgTypeSplit(desc);
+//      argTypes = new String[temp.length + 1];
+//      argTypes[0] = "L" + owner + ";";
+//      for(int i = 0; i < temp.length; i += 1) {
+//        argTypes[i+1] = temp[i];
+//      }
+//    }
 
     int argCount = argTypes.length;
     boolean isSpecial = opcode == Opcodes.INVOKESPECIAL;
