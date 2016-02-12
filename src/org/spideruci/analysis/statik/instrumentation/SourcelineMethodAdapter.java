@@ -22,6 +22,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   private TraceEvent methodDecl;
   private boolean shouldInstrument;
+   
   
   public SourcelineMethodAdapter(TraceEvent methodDecl, int access, String name, 
       String desc, MethodVisitor mv) {
@@ -78,6 +79,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     .build(Profiler.METHODENTER);
     
     Profiler.latestLineNumber = lineNum;
+   
     shouldInstrument = true;
   }
   
@@ -97,6 +99,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     .build(Profiler.METHODEXIT);
     
     Profiler.latestLineNumber = lineNum;
+    
   }
   
   @Override
@@ -130,6 +133,8 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(line, EventType.$line$, 
           opcode, methodDecl.getId());
       
+      MethodMap.putMethod(methodDecl.getDeclName(), line, methodDecl.getDeclOwner().substring(1).replaceAll("/", "."));
+
       ProfilerCallBack.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
