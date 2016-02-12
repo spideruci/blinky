@@ -1,14 +1,11 @@
 package org.spideruci.analysis.statik.instrumentation;
 
 import static org.spideruci.analysis.trace.EventBuilder.*;
-<<<<<<< Updated upstream
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.BUFFER_TYPE_NAME;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.BUFFER_TYPE_NAME_SYSID;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.CLEAR_BUFFER;
 import static org.spideruci.analysis.statik.instrumentation.Deputy.RUNTIME_TYPE_PROFILER_NAME;
 
-=======
->>>>>>> Stashed changes
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
