@@ -1,11 +1,14 @@
 package org.spideruci.analysis.statik.instrumentation;
 
 import static org.spideruci.analysis.trace.EventBuilder.*;
+<<<<<<< Updated upstream
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.BUFFER_TYPE_NAME;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.BUFFER_TYPE_NAME_SYSID;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.CLEAR_BUFFER;
 import static org.spideruci.analysis.statik.instrumentation.Deputy.RUNTIME_TYPE_PROFILER_NAME;
 
+=======
+>>>>>>> Stashed changes
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -22,6 +25,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
   
   private TraceEvent methodDecl;
   private boolean shouldInstrument;
+   
   
   public SourcelineMethodAdapter(TraceEvent methodDecl, int access, String name, 
       String desc, MethodVisitor mv) {
@@ -78,6 +82,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     .build(Profiler.METHODENTER);
     
     Profiler.latestLineNumber = lineNum;
+   
     shouldInstrument = true;
   }
   
@@ -97,6 +102,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     .build(Profiler.METHODEXIT);
     
     Profiler.latestLineNumber = lineNum;
+    
   }
   
   @Override
@@ -130,6 +136,8 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(line, EventType.$line$, 
           opcode, methodDecl.getId());
       
+      MethodMap.putMethod(methodDecl.getDeclName(), line, methodDecl.getDeclOwner().substring(1).replaceAll("/", "."));
+
       ProfilerCallBack.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
