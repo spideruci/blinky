@@ -6,6 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.spideruci.analysis.dynamic.Profiler;
 import org.spideruci.analysis.statik.instrumentation.ProfilerCallBack;
 import org.spideruci.analysis.trace.EventType;
+import org.spideruci.analysis.trace.MethodDecl;
 import org.spideruci.analysis.trace.TraceEvent;
 import org.spideruci.analysis.util.MyAssert;
 
@@ -13,22 +14,24 @@ public class ZeroOperandSwitchListerner {
   
   private final MethodVisitor mv;
   private final int linenumber;
-  private final TraceEvent methodDecl;
+  private final int bytecodeIndex;
+  private final MethodDecl methodDecl;
   
   public static ZeroOperandSwitchListerner create(MethodVisitor mv, 
-      int linenumber, TraceEvent methodDecl) {
+      int bytecodeIndex, int linenumber, MethodDecl methodDecl) {
     MyAssert.assertThat(methodDecl.getType() == EventType.$$method$$, 
         "methodDecl's expected event type is " + EventType.$$method$$ +
         "\n methodDecl's actual event type is " + methodDecl.getType());
     
     ZeroOperandSwitchListerner listerner = 
-        new ZeroOperandSwitchListerner(mv, linenumber, methodDecl);
+        new ZeroOperandSwitchListerner(mv, bytecodeIndex, linenumber, methodDecl);
     return listerner;
   }
   
-  private ZeroOperandSwitchListerner(MethodVisitor mv, int linenumber, TraceEvent methodDecl) {
+  private ZeroOperandSwitchListerner(MethodVisitor mv, int bytecodeIndex, int linenumber, MethodDecl methodDecl) {
     this.mv = mv;
     this.linenumber = linenumber;
+    this.bytecodeIndex = bytecodeIndex;
     this.methodDecl = methodDecl;
   }
   
@@ -85,7 +88,7 @@ public class ZeroOperandSwitchListerner {
   }
 
   public void onAthrow(final int opcode) {
-    // do nothing.
+    onRegularZeroOperandEvent(opcode, EventType.$athrow$);
   }
 
   public void onMonitor(final int opcode) {
@@ -93,7 +96,7 @@ public class ZeroOperandSwitchListerner {
   }
 
     private void onRegularZeroOperandEvent(final int opcode, final EventType eventType) {
-      String instructionLog = buildInstructionLog(linenumber, eventType, 
+      String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, eventType, 
           opcode, methodDecl.getId());
   
       ProfilerCallBack.start(mv)
@@ -104,7 +107,7 @@ public class ZeroOperandSwitchListerner {
     }
     
     private void onConstantEvent(final int opcode) {
-      String instructionLog = buildInstructionLog(linenumber, EventType.$constant$, 
+      String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, EventType.$constant$, 
           opcode, methodDecl.getId());
   
       ProfilerCallBack.start(mv)
@@ -114,7 +117,7 @@ public class ZeroOperandSwitchListerner {
     }
     
     private void onArrayLoadEvent(final int opcode) {
-      String instructionLog = buildInstructionLog(linenumber, 
+      String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, 
           EventType.$arrayload$, opcode, methodDecl.getId());
   
       ProfilerCallBack.start(mv)
@@ -125,7 +128,7 @@ public class ZeroOperandSwitchListerner {
     }
     
     private void onArrayStoreEvent(final int opcode) {
-      String instructionLog = buildInstructionLog(linenumber, 
+      String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, 
           EventType.$arraystore$, opcode, methodDecl.getId());
   
       ProfilerCallBack.start(mv)

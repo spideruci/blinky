@@ -10,9 +10,11 @@ public class Deputy {
   public static int LINE_COUNT = 0;
   
   public static final ArrayList<String> exclusionList;
-  public static final ArrayList<String> inclusionList;
+  public static final String[] inclusionList;
   
   public static boolean checkInclusionList = false;
+  
+  public static final String STATIC_IDENT = "C";
   
   public static final String NA = "NA";
   
@@ -35,12 +37,12 @@ public class Deputy {
   
   static {
     exclusionList = new ArrayList<String>();
-    exclusionList.add("org/gjt/sp/util/Log$");
-    exclusionList.add("org/gjt/sp/util/Log$LogPrintStream");
-    exclusionList.add("org/gjt/sp/util/Log$LogInputStream");
-    exclusionList.add("org/gjt/sp/util/Log$LogOutputStream");
+    
     exclusionList.add("java/");
+    exclusionList.add("java/lang");
     exclusionList.add("org/objectweb/asm");
+    exclusionList.add("edu/uci/spiderlab/analysis");
+    exclusionList.add("org/spideruci/analysis");
     exclusionList.add("test/");
     exclusionList.add("Core/");
     exclusionList.add("Data/");
@@ -49,6 +51,7 @@ public class Deputy {
     exclusionList.add("com/google");
     exclusionList.add("sun");
     exclusionList.add("apple/");
+    exclusionList.add("com/apple");
     exclusionList.add("com/sun");
     exclusionList.add("javax/");
     exclusionList.add("org/ietf");
@@ -71,13 +74,33 @@ public class Deputy {
     exclusionList.add("junit/tests/extensions");
     exclusionList.add("org/apache/commons/logging");
     exclusionList.add("org/apache/commons/logging");
-    exclusionList.add("edu/uci/spiderlab/analysis");
-    exclusionList.add("org/spideruci/analysis");
     
-    inclusionList = new ArrayList<String>();
-    inclusionList.add("org/gjt/sp/");
-    inclusionList.add("DumpXML");
-    inclusionList.add("org/spideruci/patternabstraction/benckmark");
+    exclusionList.add("org/gjt/sp/util/Log$");
+    exclusionList.add("org/gjt/sp/util/Log$LogPrintStream");
+    exclusionList.add("org/gjt/sp/util/Log$LogInputStream");
+    exclusionList.add("org/gjt/sp/util/Log$LogOutputStream");
+    
+    inclusionList = new String[] {
+        "java/io",
+        "java/awt",
+        "java/beans",
+        "java/io",
+        "java/math",
+        "java/net",
+        "java/nio",
+        "java/rmi",
+        "java/sql",
+        "java/text",
+        "javax",
+        "org/ietf",
+        "org/jcp",
+        "org/omg",
+        "org/w3c",
+        "org/xml",
+        "org/gjt/sp/",
+        "DumpXML",
+        "org/spideruci/patternabstraction/benckmark"
+    };
   }
   
   public static String joinStrings(String[] strings, String sep) {

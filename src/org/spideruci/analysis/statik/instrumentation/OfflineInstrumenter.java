@@ -67,12 +67,10 @@ public class OfflineInstrumenter {
         
         classes.add(className);
       }
-      
+      scanner.close();
     } catch(FileNotFoundException fileEx) {
-      throw new RuntimeException(fileEx);
+      System.out.println(fileEx.getMessage());
     }
-    
-    scanner.close();
   }
   
   public static void main(String[] args) 
@@ -184,13 +182,18 @@ public class OfflineInstrumenter {
       }
     }
     
-    for(String classname : permittedClasses) {
-      if(classFullName.startsWith(classname)) {
-        return false;
+    if(!permittedClasses.isEmpty()) {
+      for(String classname : permittedClasses) {
+        if(classFullName.startsWith(classname)) {
+          return false;
+        }
       }
+      
+      return true;
+    } else {
+      return false;
     }
     
-    return true;
   }
 
   public static class ClassItem {

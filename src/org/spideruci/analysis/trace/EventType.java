@@ -3,6 +3,8 @@ package org.spideruci.analysis.trace;
 public enum EventType {
   $$$ (1),
   
+  $flow$(8),
+  
   $enter$ (2),
   $exit$ (2),
   $line$ (2),
@@ -26,6 +28,9 @@ public enum EventType {
   $monitor$ (2),
   $switch$ (2),
   
+  $argtype$(2),
+  $invokeargtype$(2),
+  
   $$class$$ (4),
   $$method$$ (4);
   
@@ -45,5 +50,9 @@ public enum EventType {
   
   public boolean isExec() {
     return (kind & 1) == 1;
+  }
+  
+  public boolean isFlow() {
+    return (kind & 8) == 8;
   }
 }

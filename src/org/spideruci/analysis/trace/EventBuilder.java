@@ -1,7 +1,6 @@
 package org.spideruci.analysis.trace;
 
 import org.spideruci.analysis.dynamic.Profiler;
-import org.spideruci.analysis.statik.instrumentation.Count;
 import org.spideruci.analysis.trace.eventprops.ArrayInsnExecPropNames;
 import org.spideruci.analysis.trace.eventprops.DeclPropNames;
 import org.spideruci.analysis.trace.eventprops.EnterExecPropNames;
@@ -102,27 +101,28 @@ public class EventBuilder {
     return methodDecl;
   }
   
-  public static String buildInstructionLog(int lineNum, EventType type, 
+  public static String buildInstructionLog(int byteIndex, int lineNum, EventType type, 
       int opcode, int declHostId) {
-    return buildInstructionLog(lineNum, type, opcode, declHostId, null, null);
+    return buildInstructionLog(byteIndex, lineNum, type, opcode, declHostId, null, null);
   }
   
-  public static String buildInstructionLog(int lineNum, EventType type, 
+  public static String buildInstructionLog(int byteIndex, int lineNum, EventType type, 
       int opcode, int declHostId, String operand) {
-    return buildInstructionLog(lineNum, type, opcode, declHostId, operand, null);
+    return buildInstructionLog(byteIndex, lineNum, type, opcode, declHostId, operand, null);
   }
   
-  public static String buildInstructionLog(int lineNum, EventType type,
+  public static String buildInstructionLog(int byteIndex, int lineNum, EventType type,
       int opcode, int declHostId, String op1, String op2) {
-    return buildInstructionLog(lineNum, type, opcode, declHostId, op1, op2, null);
+    return buildInstructionLog(byteIndex, lineNum, type, opcode, declHostId, op1, op2, null);
   }
   
-  public static String buildInstructionLog(int lineNum, EventType type,
+  public static String buildInstructionLog(int byteIndex, int lineNum, EventType type,
       int opcode, int declHostId, String op1, String op2, String op3) {
     final int insnId = Count.anotherInsn();
     TraceEvent insnEvent = TraceEvent.createInsnEvent(insnId, type);
     insnEvent.setProp(InsnPropNames.DECL_HOST_ID, String.valueOf(declHostId));
     insnEvent.setProp(InsnPropNames.LINE_NUMBER, String.valueOf(lineNum));
+    insnEvent.setProp(InsnPropNames.BYTECODE_INDEX, String.valueOf(byteIndex));
     insnEvent.setProp(InsnPropNames.OPCODE, String.valueOf(opcode));
     insnEvent.setProp(InsnPropNames.OPERAND1, op1);
     insnEvent.setProp(InsnPropNames.OPERAND2, op2);

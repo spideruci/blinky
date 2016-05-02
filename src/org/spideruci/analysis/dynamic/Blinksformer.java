@@ -11,6 +11,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.statik.instrumentation.Deputy;
+import org.spideruci.analysis.statik.instrumentation.OfflineInstrumenter;
 import org.spideruci.analysis.dynamic.RuntimeClassRedefiner.RedefinitionTargets;
 import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.util.ByteCodePrinter;
@@ -36,15 +37,15 @@ public class Blinksformer implements ClassFileTransformer {
     
     boolean isRetransformTarget = 
         (Premain.allowRetransform && RedefinitionTargets.isTarget(className));
-
+    
     if(!shouldInstrument(className) && !isRetransformTarget) {
       ErrorLogManager.logClassTxStatus(className, false, SKIPD);
       return classBytes;
     }
     
     byte[] instrumentedBytes = instrumentClass(className, classBytes, 
-        false /*isRuntime*/);
-
+        false /*isRuntime*/, false /*isWithGuards*/);
+    
     return instrumentedBytes;
   }
 
@@ -54,11 +55,13 @@ public class Blinksformer implements ClassFileTransformer {
    * @return
    */
   static byte[] instrumentClass(String className, byte[] classBytes, 
-      boolean isRuntime) {
+      boolean isRuntime, boolean isWithGuards) {
     byte[] instrumentedBytes = null;
     try {
+      OfflineInstrumenter.isActive = isRuntime;
       ClassInstrumenter ins = new ClassInstrumenter();
       instrumentedBytes = ins.instrument(className, classBytes, null);
+      OfflineInstrumenter.isActive = false;
 //    ByteCodePrinter.printToFile(className, classBytes, instrumentedBytes);
       ErrorLogManager.logClassTxStatus(className, isRuntime, SUXES);
     } catch(Exception ex) {
@@ -69,7 +72,7 @@ public class Blinksformer implements ClassFileTransformer {
     }
     return instrumentedBytes;
   }
-
+  
   private boolean shouldInstrument(String className) {
     final boolean shouldInstrument = true;
     if(className.startsWith(Constants.SPIDER_NAMESPACE)
@@ -78,13 +81,17 @@ public class Blinksformer implements ClassFileTransformer {
         return shouldInstrument; // shouldInstrument
       }
     }
-
+    
     if(className.contains("Test")) {
       return !shouldInstrument; // shouldNotInstrument;
     }
 
     if(className.contains("Mockito") || className.contains("Mock")) {
       return !shouldInstrument; // shouldNotInstrument;
+    }
+    
+    if(RedefinitionTargets.isException(className)) {
+      return !shouldInstrument;
     }
     
     if(Deputy.checkInclusionList) {

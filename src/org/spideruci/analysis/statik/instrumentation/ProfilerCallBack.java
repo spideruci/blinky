@@ -9,6 +9,7 @@ import static org.spideruci.analysis.dynamic.Profiler.GETHASH_DESC;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.util.Buffer;
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.util.MyAssert;
 
@@ -41,6 +42,18 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
+  public ProfilerCallBack passArg(boolean b) {
+    this.mv.visitLdcInsn(b);
+    this.callbackDesc.append(Deputy.BOOLEAN_TYPEDESC);
+    return this;
+  }
+  
+  public ProfilerCallBack passArg(int arg) {
+    this.mv.visitLdcInsn(arg);
+    this.callbackDesc.append(Deputy.INT_TYPEDESC);
+    return this;
+  }
+  
   public ProfilerCallBack passArg(EventType type) {
     this.mv.visitLdcInsn(type);
     this.callbackDesc.append(Deputy.EVENT_TYPE_DESC);
@@ -70,73 +83,141 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-  public ProfilerCallBack setupGetInsnStackArgs(int opcode, String owner) {
-    MyAssert.assertThat(GETFIELD == opcode || GETSTATIC == opcode);
-    
-    if(opcode == GETSTATIC) {
-      mv.visitLdcInsn(owner);
-    } else {
-      mv.visitInsn(DUP);
-      visitLoadHash();
-      mv.visitInsn(SWAP);
-    }
-    
-    this.callbackDesc.append(STRING_DESC);
+  public ProfilerCallBack passNakedRef(int var) {
+    mv.visitVarInsn(Opcodes.ALOAD, var);
+    this.callbackDesc.append(Deputy.OBJECT_DESC);
     return this;
   }
   
-  public ProfilerCallBack passGetInsnStackArgs(int opcode, String desc) {
-    boolean isWide = desc.equals("D") || desc.equals("J");
+  public ProfilerCallBack setupGetInsnStackArgs(int opcode, String owner) {
+    MyAssert.assertThat(GETFIELD == opcode || GETSTATIC == opcode);
     
-    if(isWide) {
-      mv.visitInsn(DUP2_X1);
-    } else {
-      mv.visitInsn(DUP_X1);
+    if(opcode == GETFIELD) { // ref
+      mv.visitInsn(DUP); // ref, ref
     }
     
-    visitLoadStringValue(desc);
-    this.callbackDesc.append(STRING_DESC);
+    return this;
+  }
+  
+  private boolean isDescRef(String desc) {
+    switch(desc) {
+    case "B":
+    case "C":
+    case "D":
+    case "F":
+    case "I":
+    case "J":
+    case "S":
+    case "Z":
+      return false;
+    default:
+      return true;
+    }
+  }
+  
+  private boolean isDescWide(String desc) {
+    switch(desc) {
+    case "D":
+    case "J":
+      return true;
+    default:
+      return false;
+    }
+  }
+  
+  public ProfilerCallBack passGetInsnStackArgs(int opcode, String desc, String owner) {
+    final boolean isValueWide = isDescWide(desc);
+    final boolean isValueRef = isDescRef(desc);
     
+//    if(opcode == GETSTATIC || !isValueWide) {
+//      unsafeGet(opcode, desc, owner);
+//    } else {
+//      safeGet(opcode, desc, owner);
+//    }
+    
+    unsafeGet(opcode, desc, owner);
+    
+    this.callbackDesc.append(STRING_DESC);
+    this.callbackDesc.append(STRING_DESC);
     return this;
   }
   
   public ProfilerCallBack passPutInsnStackArgs(int opcode, String desc, String owner) {
     MyAssert.assertThat(PUTFIELD == opcode || PUTSTATIC == opcode);
     
-    boolean isWide = desc.equals("D") || desc.equals("J");
+    final boolean isWide = isDescWide(desc);
+    final boolean isRef = isDescRef(desc);
     
     if(opcode == Opcodes.PUTFIELD) { //visiting non-static field dereferences.
-      if(isWide) { // ref, val1, val2
-        mv.visitInsn(DUP2_X1); // val1, val2, ref, val1, val2
-        mv.visitInsn(POP2); // val1, val2, ref
-        mv.visitInsn(DUP_X2); // ref, val1, val2, ref
-        mv.visitInsn(DUP_X2); //  ref, ref, val1, val2, ref
-        mv.visitInsn(POP); //  ref, ref, val1, val2
-        mv.visitInsn(DUP2_X1); //  ref, val1, val2, ref, val1, val2
-      }
-      else { // ref, val
-        mv.visitInsn(Opcodes.DUP2); // ref, val, ref, val
-      }
-      
-      visitLoadStringValue(desc);
-      mv.visitInsn(SWAP); // ref, val, String.valueOf(val) ref
-      visitLoadHash(); // ref, val, String.valueOf(val) string_hash(ref)
-      mv.visitInsn(SWAP); // ref, val, string_hash(ref), valId
-    } else {
-      if(isWide) {
-        mv.visitInsn(DUP2);
+
+      if(isRef) { // ref, val
+        mv.visitInsn(DUP2); // ref, val, ref, val
+        visitLoadHash(); // ref, val, ref, val#
+        mv.visitInsn(SWAP); // refm val, val#, ref
+        visitLoadHash(); // ref, val, val#, ref#
+        mv.visitInsn(SWAP); // ref, val, ref#, val#
       } else {
-        mv.visitInsn(DUP);
+        if(isWide) { // ref, val1, val2
+//          mv.visitLdcInsn("0");
+//          mv.visitLdcInsn("0");
+          mv.visitInsn(DUP2_X1); // val1, val2, ref, val1, val2
+          mv.visitInsn(POP2); // val1, val2, ref
+          mv.visitInsn(DUP_X2); // ref, val1, val2, ref
+          visitLoadHash(); // ref, val1, val2, ref#
+          mv.visitLdcInsn("0"); // ref, val, ref#, "0"
+        } else { // ref, val
+          mv.visitInsn(DUP2); // ref, val, ref, val
+          mv.visitInsn(POP); // ref, val, ref
+//          visitLoadHash(); 
+          mv.visitMethodInsn(INVOKESTATIC, PROFILER_NAME, GETHASH, GETHASH_DESC, false); // ref, val, ref#
+//          mv.visitLdcInsn("0");
+          mv.visitLdcInsn("0"); // ref, val, ref#, "0"
+        }
       }
-      visitLoadStringValue(desc);
-      mv.visitLdcInsn(owner);
-      mv.visitInsn(SWAP);
+    } else { // visiting PUTSTATIC
+      if(isRef) { // refval
+        mv.visitInsn(DUP); // refval, refval
+        visitLoadHash(); // refval, val#
+      } else { // primval
+        mv.visitLdcInsn("0"); // primval, "0"
+      }
+      mv.visitLdcInsn(owner); // val, val#, "owner"
+      mv.visitInsn(SWAP); // // val, "owner", val#
     }
     
     this.callbackDesc.append(STRING_DESC);
     this.callbackDesc.append(STRING_DESC);
     
     return this;
+  }
+  
+  private void visitLoadStringValue(String desc) {
+    switch(desc) {
+    case "I":
+    case "B":
+    case "S":
+      desc = "I";
+      break;
+    }
+    
+    if(desc.startsWith("L") || desc.startsWith("[")) {
+      visitLoadHash();
+    } else {
+      if(desc.equals("J") || desc.equals("D")) {
+        mv.visitInsn(Opcodes.POP2);
+      } else {
+        mv.visitInsn(Opcodes.POP);
+      }
+      
+      mv.visitLdcInsn("0");
+//      String methodDesc = "(" + desc + ")" + STRING_DESC;
+//      mv.visitMethodInsn(INVOKESTATIC, STRING_DESC, "valueOf", methodDesc, false);
+    }
+  }
+  
+  private void visitLoadHash() {
+    mv.visitTypeInsn(CHECKCAST, OBJECT_DESC);
+    mv.visitMethodInsn(INVOKESTATIC, PROFILER_NAME, GETHASH, GETHASH_DESC, false);
   }
   
   public ProfilerCallBack passArrayLoadStackArgs(int opcode) {
@@ -206,43 +287,120 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-    private void visitLoadStringValue(String desc) {
-      switch(desc) {
-      case "I":
-      case "B":
-      case "S":
-        desc = "I";
-        break;
-      }
-      
-      if(desc.startsWith("L") || desc.startsWith("[")) {
-        visitLoadHash();
+  public ProfilerCallBack appendDesc(final String typeDesc) {
+    this.callbackDesc.append(typeDesc);
+    return this;
+  }
+  
+  public ProfilerCallBack passNewWithDefaultCtor(final String typeDesc) {
+    final Buffer typeNameBuffer = new Buffer();
+    for(int i = 0; i < typeDesc.length(); i += 1) {
+      char ch = typeDesc.charAt(i);
+      if(ch == '/') {
+        typeNameBuffer.append('.');
       } else {
-        String methodDesc = "(" + desc + ")" + STRING_DESC;
-        mv.visitMethodInsn(INVOKESTATIC, STRING_DESC, "valueOf", methodDesc, false);
+        typeNameBuffer.append(ch);
       }
     }
     
-    private void visitLoadHash() {
-      mv.visitTypeInsn(CHECKCAST, OBJECT_DESC);
-      mv.visitMethodInsn(INVOKESTATIC, PROFILER_NAME, GETHASH, GETHASH_DESC, false);
-    }
-  
+    final String typeName = typeNameBuffer.toString();
+    this.mv.visitTypeInsn(Opcodes.NEW, typeName);
+    
+    return this;
+  }
   
   public void build(String callBackName) {
     this.build(callBackName, Deputy.PROFILER_NAME);
   }
   
-  @SuppressWarnings("deprecation")
   public void build(String callBackName, String classbackClassName) {
-    this.callbackDesc.append(")V");
+    build(callBackName, classbackClassName, "V");
+  }
+  
+  public void build(String callBackName, String classbackClassName, String returnType) {
+    this.callbackDesc.append(")" + returnType);
     this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
                        classbackClassName, 
                        callBackName, 
-                       callbackDesc.toString());
+                       callbackDesc.toString(),
+                       false);
   }
   
   public StringBuffer getCallbackDesc() {
     return this.callbackDesc;
+  }
+  
+  
+  private void safeGet(int opcode, String desc, String owner) {
+    final boolean isValueWide = desc.equals("D") || desc.equals("J");
+    final boolean isValueRef = desc.equals("[") || desc.equals("L");
+    
+    if(opcode == GETFIELD) {
+      if(isValueWide) { // ref, val, val
+        mv.visitInsn(DUP2_X1); // val, val, ref, val, val
+        mv.visitInsn(POP2); // val, val, ref
+      } else { // ref, val
+        mv.visitInsn(SWAP); // val, ref
+      }
+      mv.visitInsn(POP);
+    }
+    
+    // start --> val; end --> val, ref#={0|owner}, val#
+    
+    if(isValueRef) { // value
+      mv.visitInsn(DUP); // value, value
+      visitLoadHash(); // value, value#
+    } else {
+      mv.visitLdcInsn("0"); // value, value#{"0"}
+    }
+    
+    if(opcode == GETFIELD) {
+      mv.visitLdcInsn("0"); // value, value#, ref#{0}
+    } else {
+      mv.visitLdcInsn(owner); // value, value#, ref#{owner}
+    }
+    
+    mv.visitInsn(SWAP); // value, ref#{0|owner}, value#
+  }
+  
+  private void unsafeGet(int opcode, String desc, String owner) {
+    final boolean isValueWide = desc.equals("D") || desc.equals("J");
+    final boolean isValueRef = desc.equals("[") || desc.equals("L");
+    
+    // start --> ref?, val [, val]
+    if(opcode == GETSTATIC) {
+      // start --> val [, val]; end --> val, ref#{owner}, val#{#|0}
+      if(isValueRef) { // val
+        mv.visitInsn(DUP); // val, val
+        visitLoadHash(); // val, val#
+      } else {
+        mv.visitLdcInsn("0"); // val, val#{0}
+      }
+      
+      mv.visitLdcInsn(owner); // val, val#{0|#}, ref#{owner}
+      mv.visitInsn(SWAP); // val, ref#{owner}, val#{0}
+    } else {
+      // start --> ref, val [, val]; end --> val [, val], ref#, val#{0|#}
+      
+      if(isValueWide) { // ref, val, val
+        mv.visitInsn(DUP2_X1); // val, val, ref, val, val
+        mv.visitInsn(POP2); // val, val, ref
+        mv.visitLdcInsn("0"); // val, val, ref, val#{0}
+      } else { // ref, val
+        if(isValueRef) {
+          mv.visitInsn(DUP_X1); // val, ref, val
+          visitLoadHash(); // val, ref, val#
+        } else {
+          mv.visitInsn(DUP_X1); // val, ref, val
+          mv.visitInsn(POP); // val, ref
+          mv.visitLdcInsn("0"); // val, ref, val#{0}
+        }
+      }
+      
+      // val [, val], ref, val#{0|#}
+      mv.visitInsn(SWAP); // val [, val], val#{0|#}, ref
+      visitLoadHash(); // val [, val], val#{0|#}, ref#
+      mv.visitInsn(SWAP); // val [, val], ref#, val#{0|#}
+    }
   }
 }

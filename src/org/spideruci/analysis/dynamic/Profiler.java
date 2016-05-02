@@ -12,7 +12,10 @@ import org.spideruci.analysis.trace.TraceEvent;
 public class Profiler {
 
   public static int latestLineNumber = 0;
-  public static boolean $guard1$ = false;
+  public static int latestBytecodeIndex = 0;
+  public static boolean $guard1$ = true;
+  
+  public static boolean SAFEMODE = false;
   
   public static boolean logMethodEnter = false;
   public static boolean logMethodExit = false;
@@ -35,10 +38,13 @@ public class Profiler {
   
   public static String entryMethod = null;
   public static String entryClass = null;
+  public static boolean stopAppInsn = false;
+  public static boolean rtOnly = false;
   
   private static long thread = -1;
   private static int count = 0;
   private static long time = 0;
+  
   
   synchronized static public void setLogFlags(final boolean value) {
     logMethodEnter = 
@@ -52,7 +58,7 @@ public class Profiler {
         logField = 
         logType = 
         logSwitch = 
-        logInvokeRuntimeSign = 
+//        logInvokeRuntimeSign = 
         logEnterRuntimeSign = 
         log = value;
   }
@@ -139,7 +145,7 @@ public class Profiler {
       }
       String[] arg_split = arg.split("=");
       String arg_name = arg_split[0];
-      String arg_value = arg_split.length == 1 ? "" : arg_split[1].trim().toLowerCase();
+      String arg_value = arg_split.length == 1 ? "" : arg_split[1];
       REAL_OUT.printf("'%s':%s\n", arg_name , arg_value);
       
       switch(arg_name) {
@@ -158,16 +164,26 @@ public class Profiler {
       case "retransform":
         Premain.allowRetransform = true;
         break;
+      case "stop-app-ins":
+        Profiler.stopAppInsn = true;
+        break;
+      case "control":
+        ClassInstrumenter.CONTROL_FLOW = true;
+        break;
+      case "safe":
+        Profiler.SAFEMODE = true;
        default:
          break;
       }
     }
   }
   
+  public static final String REGUARD = "reguard";
   synchronized static public void reguard(boolean guard) {
     $guard1$ = false; // TODO shouldn't this be guard instead of false?
   }
   
+  public static final String GUARD = "guard";
   synchronized static public boolean guard() {
     boolean guard = $guard1$;
     $guard1$ = true;
@@ -257,8 +273,10 @@ public class Profiler {
     reguard(guard);
   }
   
-  synchronized static public void printlnField(String fieldId, 
-      String fieldOwnerId, String instruction, String tag) {
+  synchronized static public void printlnField(String fieldOwnerId, 
+      String fieldId, String instruction, String tag) {
+//  synchronized static public void printlnField(String fieldId, 
+//      String fieldOwnerId, String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
     if(logField) {
@@ -317,7 +335,7 @@ public class Profiler {
       
       Object element = Array.get(arrayref, index);
       int length = Array.getLength(arrayref);
-      REAL_OUT.println("arraylength: " + length);
+//      REAL_OUT.println("arraylength: " + length);
       String elementId;
       
       String arrayType = arrayref.getClass().getName();
@@ -372,11 +390,38 @@ public class Profiler {
   }
   
   public static final String LINENUMER = "printLnLineNumber";
+  public static final String LINENUMER_DESC = "(" + Deputy.STRING_DESC + Deputy.STRING_DESC + ")V";
   synchronized static public void printLnLineNumber(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
     if(logSourceLineNumber) {
       handleLog(instruction, tag, EventType.$line$);
+    }
+    reguard(guard);
+  }
+  
+  public static final String ARGLOG = "printLnArgLog";
+  synchronized static public void printLnArgLog(String argType, String index, 
+      boolean isFirst, boolean isLast) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logEnterRuntimeSign) {
+      long[] threadAndTime = getThreadAndTime();
+      long threadId = threadAndTime[0];
+      long time = threadAndTime[1];
+      REAL_OUT.print("$$$," + ++count + "," + threadId + "," + time + ",");
+      
+      handleArgLog(argType, index, EventType.$argtype$, true);
+    }
+    reguard(guard);
+  }
+  
+  public static final String INVOKE_ARGLOG = "printLnInvokeArgLog";
+  synchronized static public void printLnInvokeArgLog(String argType, String index) {
+    if($guard1$) return;
+    boolean guard = guard();
+    if(logInvokeRuntimeSign) {
+      handleArgLog(argType, index, EventType.$invokeargtype$, true);
     }
     reguard(guard);
   }
@@ -414,7 +459,27 @@ public class Profiler {
   public static final String GETHASH_DESC = "(" + Deputy.OBJECT_DESC + ")" + Deputy.STRING_DESC;
   synchronized static public 
   String getHash(Object obj) {
-    return String.valueOf(System.identityHashCode(obj));
+    int id = System.identityHashCode(obj);
+    return String.valueOf(id);
+  }
+  
+  public static final String GETTYPENAME = "getTypeName";
+  public static final String GETTYPENAME_DESC = "(" + Deputy.OBJECT_DESC + Deputy.STRING_DESC + ")" + Deputy.STRING_DESC;
+  synchronized static public String getTypeName(Object obj, String staticType) {
+    if(obj == null) {
+      return staticType + "#0";
+    } else {
+      return obj.getClass().getName() + "#" + System.identityHashCode(obj);
+    }
+  }
+  
+  public static final String GET_ARRAYTYPENAME = "getArrayTypeName";
+  synchronized static public String getArrayTypeName(Object array, String staticType) {
+    if(array == null) {
+      return staticType + "#0";
+    } else {
+      return staticType + "#" + System.identityHashCode(array);
+    }
   }
   
   /**************************isMain(String[])?**************************/
@@ -484,11 +549,10 @@ public class Profiler {
         EventType insnType) {
       long threadId = Thread.currentThread().getId();
       long time = System.currentTimeMillis() - Profiler.time;
-      final String runtimeSignature = RuntimeTypeProfiler.getEnterRuntimeSignature();
-      RuntimeTypeProfiler.clearBuffer();
+      final String runtimeSignature = RuntimeTypeProfiler.getEnterRuntimeSignature(null);
       TraceEvent event = EventBuilder.buildEnterExecEvent(++count, 
           threadId, tag, insnId, insnType, time, runtimeSignature);
-      REAL_OUT.println(event.getLog());
+      printEventlog(event);
     }
     
     synchronized static private void handleInvokeLog(String insnId, String tag,
@@ -499,7 +563,7 @@ public class Profiler {
           RuntimeTypeProfiler.getInvokeRuntimeSignature();
       TraceEvent event = EventBuilder.buildInvokeInsnExecEvent(++count, 
           threadId, tag, insnId, insnType, time, runtimeSignature);
-      REAL_OUT.println(event.getLog());
+      printEventlog(event);
     }
     
     synchronized static private void handleLog(String insnId, String tag,
@@ -508,7 +572,7 @@ public class Profiler {
       long time = System.currentTimeMillis() - Profiler.time;
       TraceEvent event = EventBuilder.buildInsnExecEvent(++count, 
           threadId, tag, insnId, insnType, time);
-      REAL_OUT.println(event.getLog());
+      printEventlog(event);
     }
     
     synchronized static private void handleArrayLog(String insnId, String tag,
@@ -518,7 +582,7 @@ public class Profiler {
       long time = System.currentTimeMillis() - Profiler.time;
       TraceEvent event = EventBuilder.buildArrayInsnExecEvent(++count, threadId, 
           tag, insnId, insnType, time, arrayrefId, index, elementId, length);
-      REAL_OUT.println(event.getLog());
+      printEventlog(event);
     }
     
     synchronized static private void handleVarLog(String insnId, String tag, 
@@ -527,7 +591,7 @@ public class Profiler {
       long time = System.currentTimeMillis() - Profiler.time;
       TraceEvent event = EventBuilder.buildVarInsnExecEvent(++count, threadId, 
           tag, insnId, EventType.$var$, time, varId);
-      REAL_OUT.println(event.getLog());
+      printEventlog(event);
     }
     
     synchronized static private void handleFieldLog(String insnId, String tag,
@@ -536,6 +600,32 @@ public class Profiler {
       long time = System.currentTimeMillis() - Profiler.time;
       TraceEvent event = EventBuilder.buildFieldInsnExecEvent(++count, threadId, 
           tag, insnId, EventType.$field$, time, fieldId, fieldOwnerId);
+      printEventlog(event);
+    }
+    
+    synchronized static private long[] getThreadAndTime() {
+      long threadId = Thread.currentThread().getId();
+      long time = System.currentTimeMillis() - Profiler.time;
+      return new long[] {threadId, time};
+    }
+    
+    synchronized static private void handleArgLog(String argType, String index, 
+        EventType type, boolean isLast) {
+      if(isLast)
+        REAL_OUT.print(argType + "," + index + "," + type.toString() + "\n");
+      else
+        REAL_OUT.print(argType + "," + index + "," + type.toString() + ",");
+      
+//      TraceEvent event = EventBuilder.buildInsnExecEvent(++count, threadId, 
+//          index, argType, type, time);
+//      printEventlog(event);
+    }
+    
+    synchronized static private void printEventlog(TraceEvent event) {
+      int insnId = Integer.parseInt(event.getExecInsnId());
+      if(Profiler.stopAppInsn && insnId >= 0) {
+        return;
+      }
       REAL_OUT.println(event.getLog());
     }
 }

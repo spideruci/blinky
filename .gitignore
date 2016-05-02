@@ -12,6 +12,10 @@
 *.aux
 *.dot
 *.pdf
+*.permit
+*.permits
+
+traces/
 
 src/ICSE-MultiBreakPoints-Results/
 src/BugLogs

@@ -50,7 +50,7 @@ public class Premain {
     }
     
     ended = true;
-    
     Profiler.$guard1$ = tempGuard;
+    Profiler.REAL_OUT.println("Premain:" + Profiler.$guard1$);
   }
 }

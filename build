@@ -1,0 +1,3 @@
+#!/bin/bash
+mvn compile && mvn test && mvn package && mvn install && mvn assembly:single
+ls -alh target/*jar

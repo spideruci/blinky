@@ -28,15 +28,19 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
     
     byte[] instrumentedBytes = null;
 
-    if(RedefinitionTargets.isTarget(className)
+    if(className.equals("java/util/zip/ZipFile")) {
+      ErrorLogManager.logClassTxStatus(className, true, SKIPD);
+    } else if(RedefinitionTargets.isTarget(className)
         && !RedefinitionTargets.isException(className)) {
       instrumentedBytes = Blinksformer.instrumentClass(className, 
-          classfileBuffer, true /*isRuntime*/);
+          classfileBuffer, true /*isRuntime*/, false /*isWithGuard*/);
     } else {
       ErrorLogManager.logClassTxStatus(className, true, SKIPD);
     }
     
+    
     Profiler.$guard1$ = tempGuard;
+    Profiler.REAL_OUT.println("RuntimeClassRedefiner:" + Profiler.$guard1$);
     return instrumentedBytes;
   }
 
@@ -88,23 +92,32 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
 //        "java/security/SecureClassLoader",
 //        "java/lang/ClassLoader"
 //        "java/util/concurrent"
-        "java/security"
+        "java/security",
     };
     
     private static final String[] exactTargets = new String[] {
 //    "java/util/Hashtable", "java/util/regex/Pattern",  "java/util/ArrayList"
-        "java/net/URLClassLoader", "java/security/SecureClassLoader"
+        "java/net/URLClassLoader", 
+        "java/security/SecureClassLoader",
+        "java/util/Arrays",
     };
     
     private static final String[] wildCardExceptions = new String[] {
-//        "java/security", 
-//        "java/util/regex"
-        "java/security/AccessControl"
+        "java/security/AccessControl",
+        // the class-loaders do not play well with the dependence analyzer.
+        "java/net/URLClassLoader", 
+        "java/security/SecureClassLoader", 
+        "java/util/Arrays"
+//        "java/util/concurrent/ThreadLocalRandom"
     };
     
     private static final String[] exactExceptions = new String[] {
 //        "java/util/Hashtable", "java/util/regex/Pattern", "java/util/regex/Matcher"
-        "java/net/URLClassLoader", "java/security/SecureClassLoader"
+        "java/net/URLClassLoader", 
+        "java/security/SecureClassLoader",
+        "java/util/zip/ZipFile",
+        "java/security/AccessControl",
+        "java/util/Arrays"
     };
   }
 

@@ -1,6 +1,7 @@
 package org.spideruci.analysis.trace;
 
 import org.spideruci.analysis.trace.eventprops.ArrayInsnExecPropNames;
+import org.spideruci.analysis.trace.eventprops.ControlFlowPropNames;
 import org.spideruci.analysis.trace.eventprops.DeclPropNames;
 import org.spideruci.analysis.trace.eventprops.EnterExecPropNames;
 import org.spideruci.analysis.trace.eventprops.FieldInsnExecPropNames;
@@ -16,7 +17,7 @@ import org.spideruci.analysis.util.MyAssert;
  *
  */
 @SuppressWarnings("rawtypes")
-public class TraceEvent {
+public class TraceEvent implements MethodDecl {
   
   private static final String SEP = ",";
   
@@ -24,6 +25,21 @@ public class TraceEvent {
   private final EventType type;
   private final String[] propValues;
   private final Enum[] propNames;
+  private String[] ipds;
+  
+  public static TraceEvent copy(TraceEvent e) {
+    TraceEvent copy = new TraceEvent(e.id, e.type, e.propNames);
+    
+    for(int i = 0; i < e.propValues.length; i += 1) {
+      copy.propValues[i] = e.propValues[i];
+    }
+    
+    return copy;
+  }
+  
+  public static TraceEvent createControlFlowEvent(int id) {
+    return new TraceEvent(id, EventType.$flow$, ControlFlowPropNames.values);
+  }
   
   public static TraceEvent createInvokeInsnExecEvent(int id) {
     return new TraceEvent(id, EventType.$$$, InvokeInsnExecPropNames.values);
@@ -103,9 +119,9 @@ public class TraceEvent {
       case $enter$:
         event = TraceEvent.createEnterExecEvent(id);
         break;
-      case $var$:
-        event = TraceEvent.createVarInsnExecEvent(id);
-        break;
+//      case $var$:
+//        event = TraceEvent.createVarInsnExecEvent(id);
+//        break;
       case $field$:
         event = TraceEvent.createFieldInsnExecEvent(id);
         break;
@@ -120,6 +136,8 @@ public class TraceEvent {
       event = TraceEvent.createDeclEvent(id, type);
     } else if(type.isInsn()) {
       event = TraceEvent.createInsnEvent(id, type);
+    } else if(type.isFlow()) {
+      event = TraceEvent.createControlFlowEvent(id);
     } else {
       throw new RuntimeException("Unfamiliar event: " + eventString);
     }
@@ -143,6 +161,7 @@ public class TraceEvent {
     this.type = type;
     this.propNames = propNames;
     this.propValues = new String[propNames.length];
+    this.ipds = null;
   }
 
   public int getId() {
@@ -151,6 +170,14 @@ public class TraceEvent {
 
   public EventType getType() {
     return this.type;
+  }
+  
+  public void ipdsAre(String[] ipds) {
+    this.ipds = ipds;
+  }
+  
+  public String[] ipds() {
+    return this.ipds;
   }
 
   public String getLog() {
@@ -216,6 +243,10 @@ public class TraceEvent {
   
   public int getInsnLine() {
     return Integer.parseInt(getProp(InsnPropNames.LINE_NUMBER));
+  }
+  
+  public int getInsnByteIndex() {
+    return Integer.parseInt(getProp(InsnPropNames.BYTECODE_INDEX));
   }
   
   public int getInsnDeclHostId() {

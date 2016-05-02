@@ -2,6 +2,9 @@
 
 bold=$(tput bold)
 normal=$(tput sgr0)
+red=$(tput setaf 1)
+
+
 
 INSUFFICIENT_ARGUMENTS="${bold}ERROR: Need more user inputs; read below...${normal}"
 CAUTION="${bold}CAUTION: make sure that you are running this from inside the scripts folder in the blinky maven project!${normal}"
@@ -15,46 +18,65 @@ function checkarg {
 	fi
 }
 
+function print_insuff_msg {
+	msg=""
+
+	COUNTER=0
+	for str in ${@:2}; do
+		if [ "$COUNTER" == "$1" ]; then
+			msg=$msg"${red}"
+		fi
+		msg=$msg$str"${normal} "
+		let COUNTER=COUNTER+1
+	done
+
+	echo $msg
+}
+
 function instrumentrt {
+	INSTRUMENT_RT_ARGUMENTS="${bold}ERROR: Need more user inputs -${normal}"
+
 	if [ ! "$1" ]; then
 		echo $INSUFFICIENT_ARGUMENTS
     	echo "Specify full-path to the original rt/ as 1st arg to 'instrument'"
+    	print_insuff_msg "1" "instrument" "orig_rt/" "insn_rt/" "permits" "restricts"
     	exit
 	fi
 
 	if [ ! "$2" ]; then
 		echo $INSUFFICIENT_ARGUMENTS
     	echo "Specify full-path to the target instrumented rt/ as 2nd arg to 'instrument'"
+    	print_insuff_msg "2" "instrument" "orig_rt/" "insn_rt/" "permits" "restricts"
     	exit
 	fi
-
-	if [ ! "$3" ] && [ ! "$4" ]; then
-		echo $INSUFFICIENT_ARGUMENTS
-    	echo "Specify full-path to either/both class-lists:"
-    	echo "* classlist to instrument as 3rd arg to 'instrument';"
-    	echo "* classlist not to instrument as 4th arg to 'instrument'."
-    	exit
-	fi
-
-	echo "rtjar-utils will now instrument rt.jar"
 
 	original_rt=$1
 	insn_rt=$2
-	permits=$3
-	restricts=$4
 
-	mvn exec:java -Poffline \
-	-Dsrc=$original_rt \
-	-Ddest=$insn_rt \
-	-Dpermits=$permits \
-	-Drestricts=$restricts > rtjar.log 2> rtjar.err
+	if [ ! "$3" ] && [ ! "$4" ]; then
+		instr_args="-Dsrc=$original_rt -Ddest=$insn_rt"
+	else
+		permits=$3
+		restricts=$4
+		instr_args="-Dsrc=$original_rt -Ddest=$insn_rt -Dpermits=$permits -Drestricts=$restricts"
+	fi
+
+	
+	
+	instrumenter="-jar blinky-0.0.1-SNAPSHOT-jar-with-dependencies.jar org.spideruci.analysis.statik.instrumentation.OfflineInstrumenter"
+
+	echo "Instrumenting rt.jar..."
+	java $instr_args $instrumenter > rtjar.log 2> rtjar.err
+	echo "Copying MANIFEST..."
+	cp -r "$original_rt/META-INF/" "$insn_rt/"
+	echo "Ready for packaging."
 }
 
 function package {
 	checkarg "$1" "Specify full-path to the instrumented rt/ as 1st arg to '$FUNCNAME'"
 
 	rt="$1"
-	echo "rtjar-utils will now package the specified rt/ - [$rt] into rt.jar"
+	echo "Packaging: ${bold} $rt ${normal} ===> ${bold} rt.jar ${normal}"
 
 	cd "$rt"
 	
@@ -66,8 +88,8 @@ function package {
 
 	ls -alh "$rt/rt.jar"
 	cd -
-	echo "$rt/rt.jar"
-} 
+	echo "Packaged and ready for deployment: $rt/rt.jar." 
+}
 
 function deploy {
 	checkarg "$1" "Specify full-path to the rt.jar as 1st arg to '$FUNCNAME'"
@@ -77,18 +99,14 @@ function deploy {
 	rtjar="$1"
 	jrelib="$2"
 
-	echo "rtjar-utils will now deploy the specified rt.jar with the specified jre."
+	echo "Deploying $rtjar in the specified jre: ${bold}$jrelib${normal}."
 
 	# mv $jrelib/rt.jr $jrelib/rt.jar
 
 	cp $rtjar $jrelib
-	ls -alh $jrelib/rt.jar
-
+	
+	echo "Deployed: ${ls -alh $jrelib/rt.jar}"
 }
-
-echo $CAUTION
-
-cd ../
 
 case $1 in
 instrument)
@@ -102,7 +120,10 @@ deploy)
   ;;
 *)
 	echo "Welcome to rtjar-utils! Your one stop solution to managing rtjar!"
-	echo "rtjar-utils needs a command"
+	echo "rtjar-utils needs a command -"
+	echo "instrument"
+	echo "package"
+	echo "deploy"
   ;;
 esac
 

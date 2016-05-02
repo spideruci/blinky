@@ -2,41 +2,30 @@ package org.spideruci.analysis.statik.instrumentation;
 
 import static org.spideruci.analysis.statik.instrumentation.Deputy.RUNTIME_TYPE_PROFILER_NAME;
 
-import java.util.Arrays;
-
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.SETUP_INVOKE;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.GET;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.PUT;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.util.Arrays;
+import org.spideruci.analysis.dynamic.util.MethodDescSplitter;
 
-import org.spideruci.analysis.util.caryatid.Helper;
-
-public class InvokeSignCallBack {
+public class InvokeSignCallBack implements Opcodes {
   
   public static void buildArgProfileProbe(MethodVisitor mv, int opcode, 
-      String owner, String name, String desc) {
+      String owner, String name, String desc, String callsite) {
+    final boolean guard = Profiler.guard();
     final String[] argTypes = 
-        Helper.getArgTypes(desc, owner, opcode == Opcodes.INVOKESTATIC);
-    
-//    if(opcode == Opcodes.INVOKESTATIC) {
-//      argTypes = Helper.getArgTypeSplit(desc);
-//    }
-//    else {
-//      String[] temp = Helper.getArgTypeSplit(desc);
-//      argTypes = new String[temp.length + 1];
-//      argTypes[0] = "L" + owner + ";";
-//      for(int i = 0; i < temp.length; i += 1) {
-//        argTypes[i+1] = temp[i];
-//      }
-//    }
+        MethodDescSplitter.getArgTypes(desc, owner, opcode == INVOKESTATIC);
 
     int argCount = argTypes.length;
-    boolean isSpecial = opcode == Opcodes.INVOKESPECIAL;
-    initInvokeSignature(mv, argCount);
-    popArguments(mv, argTypes, isSpecial);
+    boolean isSpecial = name.equals("<init>");
+    initInvokeSignature(mv, argCount, name + desc);
+    popArguments(mv, argTypes, isSpecial, owner + "/" + name + desc + "::" + callsite + "###" + argCount);
     pushArguments(mv, argTypes, isSpecial);
+    Profiler.reguard(guard);
   }
     
     /**
@@ -47,43 +36,45 @@ public class InvokeSignCallBack {
      * @param arraylength
      * @param arrayName
      */
-    private static void initInvokeSignature(MethodVisitor mv, int arraylength) {
+    private static void initInvokeSignature(MethodVisitor mv, int arraylength, String methodName) {
       mv.visitLdcInsn(arraylength);
+      mv.visitLdcInsn(methodName);
       mv.visitMethodInsn(Opcodes.INVOKESTATIC, RUNTIME_TYPE_PROFILER_NAME, 
-          SETUP_INVOKE, "(I)V", false);
+          SETUP_INVOKE, "(ILjava/lang/String;)V", false);
     }
     
-    private static void pushArguments(MethodVisitor mv, String[] argTypes, boolean isSpecial) {
+    private static void pushArguments(MethodVisitor mv, String[] argTypes, boolean isCtor) {
       final String profiler = RUNTIME_TYPE_PROFILER_NAME;
-      int minLimit = isSpecial ? 1 : 0;
+      int minLimit = isCtor ? 1 : 0;
       for(int i = minLimit; i <= argTypes.length - 1; i += 1) {
+        final String argType = argTypes[i];
         // LDC i
         mv.visitIntInsn(Opcodes.BIPUSH, i); 
-        char argInitial = argTypes[i].charAt(0);
-        // INVOKESTATIC Data.getParameter(I)Ljava/lang/Object;|C|Z|B|S|I|F|J|D
+        char argInitial = argType.charAt(0);
+        // INVOKESTATIC RuntimeProfiler.getParameter[C|Z|B|S|I|F|J|D](I)Ljava/lang/Object;
         switch(argInitial) {
         case 'L' :
         case '[' :
           mv.visitMethodInsn(Opcodes.INVOKESTATIC, profiler, GET, "(I)Ljava/lang/Object;", false);
-          String type = argTypes[i];
-          if(type.charAt(0) == 'L' ) {
+          String type = argType;
+          if(argInitial == 'L') {
             int semicolon = type.indexOf(';');
             type = type.substring(1, semicolon);
           }
           mv.visitTypeInsn(Opcodes.CHECKCAST, type);
           continue;
-        case 'Z' :
         case 'B' : 
-        case 'S' : 
-        case 'C' : 
-        case 'I' : 
-        case 'F' : 
-        case 'J' : 
-        case 'D' : 
+        case 'C' :
+        case 'D' :
+        case 'F' :
+        case 'I' :
+        case 'J' :
+        case 'S' :
+        case 'Z' :
           mv.visitMethodInsn(Opcodes.INVOKESTATIC, profiler, GET + argInitial, "(I)" + argInitial, false);
           continue;
         default:
-          throw new RuntimeException(argInitial + " " + argTypes[i]);
+          throw new RuntimeException(argInitial + " " + argType);
         }
       }
     }
@@ -92,55 +83,59 @@ public class InvokeSignCallBack {
      * INVOKE profiler.putParameter
      * @param mv
      * @param argTypes
-     * @param isSpecial
+     * @param isCtor
      */
-    private static void popArguments(MethodVisitor mv, String[] argTypes, boolean isSpecial) {
+    private static void popArguments(MethodVisitor mv, String[] argTypes, boolean isCtor, String methodName) {
       final String profiler = RUNTIME_TYPE_PROFILER_NAME;
       final String putObjectDesc = "(Ljava/lang/Object;Ljava/lang/String;I)V";
-      int minLimit = isSpecial ? 1 : 0;
+      int minLimit = isCtor ? 1 : 0;
       
-      for(int i = argTypes.length - 1; i >= minLimit; i -= 1) {
-        String description;
-        if(argTypes[i] == null) {
-          System.out.println("ARGTYPE-NULL>" + Arrays.asList(argTypes).toString());
+      for(int argCount = argTypes.length, idx = argCount - 1; idx >= minLimit; idx -= 1) {
+        final String staticTypeName = argTypes[idx];
+        
+        if(staticTypeName == null) {
+          Profiler.REAL_OUT.print("ARGTYPE-NULL>");
+          Arrays.printArray(argTypes);
         }
-        char argInitial = argTypes[i].charAt(0);
+        
+        final String description;
+        char argInitial = staticTypeName.charAt(0);
         switch(argInitial) {
         case 'L':
         case '[':
           description =  putObjectDesc;
-          mv.visitLdcInsn(argTypes[i]);
+          mv.visitLdcInsn(methodName); // staticTypeName
           break;
-        case 'Z': 
-        case 'B': 
-        case 'S': 
-        case 'C': 
-        case 'I': 
+        case 'B':
+        case 'C':
+        case 'D':
         case 'F':
-        case 'J': 
-        case 'D': 
+        case 'I':
+        case 'J':
+        case 'S':
+        case 'Z':
           description =  "(" + argInitial + "I)V";
           break;
         default:
-          System.out.println();
-          throw new RuntimeException("ARGTYPE-UNKNOWN>" + i + ">" + Arrays.asList(argTypes).toString());
+          Profiler.REAL_OUT.println("ARGTYPE-UNKNOWN>" + idx + ">");
+          Arrays.printArray(argTypes);
+          throw new RuntimeException();
         }
         
-        // BIPUSH {i}
-        mv.visitIntInsn(Opcodes.BIPUSH, i);
-        // INVOKESTATIC profiler.putParameter(Ljava/lang/Object;I)V
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, profiler, PUT, description, 
-            false);
+        // BIPUSH {idx}
+        mv.visitIntInsn(BIPUSH, idx);
+        // INVOKESTATIC profiler.putParameter
+        mv.visitMethodInsn(INVOKESTATIC, profiler, PUT, description, false);
       }
       
-      if(isSpecial) {
-        mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitLdcInsn(argTypes[0]);
+      if(minLimit == 1) {
+        mv.visitInsn(ACONST_NULL);
+        final String staticTypeName = argTypes[0];
+        mv.visitLdcInsn(staticTypeName);
         // BIPUSH {i}
-        mv.visitIntInsn(Opcodes.BIPUSH, 0);
-        // INVOKESTATIC profiler.putParameter(Ljava/lang/Object;I)V
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, profiler, PUT, putObjectDesc, 
-            false);
+        mv.visitIntInsn(BIPUSH, 0);
+        // INVOKESTATIC profiler.putParameter
+        mv.visitMethodInsn(INVOKESTATIC, profiler, PUT, putObjectDesc, false);
       }
     }
 }

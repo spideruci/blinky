@@ -1,140 +1,136 @@
 package org.spideruci.analysis.dynamic;
 
+import org.spideruci.analysis.dynamic.util.Buffer;
 import org.spideruci.analysis.statik.instrumentation.Deputy;
 
 public class RuntimeTypeProfiler {
   
-  public static final StringBuffer enterBuffer = new StringBuffer();
-  public static final StringBuffer invokeBuffer = new StringBuffer();
   public static Object[] tempObjectArray;
   
   public static final String BUFFER_TYPE_NAME_SYSID = "bufferTypeNameAndSysId";
-  synchronized static public void bufferTypeNameAndSysId(final Object obj, 
-      final String staticTypeName) {
-    if(Profiler.$guard1$) {
-      return;
+  synchronized static public Buffer bufferTypeNameAndSysId(final Buffer buffer,
+      final Object obj, final String staticTypeName) {
+    if(!Profiler.$guard1$) {
+      boolean guard = Profiler.guard();
+      bufferTypeNameAndSysId(obj, staticTypeName, buffer, -1);
+      Profiler.reguard(guard);
     }
     
-    boolean guard = Profiler.guard();
-    
-    bufferTypeNameAndSysId(obj, staticTypeName, enterBuffer, -1);
-    
-    Profiler.reguard(guard);
+    return buffer;
   }
   
-  synchronized static public void bufferTypeNameAndSysId(final String typeName, 
-      final Object obj) {
-    if(Profiler.$guard1$) {
-      return;
+  synchronized static public Buffer bufferTypeNameAndSysId(final Buffer buffer, 
+      final String typeName, final Object obj) {
+    if(!Profiler.$guard1$) {
+      boolean guard = Profiler.guard();
+      bufferTypeNameAndSysId(obj, typeName, buffer, -1);
+      Profiler.reguard(guard);
     }
     
-    boolean guard = Profiler.guard();
-    
-    bufferTypeNameAndSysId(obj, typeName, enterBuffer, -1);
-    
-    Profiler.reguard(guard);
+    return buffer;
   }
   
   public static final String BUFFER_TYPE_NAME = "bufferTypeName";
-  synchronized static public void bufferTypeName(String typeName) {
-    if(Profiler.$guard1$) {
-      return;
+  synchronized static public Buffer bufferTypeName(Buffer buffer, String typeName) {
+    if(!Profiler.$guard1$) {
+      boolean guard = Profiler.guard();
+      buffer.append(typeName).append("~");
+      Profiler.reguard(guard);
     }
     
-    boolean guard = Profiler.guard();
-    enterBuffer.append(typeName).append("~");
-    Profiler.reguard(guard);
+    return buffer;
   }
   
-  public static final String CLEAR_BUFFER = "clearBuffer";
-  synchronized static public void clearBuffer() {
-    final int length = enterBuffer.length();
-    if(length == 0) {
-      return;
+  public static final String GET_SIGN = "getEnterRuntimeSignature";
+  public static String getEnterRuntimeSignature(Buffer buffer) {
+    if(Profiler.logEnterRuntimeSign && buffer != null) {
+      if(buffer.length() == 0) {
+        return "~";
+      }
+      return buffer.toString();
     }
     
-    enterBuffer.delete(0, length);
+    return Deputy.NA;
   }
   
   public static final String SETUP_INVOKE = "setupForInvoke";
   synchronized static public void setupForInvoke(int argCount) {
     tempObjectArray = new Object[argCount];
-    final int length = invokeBuffer.length();
-    if(length == 0) {
-      return;
-    }
-    
-    invokeBuffer.delete(0, length);
+    Profiler.REAL_ERR.println("****" + tempObjectArray.length);
   }
   
-  public static String getEnterRuntimeSignature() {
-    if(Profiler.logEnterRuntimeSign) {
-      String sign = enterBuffer.toString();
-      if(sign.trim().isEmpty()) {
-        sign = "~";
-      }
-      return sign;
-    }
-    
-    return Deputy.NA;
+  synchronized static public void setupForInvoke(int argCount, String methodName) {
+    tempObjectArray = new Object[argCount];
   }
   
   public static String getInvokeRuntimeSignature() {
     if(Profiler.logInvokeRuntimeSign) {
-      String sign = invokeBuffer.toString();
-      if(sign.trim().isEmpty()) {
-        sign = "~";
-      }
-      return sign;
+//      String sign = invokeBuffer.toString();
+//      if(sign.trim().isEmpty()) {
+//        sign = "~";
+//      }
+//      return sign;
+      return "~";
     }
     
     return Deputy.NA;
   }
   
+  private static void printLnArgLog(String typeInfo, String index) {
+    Profiler.printLnInvokeArgLog(typeInfo, String.valueOf(index));
+  }
+  
   public static final String PUT = "putParameter";
   synchronized public static void putParameter(Object obj, String staticTypeName, int index) {
-    tempObjectArray[index] = obj;
-    bufferTypeNameAndSysId(obj, staticTypeName, invokeBuffer, 0);
+    try {
+      tempObjectArray[index] = obj;
+    } catch(ArrayIndexOutOfBoundsException e) {
+      Profiler.REAL_ERR.println(">>" + staticTypeName);
+      throw e;
+    }
+    
+    final String type = obj == null ? staticTypeName : obj.getClass().getName();
+    printLnArgLog(staticTypeName, String.valueOf(index));
   }
 
   synchronized public static void putParameter(boolean obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "Z~");
+    printLnArgLog("Z", String.valueOf(index));
   }
 
   synchronized public static void putParameter(byte obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "B~");
+    printLnArgLog("B", String.valueOf(index));
   }
 
   synchronized public static void putParameter(short obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "S~");
+    printLnArgLog("S", String.valueOf(index));
   }
 
   synchronized public static void putParameter(char obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "C~");
+    printLnArgLog("C", String.valueOf(index));
   }
 
   synchronized public static void putParameter(int obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "I~");
+    printLnArgLog("I", String.valueOf(index));
   }
 
   synchronized public static void putParameter(float obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "F~");
+    printLnArgLog("F", String.valueOf(index));
   }
 
   synchronized public static void putParameter(double obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "D~");
+    printLnArgLog("D", String.valueOf(index));
   }
 
   synchronized public static void putParameter(long obj, int index) {
     tempObjectArray[index] = obj;
-    invokeBuffer.insert(0, "J~");
+    printLnArgLog("J", String.valueOf(index));
   }
 
   public static final String GET = "getParameter";
@@ -173,6 +169,7 @@ public class RuntimeTypeProfiler {
   }
 
   synchronized public static long getParameterJ(int index) {
+    Profiler.REAL_OUT.println(tempObjectArray[index]);
     long x = (Long) tempObjectArray[index]; 
     return x;
   }
@@ -188,11 +185,11 @@ public class RuntimeTypeProfiler {
    * @param staticTypeName
    */
   public static void bufferTypeNameAndSysId(final Object obj, 
-      final String staticTypeName, StringBuffer buffer, final int pos) {
-    final String typeName;
+      final String staticTypeName, Buffer buffer, final int pos) {
+    String typeName;
     final int sysid;
     
-    if(staticTypeName.startsWith("[L") || obj == null) {
+    if(obj == null) {
       typeName = staticTypeName;
     } else {
       typeName = obj.getClass().getName();
@@ -204,13 +201,13 @@ public class RuntimeTypeProfiler {
       sysid = 0;
     }
     
-    StringBuffer subBuffer = new StringBuffer();
-    subBuffer.append(typeName).append("#").append(sysid).append("~");
+    Buffer subBuffer = new Buffer();
+    subBuffer.append(typeName).append("#").append(String.valueOf(sysid)).append("~");
     
     if(pos == -1) {
-      buffer.append(subBuffer);
+      buffer.append(subBuffer.toString());
     } else {
-      buffer.insert(pos, subBuffer);
+      buffer.insert(pos, subBuffer.toString());
     }
   }
 

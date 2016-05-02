@@ -1,3 +1,4 @@
 Manifest-Version: 1.0 
 Premain-Class: org.spideruci.analysis.dynamic.Premain
 Can-Retransform-Classes: true
+Main-Class: org.spideruci.analysis.statik.instrumentation.OfflineInstrumenter
