@@ -1,4 +1,4 @@
-package org.spideruci.analysis.trace.eventprops;
+package org.spideruci.analysis.trace.events.props;
 
 /**
  * Property Names for Method or Class declarations.

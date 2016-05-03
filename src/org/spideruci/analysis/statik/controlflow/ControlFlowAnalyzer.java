@@ -11,7 +11,7 @@ import org.objectweb.asm.tree.analysis.Interpreter;
 import org.spideruci.analysis.dynamic.Profiler;
 import org.spideruci.analysis.trace.Count;
 import org.spideruci.analysis.trace.TraceEvent;
-import org.spideruci.analysis.trace.eventprops.ControlFlowPropNames;
+import org.spideruci.analysis.trace.events.props.ControlFlowPropNames;
 
 
 public class ControlFlowAnalyzer extends Analyzer<BasicValue> {

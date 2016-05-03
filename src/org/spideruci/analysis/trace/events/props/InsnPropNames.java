@@ -1,4 +1,4 @@
-package org.spideruci.analysis.trace.eventprops;
+package org.spideruci.analysis.trace.events.props;
 
 public enum InsnPropNames {
     DECL_HOST_ID, // method (or class)

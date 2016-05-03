@@ -1,14 +1,14 @@
 package org.spideruci.analysis.trace;
 
-import org.spideruci.analysis.trace.eventprops.ArrayInsnExecPropNames;
-import org.spideruci.analysis.trace.eventprops.ControlFlowPropNames;
-import org.spideruci.analysis.trace.eventprops.DeclPropNames;
-import org.spideruci.analysis.trace.eventprops.EnterExecPropNames;
-import org.spideruci.analysis.trace.eventprops.FieldInsnExecPropNames;
-import org.spideruci.analysis.trace.eventprops.InsnExecPropNames;
-import org.spideruci.analysis.trace.eventprops.InsnPropNames;
-import org.spideruci.analysis.trace.eventprops.InvokeInsnExecPropNames;
-import org.spideruci.analysis.trace.eventprops.VarInsnExecPropNames;
+import org.spideruci.analysis.trace.events.props.ArrayInsnExecPropNames;
+import org.spideruci.analysis.trace.events.props.ControlFlowPropNames;
+import org.spideruci.analysis.trace.events.props.DeclPropNames;
+import org.spideruci.analysis.trace.events.props.EnterExecPropNames;
+import org.spideruci.analysis.trace.events.props.FieldInsnExecPropNames;
+import org.spideruci.analysis.trace.events.props.InsnExecPropNames;
+import org.spideruci.analysis.trace.events.props.InsnPropNames;
+import org.spideruci.analysis.trace.events.props.InvokeInsnExecPropNames;
+import org.spideruci.analysis.trace.events.props.VarInsnExecPropNames;
 import org.spideruci.analysis.util.MyAssert;
 
 /**
