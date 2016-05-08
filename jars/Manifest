@@ -1,3 +1,0 @@
-Manifest-Version: 1.0 
-Premain-Class: org.spideruci.analysis.dynamic.Transformer
-Can-Retransform-Classes: false
