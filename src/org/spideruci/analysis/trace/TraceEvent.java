@@ -269,29 +269,61 @@ public class TraceEvent implements MethodDecl {
     return getProp(InsnPropNames.OPERAND1);
   }
   
+  private static final int THREAD_ID = InsnExecPropNames.THREAD_ID.ordinal();
+  private static final int TIMESTAMP = InsnExecPropNames.TIMESTAMP.ordinal();
+  private static final int CALLDEPTH = InsnExecPropNames.CALLDEPTH.ordinal();
+  private static final int DYN_HOST_ID = InsnExecPropNames.DYN_HOST_ID.ordinal();
+  private static final int INSN_EVENT_ID = InsnExecPropNames.INSN_EVENT_ID.ordinal();
+  private static final int INSN_EVENT_TYPE = InsnExecPropNames.INSN_EVENT_TYPE.ordinal();
+  
   public String getExecThreadId() {
-    final int index = InsnExecPropNames.THREAD_ID.ordinal();
-    return getProp(index);
+    return getProp(THREAD_ID);
   }
+  
+  public void setExecThreadId(String threadId) {
+    setProp(THREAD_ID, threadId);
+  }
+  
   
   public String getExecTimestamp() {
-    final int index = InsnExecPropNames.TIMESTAMP.ordinal();
-    return getProp(index);
+    return getProp(TIMESTAMP);
   }
+  
+  public void setExecTimestamp(String timestamp) {
+    setProp(TIMESTAMP, timestamp);
+  }
+  
+  public String getExecCalldepth() {
+    return getProp(CALLDEPTH);
+  }
+  
+  public void setExecCalldepth(String calldepth) {
+    setProp(CALLDEPTH, calldepth);
+  }
+
   
   public String getExecInsnDynHost() {
-    final int index = InsnExecPropNames.DYN_HOST_ID.ordinal();
-    return getProp(index);
+    return getProp(DYN_HOST_ID);
   }
   
-  public String getExecInsnId() {
-    final int index = InsnExecPropNames.INSN_EVENT_ID.ordinal();
-    return getProp(index);
+  public void setExecInsnDynHost(String dynHostId) {
+    setProp(DYN_HOST_ID, dynHostId);
+  }
+  
+  public String getExecInsnEventId() {
+    return getProp(INSN_EVENT_ID);
+  }
+  
+  public void setExecInsnEventId(String insnId) {
+    setProp(INSN_EVENT_ID, insnId);
   }
   
   public EventType getExecInsnType() {
-    final int index = InsnExecPropNames.INSN_EVENT_TYPE.ordinal();
-    return EventType.valueOf(getProp(index));
+    return EventType.valueOf(getProp(INSN_EVENT_TYPE));
+  }
+  
+  public void setExecInsnType(EventType type) {
+    setProp(INSN_EVENT_TYPE, type.toString());
   }
   
   public String getInvokeRuntimeSign() {
@@ -306,5 +338,7 @@ public class TraceEvent implements MethodDecl {
   public String toString() {
     return getLog();
   }
+
+  
 
 }

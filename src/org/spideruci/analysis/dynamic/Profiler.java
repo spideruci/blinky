@@ -40,6 +40,7 @@ public class Profiler {
   public static String entryClass = null;
   public static boolean stopAppInsn = false;
   public static boolean rtOnly = false;
+  public static boolean callDepth = false;
   
   private static long thread = -1;
   private static int count = 0;
@@ -172,6 +173,9 @@ public class Profiler {
         break;
       case "safe":
         Profiler.SAFEMODE = true;
+        break;
+      case "calldepth":
+        Profiler.callDepth = true;
        default:
          break;
       }
@@ -406,12 +410,12 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
     if(logEnterRuntimeSign) {
-      long[] threadAndTime = getThreadAndTime();
-      long threadId = threadAndTime[0];
-      long time = threadAndTime[1];
+      long[] vitalState = getVitalExecState();
+      long threadId = vitalState[THREAD_ID];
+      long time = vitalState[TIMESTAMP];
       REAL_OUT.print("$$$," + ++count + "," + threadId + "," + time + ",");
       
-      handleArgLog(argType, index, EventType.$argtype$, true);
+      handleArgLog(argType, index, EventType.$argtype$, true, true);
     }
     reguard(guard);
   }
@@ -421,7 +425,7 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
     if(logInvokeRuntimeSign) {
-      handleArgLog(argType, index, EventType.$invokeargtype$, true);
+      handleArgLog(argType, index, EventType.$invokeargtype$, true, true);
     }
     reguard(guard);
   }
@@ -545,87 +549,114 @@ public class Profiler {
   
   /**************************Trace Logging**************************/
   
+        public static final int THREAD_ID = 0;
+        public static final int TIMESTAMP = 1;
+        public static final int CALLDEPTH = 2;
+      
+        /**
+         * @return time-stamp, current-thread-id, and calldepth as a 
+         * long array.<br>  
+         * NOTE: removes 3 from the callDepth obtained from the 
+         * {@code StackTraceElement[]}'s length for the following 3 methods:<br>
+         * - {@code getVitalExecState}<br>
+         * - {@code handleXLog}<br>
+         * - {@code printlnXLog}<br>
+         */
+        synchronized private static long[] getVitalExecState() {
+          Thread currentThread = Thread.currentThread();
+          
+          long time = System.currentTimeMillis() - Profiler.time;
+          long threadId = currentThread.getId();
+
+          long calldepth = -1;
+          if(Profiler.callDepth) {
+            StackTraceElement[] x = currentThread.getStackTrace();
+            calldepth = x.length - 3;
+          }
+          
+          return new long[] { threadId, time, calldepth };
+        }
+    
     synchronized static private void handleEnterLog(String insnId, String tag,
         EventType insnType) {
-      long threadId = Thread.currentThread().getId();
-      long time = System.currentTimeMillis() - Profiler.time;
+      long[] vitalState = getVitalExecState();
+      
       final String runtimeSignature = RuntimeTypeProfiler.getEnterRuntimeSignature(null);
-      TraceEvent event = EventBuilder.buildEnterExecEvent(++count, 
-          threadId, tag, insnId, insnType, time, runtimeSignature);
+      TraceEvent event = EventBuilder.buildEnterExecEvent(++count, tag, insnId, 
+          insnType, vitalState, runtimeSignature);
       printEventlog(event);
     }
-    
+
     synchronized static private void handleInvokeLog(String insnId, String tag,
         EventType insnType) {
-      long threadId = Thread.currentThread().getId();
-      long time = System.currentTimeMillis() - Profiler.time;
+      long[] vitalState = getVitalExecState();
+      
       final String runtimeSignature = 
           RuntimeTypeProfiler.getInvokeRuntimeSignature();
-      TraceEvent event = EventBuilder.buildInvokeInsnExecEvent(++count, 
-          threadId, tag, insnId, insnType, time, runtimeSignature);
+      TraceEvent event = EventBuilder.buildInvokeInsnExecEvent(++count, tag, 
+          insnId, insnType, vitalState, runtimeSignature);
       printEventlog(event);
     }
     
     synchronized static private void handleLog(String insnId, String tag,
         EventType insnType) {
-      long threadId = Thread.currentThread().getId();
-      long time = System.currentTimeMillis() - Profiler.time;
-      TraceEvent event = EventBuilder.buildInsnExecEvent(++count, 
-          threadId, tag, insnId, insnType, time);
+      long[] vitalState = getVitalExecState();
+
+      TraceEvent event = EventBuilder.buildInsnExecEvent(++count, tag, insnId, 
+          insnType, vitalState);
       printEventlog(event);
     }
     
     synchronized static private void handleArrayLog(String insnId, String tag,
         EventType insnType, int arrayrefId, int index, String elementId, int length) {
-      
-      long threadId = Thread.currentThread().getId();
-      long time = System.currentTimeMillis() - Profiler.time;
-      TraceEvent event = EventBuilder.buildArrayInsnExecEvent(++count, threadId, 
-          tag, insnId, insnType, time, arrayrefId, index, elementId, length);
+      long[] vitalState = getVitalExecState();
+
+      TraceEvent event = EventBuilder.buildArrayInsnExecEvent(++count, tag, 
+          insnId, insnType, vitalState, arrayrefId, index, elementId, length);
       printEventlog(event);
     }
     
     synchronized static private void handleVarLog(String insnId, String tag, 
         String varId) {
-      long threadId = Thread.currentThread().getId();
-      long time = System.currentTimeMillis() - Profiler.time;
-      TraceEvent event = EventBuilder.buildVarInsnExecEvent(++count, threadId, 
-          tag, insnId, EventType.$var$, time, varId);
+      long[] vitalState = getVitalExecState();
+
+      TraceEvent event = EventBuilder.buildVarInsnExecEvent(++count, tag, 
+          insnId, EventType.$var$, vitalState, varId);
       printEventlog(event);
     }
     
     synchronized static private void handleFieldLog(String insnId, String tag,
         String fieldId, String fieldOwnerId) {
-      long threadId = Thread.currentThread().getId();
-      long time = System.currentTimeMillis() - Profiler.time;
-      TraceEvent event = EventBuilder.buildFieldInsnExecEvent(++count, threadId, 
-          tag, insnId, EventType.$field$, time, fieldId, fieldOwnerId);
+      long[] vitalState = getVitalExecState();
+
+      TraceEvent event = EventBuilder.buildFieldInsnExecEvent(++count, tag, 
+          insnId, EventType.$field$, vitalState, fieldId, fieldOwnerId);
       printEventlog(event);
     }
     
-    synchronized static private long[] getThreadAndTime() {
-      long threadId = Thread.currentThread().getId();
-      long time = System.currentTimeMillis() - Profiler.time;
-      return new long[] {threadId, time};
-    }
-    
     synchronized static private void handleArgLog(String argType, String index, 
-        EventType type, boolean isLast) {
-      if(isLast)
-        REAL_OUT.print(argType + "," + index + "," + type.toString() + "\n");
-      else
-        REAL_OUT.print(argType + "," + index + "," + type.toString() + ",");
+        EventType type, boolean isFirst, boolean isLast) {
       
-//      TraceEvent event = EventBuilder.buildInsnExecEvent(++count, threadId, 
-//          index, argType, type, time);
-//      printEventlog(event);
+      if(isFirst) {
+        long[] vitalState = getVitalExecState();
+        long threadId = vitalState[THREAD_ID];
+        long timestamp = vitalState[TIMESTAMP];
+        long calldepth = vitalState[CALLDEPTH];
+        REAL_OUT.print("$$$," + ++count + "," 
+            + threadId + "," + timestamp + calldepth + ",");
+      }
+      
+      REAL_OUT.print(argType + "," + index + "," + type.toString() + 
+          (isLast? "\n" : ","));
+      
     }
     
     synchronized static private void printEventlog(TraceEvent event) {
-      int insnId = Integer.parseInt(event.getExecInsnId());
+      int insnId = Integer.parseInt(event.getExecInsnEventId());
       if(Profiler.stopAppInsn && insnId >= 0) {
         return;
       }
       REAL_OUT.println(event.getLog());
     }
+    
 }

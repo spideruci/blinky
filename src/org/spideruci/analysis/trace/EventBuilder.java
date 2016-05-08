@@ -11,28 +11,88 @@ import org.spideruci.analysis.trace.events.props.InvokeInsnExecPropNames;
 import org.spideruci.analysis.trace.events.props.VarInsnExecPropNames;
 
 public class EventBuilder {
+ 
+  private static TraceEvent setupBasicExecProperties(TraceEvent event, int id, 
+      String dynamicHostId, String insnId, long[] vitalState, 
+      EventType insnType) {
+    
+    long threadId = vitalState[Profiler.THREAD_ID];
+    long timestamp = vitalState[Profiler.TIMESTAMP];
+    long calldepth = vitalState[Profiler.CALLDEPTH];
+    
+    event.setExecInsnDynHost(dynamicHostId);
+    event.setExecInsnEventId(insnId);
+    event.setExecThreadId(String.valueOf(threadId));
+    event.setExecTimestamp(String.valueOf(timestamp));
+    event.setExecCalldepth(String.valueOf(calldepth));
+    event.setExecInsnType(insnType);
+    
+    return event;
+  }
+  
+  public static TraceEvent buildInsnExecEvent(int id, String dynamicHostId, 
+      String insnId, EventType insnType, long[] vitalState) {
+    TraceEvent event = TraceEvent.createInsnExecEvent(id);
+    event = setupBasicExecProperties(event, id, dynamicHostId, insnId, vitalState, insnType);
+    return event;
+  }
+  
+  public static TraceEvent buildEnterExecEvent(int id, String dynamicHostId, 
+      String insnId, EventType insnType, long[] vitalState, String runtimeSignature) {
+    TraceEvent event = TraceEvent.createEnterExecEvent(id);
+    event = setupBasicExecProperties(event, id, dynamicHostId, insnId, vitalState, insnType);
+    event.setProp(EnterExecPropNames.RUNTIME_SIGNATURE, runtimeSignature);
+    return event;
+  }
+  
+  public static TraceEvent buildInvokeInsnExecEvent(int id, String dynamicHostId, 
+      String insnId, EventType insnType, long[] vitalState, String runtimeSignature) {
+    TraceEvent event = TraceEvent.createInvokeInsnExecEvent(id);
+    event = setupBasicExecProperties(event, id, dynamicHostId, insnId, vitalState, insnType);
+    event.setProp(InvokeInsnExecPropNames.RUNTIME_SIGNATURE, runtimeSignature);
+    return event;
+  }
+  
+  public static TraceEvent buildArrayInsnExecEvent(int id, String dynamicHostId, 
+      String insnId, EventType insnType, long[] vitalState,
+      int arrayRefId, int index, String arrayElement, int arraylength) {
+    TraceEvent event = TraceEvent.createArrayInsnExecEvent(id);
+    event = setupBasicExecProperties(event, id, dynamicHostId, insnId, vitalState, insnType);
+    
+    event.setProp(ArrayInsnExecPropNames.ARRAY_ELEMENT, arrayElement);
+    event.setProp(ArrayInsnExecPropNames.ARRAYREF_ID, String.valueOf(arrayRefId));
+    event.setProp(ArrayInsnExecPropNames.ELEMENT_INDEX, String.valueOf(index));
+    event.setProp(ArrayInsnExecPropNames.ARRAY_LENGTH, String.valueOf(arraylength));
+    return event;
+  }
+  
+  public static TraceEvent buildVarInsnExecEvent(int id, String dynamicHostId, 
+      String insnId, EventType insnType, long[] vitalState, String varId) {
+    TraceEvent event = TraceEvent.createVarInsnExecEvent(id);
+    event = setupBasicExecProperties(event, id, dynamicHostId, insnId, vitalState, insnType);
+    event.setProp(VarInsnExecPropNames.VAR_ID, varId);
+    return event;
+  }
+  
+  public static TraceEvent buildFieldInsnExecEvent(int id, String dynamicHostId, 
+      String insnId, EventType insnType, long[] vitalState,
+      String fieldId, String fieldOwnerId) {
+    TraceEvent event = TraceEvent.createFieldInsnExecEvent(id);
+    event = setupBasicExecProperties(event, id, dynamicHostId, insnId, vitalState, insnType);
+    event.setProp(FieldInsnExecPropNames.FIELD_ID, fieldId);
+    event.setProp(FieldInsnExecPropNames.FIELD_OWNER_ID, fieldOwnerId);
+    return event;
+  }
   
   public static TraceEvent buildInsnExecEvent(int id, long threadId, 
       String dynamicHostId, String insnId, EventType insnType, long timestamp) {
     TraceEvent event = TraceEvent.createInsnExecEvent(id);
+    
     event.setProp(InsnExecPropNames.DYN_HOST_ID, dynamicHostId);
     event.setProp(InsnExecPropNames.INSN_EVENT_ID, insnId);
     event.setProp(InsnExecPropNames.THREAD_ID, String.valueOf(threadId));
     event.setProp(InsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
     event.setProp(InsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
-    return event;
-  }
-  
-  public static TraceEvent buildInvokeInsnExecEvent(int id, long threadId, 
-      String dynamicHostId, String insnId, EventType insnType, long timestamp, 
-      String runtimeSignature) {
-    TraceEvent event = TraceEvent.createInvokeInsnExecEvent(id);
-    event.setProp(InvokeInsnExecPropNames.DYN_HOST_ID, dynamicHostId);
-    event.setProp(InvokeInsnExecPropNames.INSN_EVENT_ID, insnId);
-    event.setProp(InvokeInsnExecPropNames.THREAD_ID, String.valueOf(threadId));
-    event.setProp(InvokeInsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
-    event.setProp(InvokeInsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
-    event.setProp(InvokeInsnExecPropNames.RUNTIME_SIGNATURE, runtimeSignature);
     return event;
   }
   
@@ -46,6 +106,19 @@ public class EventBuilder {
     event.setProp(EnterExecPropNames.TIMESTAMP, String.valueOf(timestamp));
     event.setProp(EnterExecPropNames.INSN_EVENT_TYPE, insnType.toString());
     event.setProp(EnterExecPropNames.RUNTIME_SIGNATURE, runtimeSignature);
+    return event;
+  }
+  
+  public static TraceEvent buildInvokeInsnExecEvent(int id, long threadId, 
+      String dynamicHostId, String insnId, EventType insnType, long timestamp, 
+      String runtimeSignature) {
+    TraceEvent event = TraceEvent.createInvokeInsnExecEvent(id);
+    event.setProp(InvokeInsnExecPropNames.DYN_HOST_ID, dynamicHostId);
+    event.setProp(InvokeInsnExecPropNames.INSN_EVENT_ID, insnId);
+    event.setProp(InvokeInsnExecPropNames.THREAD_ID, String.valueOf(threadId));
+    event.setProp(InvokeInsnExecPropNames.TIMESTAMP, String.valueOf(timestamp));
+    event.setProp(InvokeInsnExecPropNames.INSN_EVENT_TYPE, insnType.toString());
+    event.setProp(InvokeInsnExecPropNames.RUNTIME_SIGNATURE, runtimeSignature);
     return event;
   }
   

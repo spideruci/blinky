@@ -112,7 +112,7 @@ public class TraceIteratorTests {
   @Test
   public void shouldHaveEventsWithLinesStartingWith$() {
     //given
-    Scanner scanner = new Scanner("$$$,1,x,x,x,x,x\n$$$,2,x,x,x,x,x\n$$$,3,x,x,x,x,x\n");
+    Scanner scanner = new Scanner("$$$,1,x,x,x,x,x,$math$\n$$$,2,x,x,x,x,x,$math$\n$$$,3,x,x,x,x,x,$load$\n");
     
     //when
     TraceIterator iterator = new TraceIterator(scanner);
@@ -126,7 +126,7 @@ public class TraceIteratorTests {
   @Test
   public void shouldAllowMultipleHasNextsWithNoNexts() {
     //given
-    Scanner scanner = new Scanner("$$$,1,x,x,x,x,x");
+    Scanner scanner = new Scanner("$$$,1,x,x,x,x,x,$math$");
     
     //when
     TraceIterator iterator = new TraceIterator(scanner);

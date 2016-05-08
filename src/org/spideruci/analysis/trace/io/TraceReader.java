@@ -84,7 +84,7 @@ public class TraceReader {
         return execEvent;
       }
       
-      int execEventId = Integer.parseInt(execEvent.getExecInsnId());
+      int execEventId = Integer.parseInt(execEvent.getExecInsnEventId());
       TraceEvent insnEvent = insnTable.get(execEventId);
       return insnEvent;
     }
