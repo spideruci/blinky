@@ -8,15 +8,17 @@
   <artifactId>blinky</artifactId>
   <version>0.0.1-SNAPSHOT</version>
  </parent>
- <groupId>org.spideruci.analysis.util</groupId>
- <artifactId>blinky-util</artifactId>
+ <groupId>org.spideruci.analysis.trace</groupId>
+ <artifactId>blinky-trace-manager</artifactId>
  <version>0.0.1-SNAPSHOT</version>
- <name>Blinky Util</name>
+ 
+ <name>Blinky Trace Manager</name>
  <url>https://github.com/spideruci/blinky</url>
-
 
  <properties>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <maven.compiler.source>1.7</maven.compiler.source>
+  <maven.compiler.target>1.7</maven.compiler.target>
  </properties>
 
  <build>
@@ -34,10 +36,15 @@
 
  <dependencies>
   <dependency>
-   <groupId>com.google.guava</groupId>
-   <artifactId>guava</artifactId>
-   <version>17.0</version>
+   <groupId>org.spideruci.analysis</groupId>
+   <artifactId>blinky-core</artifactId>
+   <version>0.0.1-SNAPSHOT</version>
+  </dependency>
+  <dependency>
+   <groupId>junit</groupId>
+   <artifactId>junit</artifactId>
+   <version>4.12</version>
+   <scope>test</scope>
   </dependency>
  </dependencies>
-
 </project>

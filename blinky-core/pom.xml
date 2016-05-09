@@ -81,23 +81,6 @@
 
  <dependencies>
   <dependency>
-   <groupId>org.ow2.asm</groupId>
-   <artifactId>asm-debug-all</artifactId>
-   <version>5.0</version>
-  </dependency>
-  <dependency>
-   <groupId>junit</groupId>
-   <artifactId>junit</artifactId>
-   <version>4.12</version>
-   <scope>test</scope>
-  </dependency>
-  <dependency>
-   <groupId>org.mockito</groupId>
-   <artifactId>mockito-core</artifactId>
-   <version>2.0.31-beta</version>
-   <scope>test</scope>
-  </dependency>
-  <dependency>
    <groupId>org.spideruci.analysis.util</groupId>
    <artifactId>blinky-util</artifactId>
    <version>0.0.1-SNAPSHOT</version>
