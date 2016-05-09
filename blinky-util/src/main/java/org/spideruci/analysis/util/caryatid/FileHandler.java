@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import org.junit.Assert;
+import org.spideruci.analysis.util.MyAssert;
 
 
 public class FileHandler {
@@ -46,7 +46,7 @@ public class FileHandler {
 
   public static void deleteFile(File file) {
     boolean result = file.delete();
-    Assert.assertEquals(true, result);
+    MyAssert.assertThat(result);
   }
 
   public static void bufferWrite(String content, File file) throws FileNameTooLong {

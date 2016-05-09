@@ -80,6 +80,7 @@
  </build>
 
  <dependencies>
+ 
   <dependency>
    <groupId>org.spideruci.analysis.util</groupId>
    <artifactId>blinky-util</artifactId>
