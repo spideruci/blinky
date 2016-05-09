@@ -41,5 +41,6 @@
   <module>blinky-core</module>
   <module>blinky-util</module>
     <module>blinky-trace-manager</module>
-  </modules>
+    <module>blinky-diagnostics</module>
+ </modules>
 </project>
