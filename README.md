@@ -1,4 +1,4 @@
-![blinky-logo-white](https://cloud.githubusercontent.com/assets/1355460/15376054/9936d904-1d07-11e6-9cb5-533933e742ae.png)
+<img src="https://cloud.githubusercontent.com/assets/1355460/15376410/b6224b0a-1d09-11e6-9b18-77a8d03eb03d.png" width="250">
 # Blinky: Java Code Instrumenter and Execution Tracer
 
 Check out the project wiki for more information: https://github.com/spideruci/blinky/wiki
