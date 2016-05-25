@@ -49,7 +49,7 @@ public class SourcelineInstrumentationTest {
     Profiler.logSourceLineNumber = true;
   }
   
-  private SourcelineMethodAdapter methodAdapter = null;
+  private BytecodeMethodAdapter methodAdapter = null;
   private MethodVisitor methodWriterMock = null;
   
   private void given_MethodStub_with_AccessMods(int access) {
@@ -65,7 +65,7 @@ public class SourcelineInstrumentationTest {
     methodWriterMock = mock(MethodVisitor.class);
     
     // Create MethodAdapter to instrument method
-    methodAdapter = SourcelineMethodAdapter.create(methodDecl, methodWriterMock);
+    methodAdapter = BytecodeMethodAdapter.create(methodDecl, methodWriterMock);
     methodAdapter.enableInstrumentation();
   }
   

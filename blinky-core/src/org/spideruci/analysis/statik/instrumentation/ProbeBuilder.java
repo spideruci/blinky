@@ -21,46 +21,46 @@ import org.spideruci.analysis.util.MyAssert;
  * @author vpalepu
  *
  */
-public class ProfilerCallBack implements Opcodes {
+public class ProbeBuilder implements Opcodes {
   private final StringBuffer callbackDesc;
   private final MethodVisitor mv;
   
-  public static ProfilerCallBack start(MethodVisitor mv) {
-    ProfilerCallBack callBack = new ProfilerCallBack(mv);
+  public static ProbeBuilder start(MethodVisitor mv) {
+    ProbeBuilder callBack = new ProbeBuilder(mv);
     callBack.callbackDesc.append("(");
     return callBack;
   }
   
-  private ProfilerCallBack(MethodVisitor mv) {
+  private ProbeBuilder(MethodVisitor mv) {
     this.callbackDesc = new StringBuffer();
     this.mv = mv;
   }
   
-  public ProfilerCallBack passArg(String arg) {
+  public ProbeBuilder passArg(String arg) {
     this.mv.visitLdcInsn(arg);
     this.callbackDesc.append(Deputy.STRING_DESC);
     return this;
   }
   
-  public ProfilerCallBack passArg(boolean b) {
+  public ProbeBuilder passArg(boolean b) {
     this.mv.visitLdcInsn(b);
     this.callbackDesc.append(Deputy.BOOLEAN_TYPEDESC);
     return this;
   }
   
-  public ProfilerCallBack passArg(int arg) {
+  public ProbeBuilder passArg(int arg) {
     this.mv.visitLdcInsn(arg);
     this.callbackDesc.append(Deputy.INT_TYPEDESC);
     return this;
   }
   
-  public ProfilerCallBack passArg(EventType type) {
+  public ProbeBuilder passArg(EventType type) {
     this.mv.visitLdcInsn(type);
     this.callbackDesc.append(Deputy.EVENT_TYPE_DESC);
     return this;
   }
   
-  public ProfilerCallBack passThis(String methodAccess) {
+  public ProbeBuilder passThis(String methodAccess) {
     int access = Integer.parseInt(methodAccess);
     if((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
       mv.visitLdcInsn("C");
@@ -76,20 +76,20 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-  public ProfilerCallBack passRef(int var) {
+  public ProbeBuilder passRef(int var) {
     mv.visitVarInsn(Opcodes.ALOAD, var);
     mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
     this.callbackDesc.append(Deputy.OBJECT_DESC);
     return this;
   }
   
-  public ProfilerCallBack passNakedRef(int var) {
+  public ProbeBuilder passNakedRef(int var) {
     mv.visitVarInsn(Opcodes.ALOAD, var);
     this.callbackDesc.append(Deputy.OBJECT_DESC);
     return this;
   }
   
-  public ProfilerCallBack setupGetInsnStackArgs(int opcode, String owner) {
+  public ProbeBuilder setupGetInsnStackArgs(int opcode, String owner) {
     MyAssert.assertThat(GETFIELD == opcode || GETSTATIC == opcode);
     
     if(opcode == GETFIELD) { // ref
@@ -125,7 +125,7 @@ public class ProfilerCallBack implements Opcodes {
     }
   }
   
-  public ProfilerCallBack passGetInsnStackArgs(int opcode, String desc, String owner) {
+  public ProbeBuilder passGetInsnStackArgs(int opcode, String desc, String owner) {
     final boolean isValueWide = isDescWide(desc);
     final boolean isValueRef = isDescRef(desc);
     
@@ -142,7 +142,7 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-  public ProfilerCallBack passPutInsnStackArgs(int opcode, String desc, String owner) {
+  public ProbeBuilder passPutInsnStackArgs(int opcode, String desc, String owner) {
     MyAssert.assertThat(PUTFIELD == opcode || PUTSTATIC == opcode);
     
     final boolean isWide = isDescWide(desc);
@@ -220,7 +220,7 @@ public class ProfilerCallBack implements Opcodes {
     mv.visitMethodInsn(INVOKESTATIC, PROFILER_NAME, GETHASH, GETHASH_DESC, false);
   }
   
-  public ProfilerCallBack passArrayLoadStackArgs(int opcode) {
+  public ProbeBuilder passArrayLoadStackArgs(int opcode) {
     MyAssert.assertThat(Opcodes.IALOAD <= opcode && opcode <= Opcodes.SALOAD,
         "not an array load.");
     mv.visitInsn(Opcodes.DUP2);
@@ -229,7 +229,7 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-  public ProfilerCallBack passArrayStoreStackArgs(int opcode) {
+  public ProbeBuilder passArrayStoreStackArgs(int opcode) {
     MyAssert.assertThat(Opcodes.IASTORE <= opcode && opcode <= Opcodes.SASTORE,
         "not an array store.");
     
@@ -287,12 +287,12 @@ public class ProfilerCallBack implements Opcodes {
     return this;
   }
   
-  public ProfilerCallBack appendDesc(final String typeDesc) {
+  public ProbeBuilder appendDesc(final String typeDesc) {
     this.callbackDesc.append(typeDesc);
     return this;
   }
   
-  public ProfilerCallBack passNewWithDefaultCtor(final String typeDesc) {
+  public ProbeBuilder passNewWithDefaultCtor(final String typeDesc) {
     final Buffer typeNameBuffer = new Buffer();
     for(int i = 0; i < typeDesc.length(); i += 1) {
       char ch = typeDesc.charAt(i);
