@@ -1,0 +1,57 @@
+#!/bin/bash
+
+pwd
+cat ./scripts/blinky
+
+
+echo $String
+
+echo "STARTING BLINKY DIAGNOSTICS"
+
+# hmm ... ?
+BLINKY_JAR="../blinky-core/target/blinky-core-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+
+echo "Found Blinky Jar at following location:"
+ls -alh $BLINKY_JAR
+
+SUBJECTS_PKG="org.spideruci.analysis.diagnostics.subjects"
+BLINKY="-Xbootclasspath/p:$BLINKY_JAR -javaagent:$BLINKY_JAR="
+
+INPUT1="FOUNTAIN-5-2-16-nyt.txt"
+INPUT2="pride-and-prejudice.txt"
+
+
+for MAIN in \
+  Namaste \
+  "SummaryLib 1" "SummaryLib 2" "SummaryLib 3" "SummaryLib 4" "SummaryLib 5" "SummaryLib 6" \
+  "styleEx.TermFrequency" \
+  "styleEx.BulletinBoard"; do
+  echo "🏂 RUNNING java on $MAIN"
+  java -cp .:./target/classes/ "$SUBJECTS_PKG."$MAIN
+  echo "🏃 RUNNING blinky on $MAIN"
+  for CONFIG in \
+      "0" \
+      "l,frames,calldepth" \
+      "z,frames,calldepth" \
+      "f,frames,calldepth" \
+      "v,frames,calldepth" \
+      "A,frames,calldepth"; do
+    echo "👉 with configuration: $CONFIG"
+    java $BLINKY$CONFIG -cp .:./target/classes/ "$SUBJECTS_PKG."$MAIN > /dev/null 2>&1
+  done
+done
+
+exit $?
+
+function check {
+  ls -alh $1/*trc
+  grep "Caused" $1/*err
+
+  for trace in $(ls $1/*trc); do
+    echo $trace
+    grep '\$\$\$' $trace | wc -l
+  done
+}
+
+check traces
+check traces-full
