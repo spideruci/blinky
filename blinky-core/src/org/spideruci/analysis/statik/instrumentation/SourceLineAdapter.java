@@ -7,6 +7,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.spideruci.analysis.trace.EventBuilder;
+import org.spideruci.analysis.trace.MethodDecl;
 import org.spideruci.analysis.trace.TraceEvent;
 
 public class SourceLineAdapter extends ClassVisitor {
@@ -28,7 +29,7 @@ public class SourceLineAdapter extends ClassVisitor {
         && ((access & Opcodes.ACC_NATIVE) == 0)) {
 
       final String methodName = name + desc;
-      TraceEvent methodDecl = 
+      MethodDecl methodDecl = 
           EventBuilder.buildMethodDecl(className, access, methodName);
       
       mv = new SourcelineMethodAdapter(methodDecl, access, name, desc, mv);

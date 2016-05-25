@@ -17,7 +17,7 @@ import org.spideruci.analysis.util.MyAssert;
  *
  */
 @SuppressWarnings("rawtypes")
-public class TraceEvent implements MethodDecl {
+public class TraceEvent implements MethodDecl, Instruction {
   
   private static final String SEP = ",";
   
@@ -253,20 +253,36 @@ public class TraceEvent implements MethodDecl {
     return Integer.parseInt(getProp(InsnPropNames.DECL_HOST_ID));
   }
   
-  public String getInsnFieldOwner() {
+  public int getInsnOpcode() {
+    return Integer.parseInt(getProp(InsnPropNames.OPCODE));
+  }
+  
+  public String getInsnOperand1() {
     return getProp(InsnPropNames.OPERAND1);
   }
   
-  public String getInsnFieldName() {
+  public String getInsnOperand2() {
     return getProp(InsnPropNames.OPERAND2);
   }
   
-  public String getInsnFieldDesc() {
+  public String getInsnOperand3() {
     return getProp(InsnPropNames.OPERAND3);
   }
   
+  public String getInsnFieldOwner() {
+    return getInsnOperand1();
+  }
+  
+  public String getInsnFieldName() {
+    return getInsnOperand2();
+  }
+  
+  public String getInsnFieldDesc() {
+    return getInsnOperand3();
+  }
+  
   public String getInsnNewType() {
-    return getProp(InsnPropNames.OPERAND1);
+    return getInsnOperand1();
   }
   
   private static final int THREAD_ID = InsnExecPropNames.THREAD_ID.ordinal();

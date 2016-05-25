@@ -46,7 +46,6 @@ public class Profiler {
   private static int count = 0;
   private static long time = 0;
   
-  
   synchronized static public void setLogFlags(final boolean value) {
     logMethodEnter = 
         logMethodExit = 
