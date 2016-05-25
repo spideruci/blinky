@@ -1,7 +1,7 @@
 /*
 @author Charles.Y.Feng
 @date May 12, 2016 3:18:48 PM
-*/
+ */
 
 package org.spideruci.analysis.diagnostics.subjects.styleEx;
 
@@ -36,247 +36,247 @@ import java.util.Set;
  */
 public class Quarantine {
 
-	public static void main(String[] args) {
+  public static void main(String[] args) {
 
-		args = new String[2];
-		args[0] = Config.bookPath;
-		args[1] = Config.stopWordsPath;
-		
-		TFQuarantine quarantine = (new TFQuarantine(new get_input(args)))
-				.bind(new extract_words()).bind(new remove_stop_words())
-				.bind(new frequencies()).bind(new sort())
-				.bind(new top25());
-				//.bind(new top25_freqs());
-		quarantine.execute();
-	}
+    args = new String[2];
+    args[0] = Config.bookPath;
+    args[1] = Config.stopWordsPath;
 
-	static class get_input implements MyFunction {
-		String[] args;
+    TFQuarantine quarantine = (new TFQuarantine(new get_input(args)))
+        .bind(new extract_words()).bind(new remove_stop_words())
+        .bind(new frequencies()).bind(new sort())
+        .bind(new top25());
+    //.bind(new top25_freqs());
+    quarantine.execute();
+  }
 
-		public get_input(String[] args) {
-			this.args = args;
-		}
+  static class get_input implements MyFunction {
+    String[] args;
 
-		@Override
-		public Object func(Object o) {
-			return new get_input_core(args);
-		}
+    public get_input(String[] args) {
+      this.args = args;
+    }
 
-		class get_input_core implements IOFunction {
-			String[] args;
+    @Override
+    public Object func(Object o) {
+      return new get_input_core(args);
+    }
 
-			public get_input_core(Object o) {
-				args = (String[]) o;
-			}
+    class get_input_core implements IOFunction {
+      String[] args;
 
-			@Override
-			public Object ioFunc() {
-				return args[0];
-			}
-		}
-	}
+      public get_input_core(Object o) {
+        args = (String[]) o;
+      }
 
-	static class extract_words implements MyFunction {
+      @Override
+      public Object ioFunc() {
+        return args[0];
+      }
+    }
+  }
 
-		@Override
-		public Object func(Object o) {
-			return new extract_words_core(o);
-		}
+  static class extract_words implements MyFunction {
 
-		class extract_words_core implements IOFunction {
-			String path_to_file;
+    @Override
+    public Object func(Object o) {
+      return new extract_words_core(o);
+    }
 
-			public extract_words_core(Object o) {
-				path_to_file = (String) o;
-			}
+    class extract_words_core implements IOFunction {
+      String path_to_file;
 
-			@Override
-			public Object ioFunc() {
-				String data = null;
-				BufferedReader br;
-				try {
-					br = new BufferedReader(new FileReader(path_to_file));
-					StringBuilder sb = new StringBuilder();
-					int v = -1;
-					while ((v = br.read()) != -1) {
-						sb.append((char) v);
-					}
-					br.close();
-					data = sb.toString();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				List<String> word_list = new ArrayList<String>();
-				word_list.addAll(Arrays.asList(data.replaceAll("[\\W_]+", " ")
-						.toLowerCase().split(" ")));
-				return word_list;
-			}
-		}
-	}
+      public extract_words_core(Object o) {
+        path_to_file = (String) o;
+      }
 
-	static class remove_stop_words implements MyFunction {
+      @Override
+      public Object ioFunc() {
+        String data = null;
+        BufferedReader br;
+        try {
+          br = new BufferedReader(new FileReader(path_to_file));
+          StringBuilder sb = new StringBuilder();
+          int v = -1;
+          while ((v = br.read()) != -1) {
+            sb.append((char) v);
+          }
+          br.close();
+          data = sb.toString();
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        List<String> word_list = new ArrayList<String>();
+        word_list.addAll(Arrays.asList(data.replaceAll("[\\W_]+", " ")
+            .toLowerCase().split(" ")));
+        return word_list;
+      }
+    }
+  }
 
-		@Override
-		public Object func(Object o) {
-			return new remove_stop_words_core(o);
-		}
+  static class remove_stop_words implements MyFunction {
 
-		class remove_stop_words_core implements IOFunction {
+    @Override
+    public Object func(Object o) {
+      return new remove_stop_words_core(o);
+    }
 
-			List<String> word_list;
+    class remove_stop_words_core implements IOFunction {
 
-			public remove_stop_words_core(Object o) {
-				word_list = (List<String>) o;
-			}
+      List<String> word_list;
 
-			@Override
-			public Object ioFunc() {
-				Set<String> stop_words = new HashSet<String>();
-				BufferedReader br;
-				try {
-					br = new BufferedReader(
-							new FileReader(Config.stopWordsPath));
-					StringBuilder sb = new StringBuilder();
-					int v = -1;
-					while ((v = br.read()) != -1) {
-						sb.append((char) v);
-					}
-					stop_words.addAll(Arrays.asList(sb.toString().split(",")));
-					for (char ch = 'a'; ch <= 'z'; ch++) {
-						stop_words.add(ch + "");
-					}
+      public remove_stop_words_core(Object o) {
+        word_list = (List<String>) o;
+      }
 
-					for (int i = 0; i < word_list.size(); i++) {
-						if (stop_words.contains(word_list.get(i))) {
-							word_list.remove(word_list.get(i));
-							i--;
-						}
-					}
-					br.close();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return word_list;
-			}
-		}
-	}
+      @Override
+      public Object ioFunc() {
+        Set<String> stop_words = new HashSet<String>();
+        BufferedReader br;
+        try {
+          br = new BufferedReader(
+              new FileReader(Config.stopWordsPath));
+          StringBuilder sb = new StringBuilder();
+          int v = -1;
+          while ((v = br.read()) != -1) {
+            sb.append((char) v);
+          }
+          stop_words.addAll(Arrays.asList(sb.toString().split(",")));
+          for (char ch = 'a'; ch <= 'z'; ch++) {
+            stop_words.add(ch + "");
+          }
 
-	static class frequencies implements MyFunction {
-		@Override
-		public Object func(Object o) {
-			ArrayList<String> word_list_tmp = (ArrayList<String>) o;
-			HashMap<String, Integer> wf = new HashMap<String, Integer>();
-			for (String w : word_list_tmp) {
-				if (wf.containsKey(w)) {
-					wf.put(w, wf.get(w) + 1);
-				} else {
-					wf.put(w, 1);
-				}
-			}
-			return wf;
-		}
-	}
+          for (int i = 0; i < word_list.size(); i++) {
+            if (stop_words.contains(word_list.get(i))) {
+              word_list.remove(word_list.get(i));
+              i--;
+            }
+          }
+          br.close();
+        } catch (FileNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        return word_list;
+      }
+    }
+  }
 
-	static class sort implements MyFunction {
+  static class frequencies implements MyFunction {
+    @Override
+    public Object func(Object o) {
+      ArrayList<String> word_list_tmp = (ArrayList<String>) o;
+      HashMap<String, Integer> wf = new HashMap<String, Integer>();
+      for (String w : word_list_tmp) {
+        if (wf.containsKey(w)) {
+          wf.put(w, wf.get(w) + 1);
+        } else {
+          wf.put(w, 1);
+        }
+      }
+      return wf;
+    }
+  }
 
-		@Override
-		public Object func(Object o) {
-			List<Map.Entry<String, Integer>> word_freqs_tmp = new ArrayList<Map.Entry<String, Integer>>();
-			word_freqs_tmp.addAll(((HashMap<String, Integer>) o).entrySet());
-			Collections.sort(word_freqs_tmp,
-					new Comparator<Map.Entry<?, Integer>>() {
-						public int compare(Map.Entry<?, Integer> o1,
-								Map.Entry<?, Integer> o2) {
-							if (o1.getValue() > o2.getValue())
-								return -1;
-							else if (o1.getValue() < o2.getValue())
-								return 1;
-							return 0;
-						}
-					});
-			return word_freqs_tmp;
-		}
-	}
+  static class sort implements MyFunction {
 
-	static class top25_freqs implements MyFunction {
-		@Override
-		public Object func(Object o) {
-			// TODO Auto-generated method stub
-			List<Map.Entry<String, Integer>> word_freqs_tmp = (ArrayList<Map.Entry<String, Integer>>) (o);
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < 25; i++) {
-				sb.append(word_freqs_tmp.get(i).getKey()).append("  -  ")
-						.append(word_freqs_tmp.get(i).getValue()).append("\n");
-			}
-			return sb.toString();
-		}
-	}
-	
-	static class top25 implements MyFunction {
-		@Override
-		public Object func(Object o) {
-			return new top25_core(o);
-		}
+    @Override
+    public Object func(Object o) {
+      List<Map.Entry<String, Integer>> word_freqs_tmp = new ArrayList<Map.Entry<String, Integer>>();
+      word_freqs_tmp.addAll(((HashMap<String, Integer>) o).entrySet());
+      Collections.sort(word_freqs_tmp,
+          new Comparator<Map.Entry<?, Integer>>() {
+        public int compare(Map.Entry<?, Integer> o1,
+            Map.Entry<?, Integer> o2) {
+          if (o1.getValue() > o2.getValue())
+            return -1;
+          else if (o1.getValue() < o2.getValue())
+            return 1;
+          return 0;
+        }
+      });
+      return word_freqs_tmp;
+    }
+  }
 
-		class top25_core implements IOFunction {
-			List<Map.Entry<String, Integer>> word_freqs;
+  static class top25_freqs implements MyFunction {
+    @Override
+    public Object func(Object o) {
+      // TODO Auto-generated method stub
+      List<Map.Entry<String, Integer>> word_freqs_tmp = (ArrayList<Map.Entry<String, Integer>>) (o);
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < 25; i++) {
+        sb.append(word_freqs_tmp.get(i).getKey()).append("  -  ")
+        .append(word_freqs_tmp.get(i).getValue()).append("\n");
+      }
+      return sb.toString();
+    }
+  }
 
-			public top25_core(Object o) {
-				word_freqs = (ArrayList<Map.Entry<String, Integer>>) (o);
-			}
-			@Override
-			public Object ioFunc() {
-				for(int i=0;i<25;i++)
-					System.out.println(word_freqs.get(i).getKey()+"  -  "+word_freqs.get(i).getValue());
-				return "";
-			}
-		}
-	}
+  static class top25 implements MyFunction {
+    @Override
+    public Object func(Object o) {
+      return new top25_core(o);
+    }
 
-	interface MyFunction {
-		Object func(Object o);
-	}
+    class top25_core implements IOFunction {
+      List<Map.Entry<String, Integer>> word_freqs;
 
-	interface IOFunction {
-		Object ioFunc();
-	}
+      public top25_core(Object o) {
+        word_freqs = (ArrayList<Map.Entry<String, Integer>>) (o);
+      }
+      @Override
+      public Object ioFunc() {
+        for(int i=0;i<25;i++)
+          System.out.println(word_freqs.get(i).getKey()+"  -  "+word_freqs.get(i).getValue());
+        return "";
+      }
+    }
+  }
 
-	static class TFQuarantine {
-		private List<MyFunction> funcs;
+  interface MyFunction {
+    Object func(Object o);
+  }
 
-		public TFQuarantine(MyFunction func) {
-			funcs = new ArrayList<MyFunction>();
-			funcs.add(func);
-		}
+  interface IOFunction {
+    Object ioFunc();
+  }
 
-		public TFQuarantine bind(MyFunction e) {
-			funcs.add(e);
-			return this;
-		}
+  static class TFQuarantine {
+    private List<MyFunction> funcs;
 
-		public void execute() {
-			Object value = null;
-			try {
-				for (MyFunction m : funcs) {
-					value = m.func(guard_callable(value));
-				}
-				System.out.print(guard_callable(value));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+    public TFQuarantine(MyFunction func) {
+      funcs = new ArrayList<MyFunction>();
+      funcs.add(func);
+    }
 
-		public static Object guard_callable(Object v) throws Exception {
-			if (v instanceof IOFunction) {
-				return ((IOFunction) v).ioFunc();
-			}
-			return v;
-		}
-	}
+    public TFQuarantine bind(MyFunction e) {
+      funcs.add(e);
+      return this;
+    }
+
+    public void execute() {
+      Object value = null;
+      try {
+        for (MyFunction m : funcs) {
+          value = m.func(guard_callable(value));
+        }
+        System.out.print(guard_callable(value));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    public static Object guard_callable(Object v) throws Exception {
+      if (v instanceof IOFunction) {
+        return ((IOFunction) v).ioFunc();
+      }
+      return v;
+    }
+  }
 }
 

@@ -1,7 +1,7 @@
 /*
 @author Charles.Y.Feng
 @date May 12, 2016 4:40:41 PM
-*/
+ */
 
 package org.spideruci.analysis.diagnostics.subjects.styleEx.noCommitment;
 
@@ -22,19 +22,19 @@ import org.spideruci.analysis.diagnostics.subjects.styleEx.Config;
  */
 public class NoCommitment {
 
-	public void load_plugins(String fileName) throws Exception {
-		
-		String configFilePath = this.getClass().getClassLoader().getSystemResource("./org/spideruci/analysis/diagnostics/subjects/styleEx/noCommitment/config.ini").getPath();
-		Ini config = new Ini(new File(configFilePath));
-		URLClassLoader cl = (URLClassLoader) this.getClass().getClassLoader();
-		Words words = (Words) Class.forName(config.get("Plugins", "words"), true, cl).newInstance();
-		Frequencies freqs = (Frequencies) Class.forName(config.get("Plugins", "frequencies"), true, cl).newInstance();
-		Print print = (Print) Class.forName(config.get("Plugins", "print"), true, cl).newInstance();
-		print.print(freqs.top25(words.extractWords(fileName)));
-	}
+  public void load_plugins(String fileName) throws Exception {
 
-	public static void main(String[] args) throws Exception {
-		NoCommitment entry = new NoCommitment();
-		entry.load_plugins(Config.bookPath);
-	}
+    String configFilePath = this.getClass().getClassLoader().getSystemResource("./org/spideruci/analysis/diagnostics/subjects/styleEx/noCommitment/config.ini").getPath();
+    Ini config = new Ini(new File(configFilePath));
+    URLClassLoader cl = (URLClassLoader) this.getClass().getClassLoader();
+    Words words = (Words) Class.forName(config.get("Plugins", "words"), true, cl).newInstance();
+    Frequencies freqs = (Frequencies) Class.forName(config.get("Plugins", "frequencies"), true, cl).newInstance();
+    Print print = (Print) Class.forName(config.get("Plugins", "print"), true, cl).newInstance();
+    print.print(freqs.top25(words.extractWords(fileName)));
+  }
+
+  public static void main(String[] args) throws Exception {
+    NoCommitment entry = new NoCommitment();
+    entry.load_plugins(Config.bookPath);
+  }
 }

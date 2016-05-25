@@ -1,7 +1,7 @@
 /*
 @author Charles.Y.Feng
 @date May 11, 2016 5:14:21 PM
-*/
+ */
 
 package org.spideruci.analysis.diagnostics.subjects.styleEx;
 
@@ -37,40 +37,40 @@ import java.lang.reflect.Method;
  * 
  */
 public class HollywoodWordsWithZ {
-	public static void main(String[] args) {
-		WordFrequencyFramework wfapp = new WordFrequencyFramework();
-		StopWordFilter stop_word_filter = new StopWordFilter(wfapp);
-		DataStorage data_storage = new DataStorage(wfapp, stop_word_filter);
+  public static void main(String[] args) {
+    WordFrequencyFramework wfapp = new WordFrequencyFramework();
+    StopWordFilter stop_word_filter = new StopWordFilter(wfapp);
+    DataStorage data_storage = new DataStorage(wfapp, stop_word_filter);
 
-		WordFrequencyCounter word_freq_counter = new WordFrequencyCounter(wfapp, data_storage);
-		ZWordFilter zword_fileter = new ZWordFilter(wfapp, data_storage);
-		wfapp.run(Config.bookPath);
+    WordFrequencyCounter word_freq_counter = new WordFrequencyCounter(wfapp, data_storage);
+    ZWordFilter zword_fileter = new ZWordFilter(wfapp, data_storage);
+    wfapp.run(Config.bookPath);
 
-	}
+  }
 }
 
 class ZWordFilter {
 
-	int zstopwords_counter;
+  int zstopwords_counter;
 
-	public ZWordFilter(WordFrequencyFramework wfapp, DataStorage data_storage) {
-		zstopwords_counter = 0;
-		try {
-			data_storage.register_for_word_event(this.getClass().getMethod("zword_increment", String.class), this);
-			wfapp.register_for_end_event(this.getClass().getMethod("print_zstopword_freqs"), this);
-		} catch (NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
+  public ZWordFilter(WordFrequencyFramework wfapp, DataStorage data_storage) {
+    zstopwords_counter = 0;
+    try {
+      data_storage.register_for_word_event(this.getClass().getMethod("zword_increment", String.class), this);
+      wfapp.register_for_end_event(this.getClass().getMethod("print_zstopword_freqs"), this);
+    } catch (NoSuchMethodException | SecurityException e) {
+      e.printStackTrace();
+    }
 
-	}
+  }
 
-	public void print_zstopword_freqs() {
-		System.out.println(zstopwords_counter);
-	}
+  public void print_zstopword_freqs() {
+    System.out.println(zstopwords_counter);
+  }
 
-	public void zword_increment(String word) {
-		if (word.contains("z")) {
-			zstopwords_counter++;
-		}
-	}
+  public void zword_increment(String word) {
+    if (word.contains("z")) {
+      zstopwords_counter++;
+    }
+  }
 }
