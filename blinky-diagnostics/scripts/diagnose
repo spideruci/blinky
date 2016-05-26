@@ -1,5 +1,9 @@
 #!/bin/bash
 
+BOLD=$(tput bold)
+NORMAL=$(tput sgr0)
+RED=$(tput setaf 1)
+
 pwd
 cat ./scripts/blinky
 
@@ -10,6 +14,7 @@ echo "STARTING BLINKY DIAGNOSTICS"
 
 # hmm ... ?
 BLINKY_JAR="../blinky-core/target/blinky-core-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+DIAGNOSTICS_JAR="../blinky-diagnostics/target/blinky-diagnostics-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
 
 echo "Found Blinky Jar at following location:"
 ls -alh $BLINKY_JAR
@@ -20,24 +25,61 @@ BLINKY="-Xbootclasspath/p:$BLINKY_JAR -javaagent:$BLINKY_JAR="
 INPUT1="FOUNTAIN-5-2-16-nyt.txt"
 INPUT2="pride-and-prejudice.txt"
 
-
-for MAIN in \
-  Namaste \
-  "SummaryLib 1" "SummaryLib 2" "SummaryLib 3" "SummaryLib 4" "SummaryLib 5" "SummaryLib 6" \
-  "styleEx.TermFrequency" \
-  "styleEx.BulletinBoard"; do
-  echo "🏂 RUNNING java on $MAIN"
-  java -cp .:./target/classes/ "$SUBJECTS_PKG."$MAIN
-  echo "🏃 RUNNING blinky on $MAIN"
-  for CONFIG in \
-      "0" \
+CONFIGS=("0" \
       "l,frames,calldepth" \
+      "i,frames,calldepth" \
+      "e,frames,calldepth" \
+      "x,frames,calldepth" \
+      "xile,frames,calldepth" \
       "z,frames,calldepth" \
       "f,frames,calldepth" \
       "v,frames,calldepth" \
-      "A,frames,calldepth"; do
+      "c,frames,calldepth" \
+      "j,frames,calldepth" \
+      "s,frames,calldepth" \
+      "t,frames,calldepth" \
+      "A,frames,calldepth" )
+      
+MAINS=( )
+#IFS=""
+
+for MAIN in "Namaste" \
+  "SummaryLib 1" \
+  "SummaryLib 2" \
+  "SummaryLib 3" \
+  "SummaryLib 4" \
+  "SummaryLib 5" \
+  "SummaryLib 6" \
+  "styleEx.BulletinBoard" \
+  "styleEx.CandyFactory" \
+  "styleEx.CodeGolf" \
+  "styleEx.Constructivist" \
+  "styleEx.CookBook" \
+  "styleEx.DeclaredIntentions" \
+  "styleEx.Hollywood" \
+  "styleEx.HollywoodWordsWithZ" \
+  "styleEx.InfiniteMirror" \
+  "styleEx.KickYourTeammateForward" \
+  "styleEx.LazyRivers" \
+  "styleEx.PersistentTablesReader" \
+  "styleEx.Quarantine" \
+  "styleEx.Spreadsheet" \
+  "styleEx.Tantrum" \
+  "styleEx.TermFrequency"; do
+  #styleEx.TheOne \
+  #styleEx.noCommitment.NoCommitment \
+  
+  
+  SUBJECT=${BOLD}"$MAIN"${NORMAL}
+  
+  echo $SUBJECT
+  echo "🏃 running $SUBJECT with java"
+  java -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN
+  echo "🏃 running $SUBJECT with 🌟 blinky"
+  for CONFIG in ${CONFIGS[@]}; do
     echo "👉 with configuration: $CONFIG"
-    java $BLINKY$CONFIG -cp .:./target/classes/ "$SUBJECTS_PKG."$MAIN > /dev/null 2>&1
+    
+    java $BLINKY$CONFIG -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN > /dev/null 2>&1
   done
 done
 
@@ -53,5 +95,5 @@ function check {
   done
 }
 
-check traces
-check traces-full
+#check traces
+#check traces-full
