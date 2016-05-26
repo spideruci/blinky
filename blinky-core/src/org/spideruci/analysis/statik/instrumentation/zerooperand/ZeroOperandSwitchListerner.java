@@ -4,7 +4,7 @@ import static org.spideruci.analysis.trace.EventBuilder.buildInstructionLog;
 
 import org.objectweb.asm.MethodVisitor;
 import org.spideruci.analysis.dynamic.Profiler;
-import org.spideruci.analysis.statik.instrumentation.ProfilerCallBack;
+import org.spideruci.analysis.statik.instrumentation.ProbeBuilder;
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.MethodDecl;
 import org.spideruci.analysis.trace.TraceEvent;
@@ -99,7 +99,7 @@ public class ZeroOperandSwitchListerner {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, eventType, 
           opcode, methodDecl.getId());
   
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .passArg(eventType.toString())
@@ -110,7 +110,7 @@ public class ZeroOperandSwitchListerner {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, EventType.$constant$, 
           opcode, methodDecl.getId());
   
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.CONSTANT);
@@ -120,7 +120,7 @@ public class ZeroOperandSwitchListerner {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, 
           EventType.$arrayload$, opcode, methodDecl.getId());
   
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArrayLoadStackArgs(opcode)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
@@ -131,7 +131,7 @@ public class ZeroOperandSwitchListerner {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, 
           EventType.$arraystore$, opcode, methodDecl.getId());
   
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArrayStoreStackArgs(opcode)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())

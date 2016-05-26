@@ -1,7 +1,7 @@
 /*
 @author Charles.Y.Feng
 @date May 11, 2016 3:58:41 PM
-*/
+ */
 
 package org.spideruci.analysis.diagnostics.subjects.styleEx;
 
@@ -36,53 +36,53 @@ import java.util.regex.Pattern;
  * </p>
  */
 public class CodeGolf {
-	public static void main(String[] args) throws Exception {
-		String stopWordsPath = Config.stopWordsPath;
-		String bookPath = Config.bookPath;
-		
-		BufferedReader br = new BufferedReader(new FileReader(stopWordsPath));
-		StringBuilder sb = new StringBuilder();
-		String line = "";
-		while ((line = br.readLine()) != null) {
-			sb.append(line);
-		}
-		Set<String> stops = new HashSet<String>();
-		stops.addAll(Arrays.asList(sb.toString().split(",")));
+  public static void main(String[] args) throws Exception {
+    String stopWordsPath = Config.stopWordsPath;
+    String bookPath = Config.bookPath;
 
-		br = new BufferedReader(new FileReader(bookPath));
-		sb = new StringBuilder();
-		int v = -1;
-		while ((v = br.read()) != -1) {
-			sb.append((char) (v));
-		}
+    BufferedReader br = new BufferedReader(new FileReader(stopWordsPath));
+    StringBuilder sb = new StringBuilder();
+    String line = "";
+    while ((line = br.readLine()) != null) {
+      sb.append(line);
+    }
+    Set<String> stops = new HashSet<String>();
+    stops.addAll(Arrays.asList(sb.toString().split(",")));
 
-		List<String> words = new ArrayList<String>();
-		Matcher matcher = Pattern.compile("(?i)([a-z]{2,200})").matcher(sb.toString().toLowerCase());
-		while (matcher.find())
-			words.add(matcher.group(1).trim());
+    br = new BufferedReader(new FileReader(bookPath));
+    sb = new StringBuilder();
+    int v = -1;
+    while ((v = br.read()) != -1) {
+      sb.append((char) (v));
+    }
 
-		Hashtable<String, Integer> map = new Hashtable<String, Integer>();
-		for (String word : words) {
-			if (!stops.contains(word) && !map.containsKey(word)) {
-				int freq = Collections.frequency(words, word);
-				map.put(word, freq);
-			}
-		}
+    List<String> words = new ArrayList<String>();
+    Matcher matcher = Pattern.compile("(?i)([a-z]{2,200})").matcher(sb.toString().toLowerCase());
+    while (matcher.find())
+      words.add(matcher.group(1).trim());
 
-		List<Map.Entry<String, Integer>> counts = new ArrayList<Map.Entry<String, Integer>>();
-		counts.addAll(map.entrySet());
-		Collections.sort(counts, new Comparator<Map.Entry<?, Integer>>() {
-			public int compare(Map.Entry<?, Integer> o1, Map.Entry<?, Integer> o2) {
-				if (o1.getValue() > o2.getValue())
-					return -1;
-				else if (o1.getValue() < o2.getValue())
-					return 1;
-				return 0;
-			}
-		});
+    Hashtable<String, Integer> map = new Hashtable<String, Integer>();
+    for (String word : words) {
+      if (!stops.contains(word) && !map.containsKey(word)) {
+        int freq = Collections.frequency(words, word);
+        map.put(word, freq);
+      }
+    }
 
-		for (int i = 0; i < 25; i++)
-			System.out.println(counts.get(i).getKey() + "  -  " + counts.get(i).getValue());
+    List<Map.Entry<String, Integer>> counts = new ArrayList<Map.Entry<String, Integer>>();
+    counts.addAll(map.entrySet());
+    Collections.sort(counts, new Comparator<Map.Entry<?, Integer>>() {
+      public int compare(Map.Entry<?, Integer> o1, Map.Entry<?, Integer> o2) {
+        if (o1.getValue() > o2.getValue())
+          return -1;
+        else if (o1.getValue() < o2.getValue())
+          return 1;
+        return 0;
+      }
+    });
 
-	}
+    for (int i = 0; i < 25; i++)
+      System.out.println(counts.get(i).getKey() + "  -  " + counts.get(i).getValue());
+
+  }
 }

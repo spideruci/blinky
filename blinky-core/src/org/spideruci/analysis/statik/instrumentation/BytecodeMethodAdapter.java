@@ -17,22 +17,22 @@ import org.spideruci.analysis.trace.TraceEvent;
 import org.spideruci.analysis.util.MyAssert;
 import org.spideruci.analysis.util.caryatid.Helper;
 
-public class SourcelineMethodAdapter extends AdviceAdapter {
+public class BytecodeMethodAdapter extends AdviceAdapter {
   
   private MethodDecl methodDecl;
   private boolean shouldInstrument;
   
-  public static SourcelineMethodAdapter create(MethodDecl methodDecl, MethodVisitor mv) {
+  public static BytecodeMethodAdapter create(MethodDecl methodDecl, MethodVisitor mv) {
     int access = Integer.parseInt(methodDecl.getDeclAccess());
     
     String[] declName = methodDecl.getDeclName().split("\\(");
     String name = declName[0];
     String desc = "(" + declName[1];
     
-    return new SourcelineMethodAdapter(methodDecl, access, name, desc, mv);
+    return new BytecodeMethodAdapter(methodDecl, access, name, desc, mv);
   }
   
-  public SourcelineMethodAdapter(MethodDecl methodDecl, int access, String name, 
+  public BytecodeMethodAdapter(MethodDecl methodDecl, int access, String name, 
       String desc, MethodVisitor mv) {
     super(Opcodes.ASM4, mv, access, name, desc);
     this.methodDecl = methodDecl;
@@ -82,7 +82,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
           mv.visitLdcInsn(argType);
         }
         
-        ProfilerCallBack.start(mv)
+        ProbeBuilder.start(mv)
         .appendDesc(Deputy.STRING_DESC)
         .passArg(String.valueOf(varIndex))
         .passArg(i == 0) // isFirst?
@@ -95,7 +95,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     String instructionLog = buildInstructionLog(-1, -1, EventType.$enter$, 
         opcode, methodDecl.getId());
     
-    ProfilerCallBack.start(mv)
+    ProbeBuilder.start(mv)
     .passArg(methodDecl.getDeclOwner())
     .passArg(methodDecl.getDeclName())
     .passArg(instructionLog)
@@ -117,7 +117,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
     String instructionLog = buildInstructionLog(byteIndex, lineNum, eventType, 
         opcode, methodDecl.getId());
     
-    ProfilerCallBack.start(mv)
+    ProbeBuilder.start(mv)
     .passArg(methodDecl.getDeclOwner())
     .passArg(methodDecl.getDeclName())
     .passArg(instructionLog)
@@ -138,7 +138,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(-1, line, EventType.$line$, 
           opcode, methodDecl.getId());
       
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.LINENUMER);
@@ -166,7 +166,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(byteIndex, lineNum, 
           EventType.$invoke$, opcode, methodDecl.getId(), owner, name, desc);
       
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.INVOKE);
@@ -176,7 +176,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       instructionLog = buildInstructionLog(byteIndex, lineNum, 
           EventType.$complete$, -4, methodDecl.getId(), owner, name, desc);
       
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.COMPLETE);
@@ -195,7 +195,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(byteIndex, lineNum, 
           EventType.$var$, opcode, methodDecl.getId(), String.valueOf(operand));
 
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.VAR);
@@ -223,7 +223,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
           EventType.$field$, opcode, methodDecl.getId(), owner, name, desc);
 
       if(opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
-        ProfilerCallBack.start(mv)
+        ProbeBuilder.start(mv)
         .passPutInsnStackArgs(opcode, desc, owner)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
@@ -231,7 +231,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
         
         super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
       } else {
-        ProfilerCallBack getProbeCallback = ProfilerCallBack.start(mv);
+        ProbeBuilder getProbeCallback = ProbeBuilder.start(mv);
         getProbeCallback.setupGetInsnStackArgs(opcode, owner);
         
         super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
@@ -278,7 +278,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(byteIndex, lineNum, 
           EventType.$jump$, opcode, methodDecl.getId());
       
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.JUMP);
@@ -300,7 +300,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
           EventType.$iinc$, Opcodes.IINC, methodDecl.getId(), 
           String.valueOf(increment));
       
-      ProfilerCallBack.start(mv)
+      ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.IINC);
@@ -359,7 +359,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
         String instructionLog = buildInstructionLog(byteIndex, lineNum, 
             EventType.$constant$, opcode, methodDecl.getId(), value);
         
-        ProfilerCallBack.start(mv)
+        ProbeBuilder.start(mv)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
         .build(Profiler.CONSTANT);
@@ -394,7 +394,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
             EventType.$type$, opcode, methodDecl.getId(), type, 
             String.valueOf(dims));
         
-        ProfilerCallBack.start(mv)
+        ProbeBuilder.start(mv)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
         .build(Profiler.TYPE);
@@ -424,7 +424,7 @@ public class SourcelineMethodAdapter extends AdviceAdapter {
         String instructionLog = buildInstructionLog(byteIndex, lineNum, 
             EventType.$switch$, opcode, methodDecl.getId());
         
-        ProfilerCallBack.start(mv)
+        ProbeBuilder.start(mv)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
         .build(Profiler.TYPE);

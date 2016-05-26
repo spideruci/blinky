@@ -7,12 +7,13 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.spideruci.analysis.trace.EventBuilder;
+import org.spideruci.analysis.trace.MethodDecl;
 import org.spideruci.analysis.trace.TraceEvent;
 
-public class SourceLineAdapter extends ClassVisitor {
+public class BytecodeClassAdapter extends ClassVisitor {
   private String className;
 
-  public SourceLineAdapter(ClassVisitor cv, String className) {
+  public BytecodeClassAdapter(ClassVisitor cv, String className) {
     super(Opcodes.ASM5, cv);
     this.className = className;
   }
@@ -28,10 +29,10 @@ public class SourceLineAdapter extends ClassVisitor {
         && ((access & Opcodes.ACC_NATIVE) == 0)) {
 
       final String methodName = name + desc;
-      TraceEvent methodDecl = 
+      MethodDecl methodDecl = 
           EventBuilder.buildMethodDecl(className, access, methodName);
       
-      mv = new SourcelineMethodAdapter(methodDecl, access, name, desc, mv);
+      mv = new BytecodeMethodAdapter(methodDecl, access, name, desc, mv);
       if (log) {
         REAL_OUT.println(methodDecl.getLog());
       }

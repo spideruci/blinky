@@ -35,7 +35,7 @@ public class GuardedMethodAdapter extends AdviceAdapter implements Opcodes {
       case LRETURN:
       case ARETURN:
       case ATHROW:
-        ProfilerCallBack.start(mv).passArg(false).build(Profiler.REGUARD);
+        ProbeBuilder.start(mv).passArg(false).build(Profiler.REGUARD);
       default: // do nothing
       }
     }
@@ -70,7 +70,7 @@ public class GuardedMethodAdapter extends AdviceAdapter implements Opcodes {
   }
   
   private void guard() {
-    ProfilerCallBack.start(mv).build(Profiler.GUARD, Deputy.PROFILER_NAME, "Z");
+    ProbeBuilder.start(mv).build(Profiler.GUARD, Deputy.PROFILER_NAME, "Z");
     mv.visitInsn(POP);
   }
 }

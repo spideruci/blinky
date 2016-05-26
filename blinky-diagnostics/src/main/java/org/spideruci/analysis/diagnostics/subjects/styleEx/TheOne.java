@@ -1,7 +1,7 @@
 /*
 @author Charles.Y.Feng
 @date May 11, 2016 5:27:39 PM
-*/
+ */
 
 package org.spideruci.analysis.diagnostics.subjects.styleEx;
 
@@ -48,6 +48,7 @@ public class TheOne {
 			}
 			data = sb.toString();
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return data;
@@ -72,7 +73,7 @@ public class TheOne {
 		Set<String> stop_words = new HashSet<String>();
 		BufferedReader br;
 		try {
-			br = new BufferedReader(new FileReader("../stop_words.txt"));
+			br = new BufferedReader(new FileReader(Config.stopWordsPath));
 			StringBuilder sb = new StringBuilder();
 			int v = -1;
 			while ((v = br.read()) != -1) {
@@ -91,8 +92,10 @@ public class TheOne {
 			}
 			br.close();
 		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return word_list_tmp;
@@ -140,7 +143,7 @@ public class TheOne {
 	public static void main(String[] args) {
 
 		try {
-			(new TFTheOne(args[0])).bind(TheOne.class.getMethod("read_file", Object.class))
+			(new TFTheOne(Config.bookPath)).bind(TheOne.class.getMethod("read_file", Object.class))
 					.bind(TheOne.class.getMethod("filter_chars", Object.class))
 					.bind(TheOne.class.getMethod("normalize", Object.class))
 					.bind(TheOne.class.getMethod("scan", Object.class))
@@ -149,6 +152,7 @@ public class TheOne {
 					.bind(TheOne.class.getMethod("sort", Object.class))
 					.bind(TheOne.class.getMethod("top25_freqs", Object.class)).printme();
 		} catch (NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -165,6 +169,7 @@ class TFTheOne {
 		try {
 			this.value = func.invoke(null, this.value);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return this;

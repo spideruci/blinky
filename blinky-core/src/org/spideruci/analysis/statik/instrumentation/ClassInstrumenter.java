@@ -62,7 +62,7 @@ public class ClassInstrumenter {
       } else {
         cw = FRAMES ? new ClassWriter(ClassWriter.COMPUTE_FRAMES)
             : new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        classAdapter = new SourceLineAdapter(cw, className);
+        classAdapter = new BytecodeClassAdapter(cw, className);
       }
       
       cr.accept(classAdapter, ClassReader.EXPAND_FRAMES);

@@ -1,7 +1,7 @@
 /*
 @author Charles.Y.Feng
 @date May 12, 2016 3:46:26 PM
-*/
+ */
 
 package org.spideruci.analysis.diagnostics.subjects.styleEx;
 
@@ -29,46 +29,46 @@ import java.sql.Statement;
  * </p>
  */
 public class PersistentTablesReader {
-	public static void main(String[] args) {
-		PersistentTablesReader ptr = new PersistentTablesReader();
-		PersistentTablesWriter ptw = new PersistentTablesWriter();
-		Connection connection = null;
-		try {
-			String dbPath = "tf.db";
-			File f = new File(dbPath);
-			if(!f.exists()){
-				connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
-				connection.setAutoCommit(false);
-				ptw.create_db_schema(connection);
-				ptw.load_file_into_database(Config.bookPath, connection);
-				connection.close();
-			}
-			
-			if (f.exists() && !f.isDirectory()) {
-				connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
-				connection.setAutoCommit(false);
-				String res = ptr.read_word_freqs(connection);
-				System.out.print(res);
-				connection.close();
-			} 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public String read_word_freqs(Connection connection) throws SQLException{
-		StringBuilder sb = new StringBuilder();
-		Statement stat = connection.createStatement();
-		ResultSet rs = stat.executeQuery("SELECT value, COUNT(*) as C FROM words GROUP BY value ORDER BY C DESC");
-		for (int i = 0; i < 25; i++) {
-			rs.next();
-			sb.append(rs.getString(1) + "  -  "
-					+ rs.getString(2)+"\n");
-		}
-		
-		return sb.toString();
-	}
+  public static void main(String[] args) {
+    PersistentTablesReader ptr = new PersistentTablesReader();
+    PersistentTablesWriter ptw = new PersistentTablesWriter();
+    Connection connection = null;
+    try {
+      String dbPath = "tf.db";
+      File f = new File(dbPath);
+      if(!f.exists()){
+        connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
+        connection.setAutoCommit(false);
+        ptw.create_db_schema(connection);
+        ptw.load_file_into_database(Config.bookPath, connection);
+        connection.close();
+      }
+
+      if (f.exists() && !f.isDirectory()) {
+        connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
+        connection.setAutoCommit(false);
+        String res = ptr.read_word_freqs(connection);
+        System.out.print(res);
+        connection.close();
+      } 
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public String read_word_freqs(Connection connection) throws SQLException{
+    StringBuilder sb = new StringBuilder();
+    Statement stat = connection.createStatement();
+    ResultSet rs = stat.executeQuery("SELECT value, COUNT(*) as C FROM words GROUP BY value ORDER BY C DESC");
+    for (int i = 0; i < 25; i++) {
+      rs.next();
+      sb.append(rs.getString(1) + "  -  "
+          + rs.getString(2)+"\n");
+    }
+
+    return sb.toString();
+  }
 }
 
