@@ -65,7 +65,7 @@ for MAIN in "Namaste" \
   "styleEx.Quarantine" \
   "styleEx.Spreadsheet" \
   "styleEx.Tantrum" \
-  "styleEx.TermFrequency"
+  "styleEx.TermFrequency" \
   "styleEx.TheOne" \
   "styleEx.noCommitment.NoCommitment"; do
   
