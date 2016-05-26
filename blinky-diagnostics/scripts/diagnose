@@ -65,9 +65,9 @@ for MAIN in "Namaste" \
   "styleEx.Quarantine" \
   "styleEx.Spreadsheet" \
   "styleEx.Tantrum" \
-  "styleEx.TermFrequency"; do
-  #styleEx.TheOne \
-  #styleEx.noCommitment.NoCommitment \
+  "styleEx.TermFrequency"
+  "styleEx.TheOne" \
+  "styleEx.noCommitment.NoCommitment"; do
   
   
   SUBJECT=${BOLD}"$MAIN"${NORMAL}
