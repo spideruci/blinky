@@ -28,7 +28,6 @@ public class NoCommitment {
 
 
 	String configFilePath = this.getClass().getClassLoader().getResource("config.ini").getFile();
-//	System.out.println(configFilePath+":" + new File(configFilePath).exists());
     Ini config = new Ini(new File(configFilePath));
     URLClassLoader cl = (URLClassLoader) this.getClass().getClassLoader();
     Words words = (Words) Class.forName(config.get("Plugins", "words"), true, cl).newInstance();
