@@ -48,7 +48,6 @@ public class TheOne {
 			}
 			data = sb.toString();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return data;
@@ -92,10 +91,8 @@ public class TheOne {
 			}
 			br.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return word_list_tmp;
@@ -152,7 +149,6 @@ public class TheOne {
 					.bind(TheOne.class.getMethod("sort", Object.class))
 					.bind(TheOne.class.getMethod("top25_freqs", Object.class)).printme();
 		} catch (NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -169,7 +165,6 @@ class TFTheOne {
 		try {
 			this.value = func.invoke(null, this.value);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return this;

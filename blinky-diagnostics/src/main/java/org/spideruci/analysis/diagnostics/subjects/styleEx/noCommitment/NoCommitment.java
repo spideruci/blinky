@@ -7,6 +7,8 @@ package org.spideruci.analysis.diagnostics.subjects.styleEx.noCommitment;
 
 import java.io.File;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.ini4j.Ini;
 import org.spideruci.analysis.diagnostics.subjects.styleEx.Config;
@@ -24,7 +26,9 @@ public class NoCommitment {
 
   public void load_plugins(String fileName) throws Exception {
 
-    String configFilePath = this.getClass().getClassLoader().getSystemResource("./org/spideruci/analysis/diagnostics/subjects/styleEx/noCommitment/config.ini").getPath();
+
+	String configFilePath = this.getClass().getClassLoader().getResource("config.ini").getFile();
+//	System.out.println(configFilePath+":" + new File(configFilePath).exists());
     Ini config = new Ini(new File(configFilePath));
     URLClassLoader cl = (URLClassLoader) this.getClass().getClassLoader();
     Words words = (Words) Class.forName(config.get("Plugins", "words"), true, cl).newInstance();
