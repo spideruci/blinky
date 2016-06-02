@@ -1,5 +1,7 @@
 package org.spideruci.analysis.dynamic;
 
+import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
+
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 

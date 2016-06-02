@@ -52,13 +52,13 @@ public class ByteCodePrinter {
     catch (Exception e) { e.printStackTrace(); }
   }
 
-  //	@Deprecated
+  //  @Deprecated
   public static void main(String[] args) throws Exception {
     String[] newArg = {
         "-debug", 
     "/home/vijay/hackspace4/analysis/target/classes/org/spideruci/analysis/summaries/SummaryCompiler.class"};
 
-    //		Textifier.main(newArg);
+    //    Textifier.main(newArg);
     ASMifier.main(newArg);
   }
 }

@@ -1,4 +1,4 @@
-package org.spideruci.analysis.util;
+package org.spideruci.analysis.logging;
 
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
 import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
@@ -6,6 +6,8 @@ import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+
+import org.spideruci.analysis.util.MyAssert;
 
 /**
  * Prints and reads in the error logs generated as a result of running Blinky.

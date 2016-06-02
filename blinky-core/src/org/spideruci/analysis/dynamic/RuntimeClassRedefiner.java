@@ -1,12 +1,12 @@
 package org.spideruci.analysis.dynamic;
 
-import static org.spideruci.analysis.util.ErrorLogManager.SKIPD;
+import static org.spideruci.analysis.logging.ErrorLogManager.SKIPD;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.spideruci.analysis.util.ErrorLogManager;
+import org.spideruci.analysis.logging.ErrorLogManager;
 
 public class RuntimeClassRedefiner implements ClassFileTransformer {
 

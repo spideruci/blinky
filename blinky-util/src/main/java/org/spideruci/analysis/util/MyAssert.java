@@ -13,5 +13,11 @@ public class MyAssert {
       throw new RuntimeException(message);
     }
   }
+  
+  public static void quietlyAssertThat(boolean condition, String message) {
+    if(!condition) {
+      new RuntimeException(message).printStackTrace();
+    }
+  }
 
 }

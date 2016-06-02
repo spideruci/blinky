@@ -12,6 +12,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.CheckClassAdapter;
+import org.spideruci.analysis.dynamic.Profiler;
 
 public class ClassInstrumenter {
   
@@ -38,7 +39,7 @@ public class ClassInstrumenter {
         bytecode2 = writeProbes(className, bytecode2, false);
         checkBytecode(bytecode2);
       }
-    } catch(Exception e) { 
+    } catch(Exception e) {
       e.printStackTrace();
       throw e;
     }

@@ -1,9 +1,10 @@
 package org.spideruci.analysis.dynamic;
 
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
-import static org.spideruci.analysis.util.ErrorLogManager.SUXES;
-import static org.spideruci.analysis.util.ErrorLogManager.SKIPD;
-import static org.spideruci.analysis.util.ErrorLogManager.FAILD;
+import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
+import static org.spideruci.analysis.logging.ErrorLogManager.FAILD;
+import static org.spideruci.analysis.logging.ErrorLogManager.SKIPD;
+import static org.spideruci.analysis.logging.ErrorLogManager.SUXES;
 
 import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
@@ -13,10 +14,10 @@ import java.security.ProtectionDomain;
 import org.spideruci.analysis.statik.instrumentation.Deputy;
 import org.spideruci.analysis.statik.instrumentation.OfflineInstrumenter;
 import org.spideruci.analysis.dynamic.RuntimeClassRedefiner.RedefinitionTargets;
+import org.spideruci.analysis.logging.ErrorLogManager;
 import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.util.ByteCodePrinter;
 import org.spideruci.analysis.util.Constants;
-import org.spideruci.analysis.util.ErrorLogManager;
 
 public class Blinksformer implements ClassFileTransformer {
 
@@ -77,7 +78,7 @@ public class Blinksformer implements ClassFileTransformer {
     final boolean shouldInstrument = true;
     if(className.startsWith(Constants.SPIDER_NAMESPACE)
         || className.startsWith(Constants.SPIDER_NAMESPACE2)) {
-      if(className.contains("test")) {
+      if(className.contains("test") || className.contains("subject")) {
         return shouldInstrument; // shouldInstrument
       }
     }
@@ -94,6 +95,8 @@ public class Blinksformer implements ClassFileTransformer {
       return !shouldInstrument;
     }
     
+    
+    
     if(Deputy.checkInclusionList) {
       for(String item : Deputy.inclusionList) {
         if(className.startsWith(item)) {
@@ -107,7 +110,7 @@ public class Blinksformer implements ClassFileTransformer {
         return !shouldInstrument;
       }
     }
-
+    
     return shouldInstrument;
   }
 
