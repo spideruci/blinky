@@ -411,10 +411,10 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
     if(logEnterRuntimeSign) {
-      long[] vitalState = getVitalExecState();
-      long threadId = vitalState[THREAD_ID];
-      long time = vitalState[TIMESTAMP];
-      REAL_OUT.print("$$$," + ++count + "," + threadId + "," + time + ",");
+//      long[] vitalState = getVitalExecState();
+//      long threadId = vitalState[THREAD_ID];
+//      long time = vitalState[TIMESTAMP];
+//      REAL_OUT.print("$$$," + ++count + "," + threadId + "," + time + ",");
       
       handleArgLog(argType, index, EventType.$argtype$, true, true);
     }
@@ -644,7 +644,7 @@ public class Profiler {
         long timestamp = vitalState[TIMESTAMP];
         long calldepth = vitalState[CALLDEPTH];
         REAL_OUT.print("$$$," + ++count + "," 
-            + threadId + "," + timestamp + calldepth + ",");
+            + threadId + "," + timestamp + "," + calldepth + ",");
       }
       
       REAL_OUT.print(argType + "," + index + "," + type.toString() + 

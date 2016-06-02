@@ -111,7 +111,6 @@ public class TraceEvent implements MethodDecl, Instruction {
     if(type.isExec()) {
       int eventDescPos = offset + InsnExecPropNames.INSN_EVENT_TYPE.ordinal();
       String insnType = eventString.split(",")[eventDescPos];
-      
       switch(EventType.valueOf(insnType)) {
       case $invoke$:
         event = TraceEvent.createInvokeInsnExecEvent(id);

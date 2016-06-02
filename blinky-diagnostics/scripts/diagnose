@@ -79,7 +79,7 @@ for MAIN in "Namaste" \
   for CONFIG in ${CONFIGS[@]}; do
     echo "👉 with configuration: $CONFIG"
     
-    java $BLINKY$CONFIG -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN > /dev/null 2>&1
+    #java $BLINKY$CONFIG -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN > /dev/null 2>&1
   done
 done
 
