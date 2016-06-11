@@ -43,10 +43,12 @@ public class Profiler {
   public static boolean stopAppInsn = false;
   public static boolean rtOnly = false;
   public static boolean callDepth = false;
+  public static boolean useSourcefileName = false;
   
   private static long thread = -1;
   private static int count = 0;
   private static long time = 0;
+
   
   synchronized static public void setLogFlags(final boolean value) {
     logMethodEnter = 
@@ -177,6 +179,9 @@ public class Profiler {
         break;
       case "calldepth":
         Profiler.callDepth = true;
+        break;
+      case "sourcename":
+        Profiler.useSourcefileName = true;
        default:
          break;
       }

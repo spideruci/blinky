@@ -6,16 +6,24 @@ import static org.spideruci.analysis.dynamic.Profiler.log;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.spideruci.analysis.dynamic.Profiler;
 import org.spideruci.analysis.trace.EventBuilder;
 import org.spideruci.analysis.trace.MethodDecl;
 import org.spideruci.analysis.trace.TraceEvent;
 
 public class BytecodeClassAdapter extends ClassVisitor {
   private String className;
+  private String sourceName;
 
   public BytecodeClassAdapter(ClassVisitor cv, String className) {
     super(Opcodes.ASM5, cv);
     this.className = className;
+  }
+  
+  @Override
+  public void visitSource(String source, String debug) {
+    super.visitSource(source, debug);
+    this.sourceName = source;
   }
   
   @Override
@@ -30,7 +38,9 @@ public class BytecodeClassAdapter extends ClassVisitor {
 
       final String methodName = name + desc;
       MethodDecl methodDecl = 
-          EventBuilder.buildMethodDecl(className, access, methodName);
+          EventBuilder.buildMethodDecl(
+              Profiler.useSourcefileName ? sourceName : className, 
+              access, methodName);
       
       mv = new BytecodeMethodAdapter(methodDecl, access, name, desc, mv);
       if (log) {
