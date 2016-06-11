@@ -23,7 +23,8 @@ public class BytecodeClassAdapter extends ClassVisitor {
   @Override
   public void visitSource(String source, String debug) {
     super.visitSource(source, debug);
-    this.sourceName = source;
+    final String packageName = className.substring(0, className.lastIndexOf('/'));
+    this.sourceName = packageName + "/" + source;
   }
   
   @Override
@@ -35,8 +36,9 @@ public class BytecodeClassAdapter extends ClassVisitor {
     
     if (mv != null 
         && ((access & Opcodes.ACC_NATIVE) == 0)) {
-
+      
       final String methodName = name + desc;
+      
       MethodDecl methodDecl = 
           EventBuilder.buildMethodDecl(
               Profiler.useSourcefileName ? sourceName : className, 
