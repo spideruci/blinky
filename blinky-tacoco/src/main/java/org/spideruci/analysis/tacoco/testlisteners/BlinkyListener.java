@@ -7,7 +7,7 @@ public class BlinkyListener implements ITacocoTestListener {
 
   @Override
   public void onStart() {
-    // TODO Auto-generated method stub
+    // not yet supported
     
   }
 
@@ -19,19 +19,19 @@ public class BlinkyListener implements ITacocoTestListener {
 
   @Override
   public void onTestPassed() {
-    // TODO Auto-generated method stub
+    // not yet supported 
     
   }
 
   @Override
   public void onTestFailed() {
-    // TODO Auto-generated method stub
+    // not yet supported
     
   }
 
   @Override
   public void onTestSkipped() {
-    // TODO Auto-generated method stub
+    // not yet supported
     
   }
 
@@ -43,7 +43,7 @@ public class BlinkyListener implements ITacocoTestListener {
 
   @Override
   public void onEnd() {
-    // TODO Auto-generated method stub
+    // not yet supported
     
   }
 
