@@ -560,13 +560,7 @@ public class Profiler {
         public static final int CALLDEPTH = 2;
       
         /**
-         * @return time-stamp, current-thread-id, and calldepth as a 
-         * long array.<br>  
-         * NOTE: removes 3 from the callDepth obtained from the 
-         * {@code StackTraceElement[]}'s length for the following 3 methods:<br>
-         * - {@code getVitalExecState}<br>
-         * - {@code handleXLog}<br>
-         * - {@code printlnXLog}<br>
+         * @return new long[] {time-stamp, current-thread-id, calldepth}
          */
         synchronized private static long[] getVitalExecState() {
           Thread currentThread = Thread.currentThread();
@@ -577,7 +571,15 @@ public class Profiler {
           long calldepth = -1;
           if(Profiler.callDepth) {
             StackTraceElement[] x = currentThread.getStackTrace();
-            calldepth = x.length - 3;
+            /**
+             * A subtraction of 4 from the stack trace length is done to 
+             * account for the following 4 methods in the call stack:
+             * - getStackTrace
+             * - getVitalExecState
+             * - handleXLog
+             * - printlnXLog
+             */
+            calldepth = x.length - 4;
           }
           
           return new long[] { threadId, time, calldepth };
