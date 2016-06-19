@@ -1,4 +1,4 @@
-package org.spideruci.analysis.tacoco.testlisteners;
+package org.spideruci.analysis.tacocolisteners;
 
 import org.spideruci.analysis.dynamic.Profiler;
 import org.spideruci.tacoco.testlisteners.ITacocoTestListener;
