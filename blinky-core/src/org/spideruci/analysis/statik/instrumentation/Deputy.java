@@ -75,7 +75,7 @@ public class Deputy {
     exclusionList.add("org/apache/commons/logging");
     exclusionList.add("org/apache/commons/logging");
     exclusionList.add("org/codehaus/plexus");
-//    exclusionList.add("org/spideruci/tacoco");
+    exclusionList.add("org/spideruci/tacoco");
     exclusionList.add("org/apache/maven");
     
     exclusionList.add("org/gjt/sp/util/Log$");
