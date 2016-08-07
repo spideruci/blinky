@@ -7,6 +7,7 @@ import org.spideruci.analysis.statik.controlflow.Graph;
 import org.spideruci.analysis.statik.controlflow.Node;
 
 import soot.Body;
+import soot.PatchingChain;
 import soot.SootMethod;
 import soot.Unit;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -35,12 +36,12 @@ public class IcfgManager {
       for(Node<Unit> target : source.pointsTo()) {
         if(target == null)
           continue;
-        
+
         Unit src = source.getBody();
         int srcLine = src.getJavaSourceStartLineNumber();
         String srcMethodName = unitToMethod.get(src.toString());
-        
-        Unit tgt = source.getBody();
+
+        Unit tgt = target.getBody();
         int tgtLine = tgt.getJavaSourceStartLineNumber();
         String tgtMethodName = unitToMethod.get(tgt.toString());
         
@@ -55,39 +56,38 @@ public class IcfgManager {
     return javaIcfg;
   }
 
-  public void addIcfgEdge(Unit src, String srcMethod, Unit tgt, String tgtMethod) {
-    Node<Unit> source = addIcfgNode(src);
+  public void addIcfgEdge(Unit src, SootMethod srcMethod, Unit tgt, SootMethod tgtMethod) {
+    Node<Unit> source = addIcfgNode(src, srcMethod);
     if(source == null)
       return;
     
-    unitToMethod.put(src.toString(), srcMethod);
+    unitToMethod.put(source.getLabel(), srcMethod.toString());
 
-    Node<Unit> target = addIcfgNode(tgt);
+    Node<Unit> target = addIcfgNode(tgt, tgtMethod);
     if(target == null)
       return;
 
-    unitToMethod.put(tgt.toString(), tgtMethod);
+    unitToMethod.put(target.getLabel(), tgtMethod.toString());
     
     source.pointsTo(target);
   }
 
   public void addSootMethodToIcfg(SootMethod method) {
-    final String methodName = method.toString();
     UnitGraph graph = getMethodFlowGraph(method);
     Items<Unit> units = new Items<Unit>(graph.iterator());
     for(Unit unit : units) {
       List<Unit> succs = graph.getSuccsOf(unit);
       for(Unit succ : succs) {
-        addIcfgEdge(unit, methodName, succ, methodName);
+        addIcfgEdge(unit, method, succ, method);
       }
     }
   }
 
-  private Node<Unit> addIcfgNode(Unit unit) {
+  private Node<Unit> addIcfgNode(Unit unit, SootMethod method) {
     if(unit == null)
       return null;
-
-    final String unitLabel = unit.toString();
+    
+    final String unitLabel = getUnitLabel(unit, method);
     Node<Unit> unitNode = null;
     if(icfg.contains(unitLabel)) {
       unitNode = icfg.node(unitLabel);
@@ -97,6 +97,28 @@ public class IcfgManager {
     }
 
     return unitNode;
+  }
+  
+  private String getUnitLabel(Unit unit, SootMethod method) {
+    Body methodBody = method.retrieveActiveBody();
+    int unitIndex = indexOf(methodBody.getUnits(), unit);
+    String unitLabel = method.toString() + unitIndex;
+    unitLabel = unit.toString();
+    return unitLabel;
+  }
+  
+  private int indexOf(PatchingChain<Unit> units, Unit unit) {
+    int index = -1;
+    
+    Items<Unit> items = new Items<>(units.iterator());
+    
+    for(Unit item : items) {
+      index += 1;
+      if(item.equals(unit))
+        return index;
+    }
+    
+    return -1;
   }
 
 

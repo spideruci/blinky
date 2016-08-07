@@ -1,9 +1,12 @@
 package org.spideruci.analysis.statik;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.spideruci.analysis.statik.controlflow.Graph;
 import soot.Body;
 import soot.MethodOrMethodContext;
+import soot.Scene;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.toolkits.callgraph.CallGraph;
@@ -15,7 +18,13 @@ public class StatikFlowGraph {
   private ArrayList<SootMethod> entryPoints;
   public final IcfgManager icfgMgr;
   
-  public StatikFlowGraph(CallGraph cg) {
+  public static StatikFlowGraph init(CallGraph cg) {
+    StatikFlowGraph sfg = new StatikFlowGraph(cg);
+    sfg.setupEntries();
+    return sfg;
+  }
+  
+  private StatikFlowGraph(CallGraph cg) {
     this.callgraph = cg;
     this.entryPoints = new ArrayList<>();
     this.icfgMgr = new IcfgManager();
@@ -27,6 +36,15 @@ public class StatikFlowGraph {
   
   public Graph<Unit> getIcfg() {
     return this.icfgMgr.icfg();
+  }
+  
+  private void setupEntries() {
+    List<SootMethod> sootmethods = Scene.v().getEntryPoints();
+    for(SootMethod method : sootmethods)
+      this.addEntryPoint(method);
+    
+    SootMethod main = Scene.v().getMainClass().getMethodByName("main");
+    this.addEntryPoint(main);
   }
   
   /**
@@ -87,7 +105,7 @@ public class StatikFlowGraph {
         Unit callUnit = edge.srcUnit();
         Unit entryUnit = body.getUnits().getFirst();
         
-        icfgMgr.addIcfgEdge(callUnit, src.toString(), entryUnit, tgt.toString());
+        icfgMgr.addIcfgEdge(callUnit, src, entryUnit, tgt);
         
         if(!visited.contains(tgt)) {
           worklist.add(tgt);

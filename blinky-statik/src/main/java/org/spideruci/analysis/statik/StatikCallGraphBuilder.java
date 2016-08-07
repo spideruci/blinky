@@ -1,18 +1,26 @@
 package org.spideruci.analysis.statik;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import soot.Scene;
 import soot.SceneTransformer;
+import soot.SootClass;
+import soot.SootMethod;
 import soot.jimple.spark.SparkTransformer;
 import soot.jimple.toolkits.callgraph.CHATransformer;
 import soot.jimple.toolkits.callgraph.CallGraph;
+import soot.util.Chain;
 
 public final class StatikCallGraphBuilder extends SceneTransformer {
   
   private CallGraph cg;
   private final String graphId;
+  private TreeMap<String, HashSet<String>> entrypoints = new TreeMap<>(); 
   
   public static StatikCallGraphBuilder create(String graphId) {
     return new StatikCallGraphBuilder(graphId);
@@ -29,9 +37,47 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
   public CallGraph cg() {
     return cg;
   }
+  
+  public void addEntryPoint(String classname, String methodname) {
+    HashSet<String> methods = entrypoints.get(classname);
+    if(methods == null) {
+      methods = new HashSet<>();
+      entrypoints.put(classname, methods);
+    }
+    
+    methods.add(methodname);
+  }
+  
+  private void setupEntryPoints() {
+    List<SootMethod> entryPoints = new ArrayList<>();
+    
+    Chain<SootClass> classes = Scene.v().getClasses();
+    for(SootClass sootClass : classes) {
+      String className = sootClass.getName();
+      
+      HashSet<String> entrymethods = this.entrypoints.get(className);
+      if(entrymethods == null || entrymethods.isEmpty()) {
+        continue;
+      }
+      
+      List<SootMethod> methods = sootClass.getMethods();
+      for(SootMethod method : methods) {
+        String methodName = method.getName();
+        
+        System.out.println(methodName);
+        
+        if(entrymethods.contains(methodName)) {
+          entryPoints.add(method);
+        }
+      }
+    }
+    
+    Scene.v().setEntryPoints(entryPoints);
+  }
 
   @Override
   protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
+    setupEntryPoints();
     
     // Compute call graph
     CHATransformer.v().transform();
@@ -39,7 +85,9 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     this.cg = Scene.v().getCallGraph();
   }
   
-  static void setSparkPointsToAnalysis() {
+  
+  @SuppressWarnings("unused")
+  private void setSparkPointsToAnalysis() {
     System.out.println("[spark] Starting analysis ...");
         
     HashMap<String, String> opt = new HashMap<>();

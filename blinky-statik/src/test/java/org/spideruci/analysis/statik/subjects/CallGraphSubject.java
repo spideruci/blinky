@@ -2,7 +2,7 @@ package org.spideruci.analysis.statik.subjects;
 
 public class CallGraphSubject {
   
-  public static void main(String[] args) {
+  public static void jumbo(String[] args) {
     doStuff();
   }
   
