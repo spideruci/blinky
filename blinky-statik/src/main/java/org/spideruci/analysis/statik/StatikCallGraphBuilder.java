@@ -64,8 +64,6 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
       for(SootMethod method : methods) {
         String methodName = method.getName();
         
-        System.out.println(methodName);
-        
         if(entrymethods.contains(methodName)) {
           entryPoints.add(method);
         }

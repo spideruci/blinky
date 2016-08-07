@@ -4,23 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
 import org.spideruci.analysis.statik.controlflow.Graph;
 
-import soot.ArrayType;
-import soot.Body;
-import soot.MethodOrMethodContext;
-import soot.Modifier;
 import soot.PackManager;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
-import soot.Type;
 import soot.Unit;
-import soot.JastAddJ.VoidType;
-import soot.javaToJimple.JimpleBodyBuilder;
-import soot.jimple.Jimple;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 
@@ -29,53 +19,51 @@ import soot.jimple.toolkits.callgraph.Edge;
  */
 public class Statik {
   
-  static {
-    System.out.println( "Welcome to ``Blinky Statik``, a static analysis framework for JVM executables."
-        + "\nThis framework currently uses algorithms from Soot and "
-        + "\nHeros to carry out the static analysis.\n" );
-  }
-  
   public static final String CP_SEP = System.getProperty("path.separator");
   public static final String FP_SEP = System.getProperty("file.separator");
-  public static final String JRE7_LIB;
   
   public static final String RTJAR = "/rt.jar";
   public static final String JCEJAR = "/jce.jar";
   
-  static {
-    JRE7_LIB = System.getProperty("user.home") +  
-        FP_SEP + "open-source/java/golden/jre1.7.0_60.jre/Contents/Home/lib";
-    System.out.println(JRE7_LIB);
-  }
-
-  public static void main( String[] args ) {
+  private static AnalysisConfig startup(final String[] args) {
+    System.out.println( "Welcome to ``Blinky Statik``, a static analysis framework for JVM executables."
+        + "\nThis framework currently uses algorithms from Soot and "
+        + "\nHeros to carry out the static analysis.\n" );
     
-
-    List<String> argsList = new ArrayList<>(Arrays.asList(args));
+    final String configPath = args[0];
+    AnalysisConfig analysisconfig = AnalysisConfig.init(configPath);
+    final String jre7path = analysisconfig.get(AnalysisConfig.JRE7_LIB);
+    
+    System.out.println(jre7path);
+    
+    List<String> argsList = new ArrayList<>();
     argsList.addAll(Arrays.asList(new String[] {
         "--keep-line-number",
         "-cp",
-        JRE7_LIB + "/rt.jar:" + JRE7_LIB + "/jce.jar:" + "target/test-classes/",
+        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "target/test-classes/",
         "-w",
-        "org.spideruci.analysis.statik.subjects.A"//argument classes
+        analysisconfig.get(AnalysisConfig.ARG_CLASS)
     }));
     
+    analysisconfig.setArgs(argsList);
+    return analysisconfig;
+  }
+
+  public static void main(String[] args) {
+    AnalysisConfig analysisconfig = startup(args);
     DummyMainManager.setupDummyMain();
     
     StatikCallGraphBuilder cgBuilder =  StatikCallGraphBuilder.create("call-graph");
     cgBuilder.addEntryPoint("org.spideruci.analysis.statik.subjects.A", "foo");
-    
     Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", cgBuilder);
     PackManager.v().getPack("wjtp").add(cgBuilderTrans);
 
-    args = argsList.toArray(new String[0]);
-    soot.Main.main(args);
-    
+    soot.Main.main(analysisconfig.getArgs());
+
     CallGraph cg = cgBuilder.cg();
-    
     StatikFlowGraph flowGraph = StatikFlowGraph.init(cg);
     ArrayList<SootMethod> visitedNodes = flowGraph.visitMethodsTopDown();
-    
+
     System.out.println("---- Call Graph ----");
     for(SootMethod visitedNode : visitedNodes) {
       SootMethod m = visitedNode;
