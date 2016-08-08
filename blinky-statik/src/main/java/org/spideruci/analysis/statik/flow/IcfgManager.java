@@ -1,8 +1,10 @@
-package org.spideruci.analysis.statik;
+package org.spideruci.analysis.statik.flow;
 
 import java.util.HashMap;
 import java.util.List;
 
+import org.spideruci.analysis.statik.Items;
+import org.spideruci.analysis.statik.Statik;
 import org.spideruci.analysis.statik.controlflow.Graph;
 import org.spideruci.analysis.statik.controlflow.Node;
 
@@ -73,7 +75,7 @@ public class IcfgManager {
   }
 
   public void addSootMethodToIcfg(SootMethod method) {
-    UnitGraph graph = getMethodFlowGraph(method);
+    UnitGraph graph = Statik.GET_UNIT_GRAPH(method);
     Items<Unit> units = new Items<Unit>(graph.iterator());
     for(Unit unit : units) {
       List<Unit> succs = graph.getSuccsOf(unit);
@@ -119,16 +121,6 @@ public class IcfgManager {
     }
     
     return -1;
-  }
-
-
-
-  public UnitGraph getMethodFlowGraph(SootMethod method) {
-
-    Body body = method.retrieveActiveBody();
-    UnitGraph flowGraph = new ExceptionalUnitGraph(body);
-
-    return flowGraph;
   }
 
 }

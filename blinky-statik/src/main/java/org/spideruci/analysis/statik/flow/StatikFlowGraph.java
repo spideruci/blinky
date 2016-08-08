@@ -1,9 +1,12 @@
-package org.spideruci.analysis.statik;
+package org.spideruci.analysis.statik.flow;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spideruci.analysis.statik.Items;
+import org.spideruci.analysis.statik.Statik;
 import org.spideruci.analysis.statik.controlflow.Graph;
+
 import soot.Body;
 import soot.MethodOrMethodContext;
 import soot.Scene;
@@ -18,9 +21,31 @@ public class StatikFlowGraph {
   private ArrayList<SootMethod> entryPoints;
   public final IcfgManager icfgMgr;
   
-  public static StatikFlowGraph init(CallGraph cg) {
+  /**
+   * Initializes a static inter-proc flow graph, without using the main method
+   * as an entry point.
+   * @param cg
+   * @param entryMethods
+   * @return
+   */
+  public static StatikFlowGraph init(CallGraph cg, List<SootMethod> entryMethods) {
+    return init(cg, entryMethods, false);
+  }
+  
+  public static StatikFlowGraph init(CallGraph cg, 
+      List<SootMethod> entryMethods, 
+      boolean useMainAsEntry) {
+    
     StatikFlowGraph sfg = new StatikFlowGraph(cg);
-    sfg.setupEntries();
+
+    for(SootMethod method : entryMethods)
+      sfg.addEntryPoint(method);
+   
+    if(useMainAsEntry) {
+      SootMethod main = Scene.v().getMainClass().getMethodByName("main");
+      sfg.addEntryPoint(main);
+    }
+
     return sfg;
   }
   
@@ -36,15 +61,6 @@ public class StatikFlowGraph {
   
   public Graph<Unit> getIcfg() {
     return this.icfgMgr.icfg();
-  }
-  
-  private void setupEntries() {
-    List<SootMethod> sootmethods = Scene.v().getEntryPoints();
-    for(SootMethod method : sootmethods)
-      this.addEntryPoint(method);
-    
-    SootMethod main = Scene.v().getMainClass().getMethodByName("main");
-    this.addEntryPoint(main);
   }
   
   /**
@@ -84,31 +100,36 @@ public class StatikFlowGraph {
     ArrayList<SootMethod> visited = new ArrayList<>();
     
     while(!worklist.isEmpty()) {
-      SootMethod src = worklist.remove(0);
-      if(methodIsInvalid(src)) {
+      SootMethod srcMethod = worklist.remove(0);
+      if(methodIsInvalid(srcMethod)) {
         continue;
       }
 
-      visited.add(src);
-      icfgMgr.addSootMethodToIcfg(src);
-      Items<Edge> outEdges = new Items<>(callgraph.edgesOutOf(src));
-      
-      
+      visited.add(srcMethod);
+      icfgMgr.addSootMethodToIcfg(srcMethod);
+      Items<Edge> outEdges = new Items<>(callgraph.edgesOutOf(srcMethod));
+
       for(Edge edge : outEdges) {
-        SootMethod tgt = edge.tgt();
+        SootMethod tgtMethod = edge.tgt();
         
-        if(methodIsInvalid(tgt))
+        if(methodIsInvalid(tgtMethod))
           continue;
         
-        Body body = tgt.retrieveActiveBody();
+        Body tgtBody = tgtMethod.retrieveActiveBody();
         
         Unit callUnit = edge.srcUnit();
-        Unit entryUnit = body.getUnits().getFirst();
+        Unit entryUnit = tgtBody.getUnits().getFirst();
         
-        icfgMgr.addIcfgEdge(callUnit, src, entryUnit, tgt);
+        List<Unit> tgtExitUnits = Statik.GET_UNIT_GRAPH(tgtMethod).getTails();
         
-        if(!visited.contains(tgt)) {
-          worklist.add(tgt);
+        icfgMgr.addIcfgEdge(callUnit, srcMethod, entryUnit, tgtMethod);
+        
+        for(Unit tgtExit : tgtExitUnits) {
+          icfgMgr.addIcfgEdge(tgtExit, tgtMethod, callUnit, srcMethod);
+        }
+        
+        if(!visited.contains(tgtMethod)) {
+          worklist.add(tgtMethod);
         }
       }
     }

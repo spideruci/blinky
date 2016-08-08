@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Transform;
 import soot.jimple.spark.SparkTransformer;
 import soot.jimple.toolkits.callgraph.CHATransformer;
 import soot.jimple.toolkits.callgraph.CallGraph;
@@ -34,8 +36,13 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     return graphId;
   }
   
-  public CallGraph cg() {
+  public CallGraph getCallGraph() {
     return cg;
+  }
+  
+  public void hookupWithSoot() {
+    Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", this);
+    PackManager.v().getPack("wjtp").add(cgBuilderTrans);
   }
   
   public void addEntryPoint(String classname, String methodname) {
@@ -72,18 +79,23 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     Scene.v().setEntryPoints(entryPoints);
   }
-
+  
+  @SuppressWarnings("unused")
   @Override
   protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
     setupEntryPoints();
     
-    // Compute call graph
-    CHATransformer.v().transform();
-//    setSparkPointsToAnalysis();
-    this.cg = Scene.v().getCallGraph();
+    COMPUTE_CALL_GRAPH: {
+      CHATransformer.v().transform();
+      this.cg = Scene.v().getCallGraph();
+    }
   }
   
   
+  /**
+   * Use this method to do perform call graph generation using 
+   * a more precise points-to analysis than what class hierarchy gives you.
+   */
   @SuppressWarnings("unused")
   private void setSparkPointsToAnalysis() {
     System.out.println("[spark] Starting analysis ...");
