@@ -6,13 +6,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.spideruci.analysis.statik.controlflow.Graph;
+import org.spideruci.analysis.statik.flow.StatikFlowGraph;
 
-import soot.PackManager;
+import soot.Body;
+import soot.Scene;
 import soot.SootMethod;
-import soot.Transform;
 import soot.Unit;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 
 /**
  * @author vpalepu
@@ -24,6 +27,21 @@ public class Statik {
   
   public static final String RTJAR = "/rt.jar";
   public static final String JCEJAR = "/jce.jar";
+  
+  private static void RUN_SOOT(String[] args) {
+    soot.Main.main(args);
+  }
+  
+  public static List<SootMethod> GET_ENTRY_METHODS() {
+    return Scene.v().getEntryPoints();
+  }
+  
+  public static UnitGraph GET_UNIT_GRAPH(SootMethod method) {
+    Body body = method.retrieveActiveBody();
+    UnitGraph flowGraph = new ExceptionalUnitGraph(body);
+
+    return flowGraph;
+  }
   
   private static AnalysisConfig startup(final String[] args) {
     System.out.println( "Welcome to ``Blinky Statik``, a static analysis framework for JVM executables."
@@ -48,20 +66,21 @@ public class Statik {
     analysisconfig.setArgs(argsList);
     return analysisconfig;
   }
-
+  
   public static void main(String[] args) {
     AnalysisConfig analysisconfig = startup(args);
     DummyMainManager.setupDummyMain();
     
     StatikCallGraphBuilder cgBuilder =  StatikCallGraphBuilder.create("call-graph");
-    cgBuilder.addEntryPoint("org.spideruci.analysis.statik.subjects.A", "foo");
-    Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", cgBuilder);
-    PackManager.v().getPack("wjtp").add(cgBuilderTrans);
+    cgBuilder.addEntryPoint(
+        analysisconfig.get(AnalysisConfig.ENTRY_CLASS), 
+        analysisconfig.get(AnalysisConfig.ENTRY_METHOD));
+    cgBuilder.hookupWithSoot();
 
-    soot.Main.main(analysisconfig.getArgs());
+    RUN_SOOT(analysisconfig.getArgs());
 
-    CallGraph cg = cgBuilder.cg();
-    StatikFlowGraph flowGraph = StatikFlowGraph.init(cg);
+    CallGraph cg = cgBuilder.getCallGraph();
+    StatikFlowGraph flowGraph = StatikFlowGraph.init(cg, GET_ENTRY_METHODS());
     ArrayList<SootMethod> visitedNodes = flowGraph.visitMethodsTopDown();
 
     System.out.println("---- Call Graph ----");

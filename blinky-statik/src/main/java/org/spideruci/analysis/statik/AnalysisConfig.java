@@ -13,8 +13,10 @@ public class AnalysisConfig {
   
   public final static String JRE7_LIB = "jre7lib";
   public final static String ARG_CLASS = "argclass";
+  public final static String ENTRY_CLASS = "entryclass";
+  public final static String ENTRY_METHOD = "entrymethod";
   
-  // Add new configuration file keys abover here.
+  // Add new configuration file keys above here.
   
   private final File configFile;
   private final TreeMap<String, String> configs;

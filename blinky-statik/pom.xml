@@ -13,7 +13,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>Blinky Statik</name>
   <url>https://github.com/spideruci/blinky</url>
- 
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -35,6 +35,9 @@
       <groupId>soot</groupId>
       <artifactId>soot-trunk</artifactId>
       <version>1.0.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/soot-trunk.jar</systemPath>
     </dependency>
+    
   </dependencies>
 </project>
