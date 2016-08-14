@@ -1,5 +1,7 @@
 package org.spideruci.analysis.statik;
 
+import static org.spideruci.analysis.statik.SootCommander.RUN_SOOT;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,8 +22,11 @@ import soot.util.Chain;
 
 public final class StatikCallGraphBuilder extends SceneTransformer {
   
-  private CallGraph cg;
   private final String graphId;
+  
+  /**
+   * className => [methodname]
+   */
   private TreeMap<String, HashSet<String>> entrypoints = new TreeMap<>(); 
   
   public static StatikCallGraphBuilder create(String graphId) {
@@ -34,10 +39,6 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
   
   public String graphId() {
     return graphId;
-  }
-  
-  public CallGraph getCallGraph() {
-    return cg;
   }
   
   @SuppressWarnings("unused")
@@ -53,7 +54,6 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     COMPUTE_CALL_GRAPH: {
       CHATransformer.v().transform();
-      this.cg = Scene.v().getCallGraph();
     }
   }
   
@@ -71,6 +71,16 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     methods.add(methodname);
   }
+  
+  public void buildCallGraph() {
+    
+  }
+
+  public CallGraph getCallGraph() {
+    return SootCommander.GET_CALLGRAPH();
+  }
+  
+  // private method
   
   private void setupEntryPoints() {
     List<SootMethod> entryPoints = new ArrayList<>();
@@ -148,4 +158,5 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     System.out.println("[spark] Done!");
   }
+
 }

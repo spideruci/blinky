@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.spideruci.analysis.statik.DebugUtil;
 import org.spideruci.analysis.statik.Items;
+import org.spideruci.analysis.statik.SootCommander;
 import org.spideruci.analysis.statik.Statik;
 import org.spideruci.analysis.statik.controlflow.Graph;
 
@@ -125,7 +126,7 @@ public class StatikFlowGraph {
         int tgtStartLine = tgtMethod.getJavaSourceStartLineNumber();
         entryUnit.addTag(new LineNumberTag(tgtStartLine));
         
-        List<Unit> tgtExitUnits = Statik.GET_UNIT_GRAPH(tgtMethod).getTails();
+        List<Unit> tgtExitUnits = SootCommander.GET_UNIT_GRAPH(tgtMethod).getTails();
         
         icfgMgr.addIcfgEdge(callUnit, srcMethod, entryUnit, tgtMethod);
         
