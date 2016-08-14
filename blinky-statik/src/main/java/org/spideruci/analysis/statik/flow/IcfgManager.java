@@ -75,6 +75,8 @@ public class IcfgManager {
   }
 
   public void addSootMethodToIcfg(SootMethod method) {
+    
+    
     UnitGraph graph = Statik.GET_UNIT_GRAPH(method);
     Items<Unit> units = new Items<Unit>(graph.iterator());
     for(Unit unit : units) {

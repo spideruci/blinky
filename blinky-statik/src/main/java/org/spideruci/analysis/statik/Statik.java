@@ -22,6 +22,11 @@ import soot.toolkits.graph.UnitGraph;
  */
 public class Statik {
   
+  public static final String STARTUP_MSG = 
+      "Starting ``Blinky Statik``, a static analysis framework for JVM executables."
+      + "\nThis framework currently uses algorithms from Soot and Heros to"
+      + "\nperform static analysis.\n";
+  
   public static final String CP_SEP = System.getProperty("path.separator");
   public static final String FP_SEP = System.getProperty("file.separator");
   
@@ -44,9 +49,7 @@ public class Statik {
   }
   
   private static AnalysisConfig startup(final String[] args) {
-    System.out.println( "Welcome to ``Blinky Statik``, a static analysis framework for JVM executables."
-        + "\nThis framework currently uses algorithms from Soot and "
-        + "\nHeros to carry out the static analysis.\n" );
+    System.out.println(STARTUP_MSG);
     
     final String configPath = args[0];
     AnalysisConfig analysisconfig = AnalysisConfig.init(configPath);

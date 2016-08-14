@@ -40,6 +40,23 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     return cg;
   }
   
+  @SuppressWarnings("unused")
+  @Override
+  protected void internalTransform(
+      String phaseName, 
+      @SuppressWarnings("rawtypes") Map options) {
+    setupEntryPoints();
+    
+    COMPUTER_LINEMAP: {
+      
+    }
+    
+    COMPUTE_CALL_GRAPH: {
+      CHATransformer.v().transform();
+      this.cg = Scene.v().getCallGraph();
+    }
+  }
+  
   public void hookupWithSoot() {
     Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", this);
     PackManager.v().getPack("wjtp").add(cgBuilderTrans);
@@ -72,6 +89,7 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
         String methodName = method.getName();
         
         if(entrymethods.contains(methodName)) {
+          DebugUtil.printfln("Entry Candidate (method): %s", method.toString());
           entryPoints.add(method);
         }
       }
@@ -79,18 +97,6 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     Scene.v().setEntryPoints(entryPoints);
   }
-  
-  @SuppressWarnings("unused")
-  @Override
-  protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
-    setupEntryPoints();
-    
-    COMPUTE_CALL_GRAPH: {
-      CHATransformer.v().transform();
-      this.cg = Scene.v().getCallGraph();
-    }
-  }
-  
   
   /**
    * Use this method to do perform call graph generation using 
