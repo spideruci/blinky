@@ -74,23 +74,25 @@ public class StatikFlowGraph {
 
     ArrayList<SootMethod> worklist = initWorklist();
     ArrayList<SootMethod> visited = new ArrayList<>();
-
+    
     while(!worklist.isEmpty()) {
       SootMethod src = worklist.remove(0);
-
+  	
+      System.out.println(src.getName());
+      
       visited.add(src);
-
+     
       Items<Edge> outEdges = new Items<>(callgraph.edgesOutOf(src));
       
       for(Edge edge : outEdges) {
         SootMethod tgt = edge.tgt();
         
-        if(!visited.contains(tgt)) {
+        if(!visited.contains(tgt) && !worklist.contains(tgt)) {
           worklist.add(tgt);
         }
       }
     }
-
+    
     return visited;
   }
   
@@ -99,7 +101,14 @@ public class StatikFlowGraph {
     ArrayList<SootMethod> worklist = initWorklist();
     ArrayList<SootMethod> visited = new ArrayList<>();
     
+    int i = 0;
+    
     while(!worklist.isEmpty()) {
+    	
+    	if(i%10 == 0)
+    		System.out.println("building.....");
+    	i++;
+    	
       SootMethod srcMethod = worklist.remove(0);
       if(methodIsInvalid(srcMethod)) {
         continue;
@@ -128,7 +137,7 @@ public class StatikFlowGraph {
           icfgMgr.addIcfgEdge(tgtExit, tgtMethod, callUnit, srcMethod);
         }
         
-        if(!visited.contains(tgtMethod)) {
+        if(!visited.contains(tgtMethod) && !worklist.contains(tgtMethod)) {
           worklist.add(tgtMethod);
         }
       }
