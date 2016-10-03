@@ -44,7 +44,9 @@ public class Statik {
     argsList.addAll(Arrays.asList(new String[] {
         "--keep-line-number",
         "-cp",
-        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "target/test-classes/",
+        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "./target/test-classes/",
+//        ".:" + jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "/Users/Ku/Documents/uci/research/joda-time/target/joda-time-2.9.4-jar-with-dependencies.jar:" + "/Users/Ku/Documents/uci/research/blinky/blinky-statik/target/test-classes",
+//        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "/Users/Ku/Documents/uci/research/joda-time/target/classes/org/joda/time/:" + "target/test-classes/" ,
         "-w",
         analysisconfig.get(AnalysisConfig.ARG_CLASS)
     }));
@@ -61,6 +63,11 @@ public class Statik {
     cgBuilder.addEntryPoint(
         analysisconfig.get(AnalysisConfig.ENTRY_CLASS), 
         analysisconfig.get(AnalysisConfig.ENTRY_METHOD));
+    //
+    SootMethod main = Scene.v().getMainClass().getMethodByName("main");
+//    SootMethod main = Scene.v().getMainClass().getMethodByName("testConstants");
+//    System.out.println(Scene.v().get);
+    //
     cgBuilder.hookupWithSoot();
     
     RUN_SOOT(analysisconfig.getArgs());
@@ -68,6 +75,9 @@ public class Statik {
 
     CallGraph cg = cgBuilder.getCallGraph();
     StatikFlowGraph flowGraph = StatikFlowGraph.init(cg, GET_ENTRY_METHODS());
+    //
+//    flowGraph.addEntryPoint(main);
+    
     ArrayList<SootMethod> visitedNodes = flowGraph.visitMethodsTopDown();
 
     System.out.println("---- Call Graph ----");
