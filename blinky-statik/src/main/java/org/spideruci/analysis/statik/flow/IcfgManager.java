@@ -29,29 +29,66 @@ public class IcfgManager {
     return this.icfg;
   }
   
+    private Node<String> getNode(Unit src, Graph<String> javaIcfg) {
+      
+      int srcLine = src.getJavaSourceStartLineNumber();
+      if(srcLine <= 0) {
+        return null;
+      }
+      
+      String srcMethodName = unitToMethod.get(src.toString());
+      final String srcLabel = srcLine + ":" + srcMethodName;
+      
+      Node<String> sourceJava;
+      if(javaIcfg.contains(srcLabel)) {
+        sourceJava = javaIcfg.node(srcLabel);
+      } else {
+        sourceJava = Node.create(srcLabel, javaIcfg);
+        javaIcfg.nowHas(sourceJava);
+      }
+      
+      return sourceJava;
+    }
+  
   public Graph<String> icfgJavaSourceLines() {
     Graph<String> javaIcfg = Graph.create();
     for(Node<Unit> source : icfg.getNodes()) {
-      if(source == null)
+      if(source == null 
+          || source == icfg.startNode() 
+          || source == icfg.endNode())
         continue;
+      
+      Unit src = source.getBody();
+      if(src == null) {
+        System.out.printf("BLNKY STATIK DEBUG: source Node's body is null: label: %s%n",
+            source.getLabel());
+        continue;
+      }
+      
+      Node<String> sourceJava = getNode(src, javaIcfg);
+      if(sourceJava == null) {
+        continue;
+      }
       
       for(Node<Unit> target : source.pointsTo()) {
         if(target == null)
           continue;
-
-        Unit src = source.getBody();
-        int srcLine = src.getJavaSourceStartLineNumber();
-        String srcMethodName = unitToMethod.get(src.toString());
-
+        
         Unit tgt = target.getBody();
-        int tgtLine = tgt.getJavaSourceStartLineNumber();
-        String tgtMethodName = unitToMethod.get(tgt.toString());
         
-        Node<String> sourceJava = Node.create(srcLine + ":" + srcMethodName, javaIcfg);
-        Node<String> targetJava = Node.create(tgtLine + ":" + tgtMethodName, javaIcfg);
+        if(tgt == null) {
+          System.out.printf("BLNKY STATIK DEBUG: target Node's body is null: label: %s%n", 
+              target.getLabel());
+          continue;
+        }
         
-        javaIcfg.nowHas(sourceJava.and(targetJava));
-        sourceJava.pointsTo(targetJava);
+        Node<String> targetJava = getNode(tgt, javaIcfg);
+        if(sourceJava == null) {
+          continue;
+        }
+        
+        if(sourceJava != targetJava)
+          sourceJava.pointsTo(targetJava);
       }
     }
     
@@ -75,6 +112,8 @@ public class IcfgManager {
   }
 
   public void addSootMethodToIcfg(SootMethod method) {
+    
+    
     UnitGraph graph = Statik.GET_UNIT_GRAPH(method);
     Items<Unit> units = new Items<Unit>(graph.iterator());
     for(Unit unit : units) {

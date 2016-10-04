@@ -3,7 +3,9 @@ package org.spideruci.analysis.statik.flow;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spideruci.analysis.statik.DebugUtil;
 import org.spideruci.analysis.statik.Items;
+import org.spideruci.analysis.statik.SootCommander;
 import org.spideruci.analysis.statik.Statik;
 import org.spideruci.analysis.statik.controlflow.Graph;
 
@@ -14,6 +16,7 @@ import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.tagkit.LineNumberTag;
 
 public class StatikFlowGraph {
   
@@ -72,6 +75,7 @@ public class StatikFlowGraph {
    */
   public ArrayList<SootMethod> visitMethodsTopDown() {
 
+    DebugUtil.printfln("visiting methods topdown");
     ArrayList<SootMethod> worklist = initWorklist();
     ArrayList<SootMethod> visited = new ArrayList<>();
     
@@ -128,8 +132,10 @@ public class StatikFlowGraph {
         
         Unit callUnit = edge.srcUnit();
         Unit entryUnit = tgtBody.getUnits().getFirst();
+        int tgtStartLine = tgtMethod.getJavaSourceStartLineNumber();
+        entryUnit.addTag(new LineNumberTag(tgtStartLine));
         
-        List<Unit> tgtExitUnits = Statik.GET_UNIT_GRAPH(tgtMethod).getTails();
+        List<Unit> tgtExitUnits = SootCommander.GET_UNIT_GRAPH(tgtMethod).getTails();
         
         icfgMgr.addIcfgEdge(callUnit, srcMethod, entryUnit, tgtMethod);
         
@@ -150,22 +156,50 @@ public class StatikFlowGraph {
     }
   
     private ArrayList<SootMethod> initWorklist() {
+      DebugUtil.printfln("initializing worklist of Soot Methods.");
+
       ArrayList<SootMethod> worklist = new ArrayList<>();
-      Items<MethodOrMethodContext> sources = new Items<>(callgraph.sourceMethods());
       
+      for(SootMethod entrypoint : this.entryPoints) {
+        DebugUtil.printfln(
+            "adding entrypoint method to worklist: %s", 
+            entrypoint.toString());
+        worklist.add(entrypoint);
+      }
+      
+      Items<MethodOrMethodContext> sources = new Items<>(callgraph.sourceMethods());
+
       for(MethodOrMethodContext momCtx : sources) {
         if(momCtx == null)
           continue;
         
         SootMethod method = momCtx.method();
-        if(method == null 
-            || !method.isConcrete() 
-            || !entryPoints.contains(method))
+        if(method == null) {
           continue;
+        }
         
+        if(!method.isConcrete()) {
+          DebugUtil.printfln("Not adding %s to worklist because "
+              + "method is not concrete", method.toString());
+          continue;
+        }
+        
+        if(!entryPoints.contains(method)) {
+          DebugUtil.printfln("Not adding %s to worklist because "
+              + "method not an entrypoint", method.toString());
+          continue;
+        }
+        
+        if(worklist.contains(method)) {
+          DebugUtil.printfln("Not adding %s to worklist because "
+              + "worklist alread contains it.", method.toString());
+          continue;
+        }
+        
+        DebugUtil.printfln("adding method to worklist: %s", method.toString());
         worklist.add(method);
       }
-      
+
       return worklist;
     }
     

@@ -1,5 +1,7 @@
 package org.spideruci.analysis.statik;
 
+import static org.spideruci.analysis.statik.SootCommander.RUN_SOOT;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,8 +22,11 @@ import soot.util.Chain;
 
 public final class StatikCallGraphBuilder extends SceneTransformer {
   
-  private CallGraph cg;
   private final String graphId;
+  
+  /**
+   * className => [methodname]
+   */
   private TreeMap<String, HashSet<String>> entrypoints = new TreeMap<>(); 
   
   public static StatikCallGraphBuilder create(String graphId) {
@@ -36,8 +41,20 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     return graphId;
   }
   
-  public CallGraph getCallGraph() {
-    return cg;
+  @SuppressWarnings("unused")
+  @Override
+  protected void internalTransform(
+      String phaseName, 
+      @SuppressWarnings("rawtypes") Map options) {
+    setupEntryPoints();
+    
+    COMPUTER_LINEMAP: {
+      
+    }
+    
+    COMPUTE_CALL_GRAPH: {
+      CHATransformer.v().transform();
+    }
   }
   
   public void hookupWithSoot() {
@@ -54,6 +71,16 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     methods.add(methodname);
   }
+  
+  public void buildCallGraph() {
+    
+  }
+
+  public CallGraph getCallGraph() {
+    return SootCommander.GET_CALLGRAPH();
+  }
+  
+  // private method
   
   private void setupEntryPoints() {
     List<SootMethod> entryPoints = new ArrayList<>();
@@ -72,6 +99,7 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
         String methodName = method.getName();
         
         if(entrymethods.contains(methodName)) {
+          DebugUtil.printfln("Entry Candidate (method): %s", method.toString());
           entryPoints.add(method);
         }
       }
@@ -79,18 +107,6 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     Scene.v().setEntryPoints(entryPoints);
   }
-  
-  @SuppressWarnings("unused")
-  @Override
-  protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
-    setupEntryPoints();
-    
-    COMPUTE_CALL_GRAPH: {
-      CHATransformer.v().transform();
-      this.cg = Scene.v().getCallGraph();
-    }
-  }
-  
   
   /**
    * Use this method to do perform call graph generation using 
@@ -142,4 +158,5 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     
     System.out.println("[spark] Done!");
   }
+
 }
