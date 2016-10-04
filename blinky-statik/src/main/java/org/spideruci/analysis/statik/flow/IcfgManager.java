@@ -60,7 +60,7 @@ public class IcfgManager {
       
       Unit src = source.getBody();
       if(src == null) {
-        System.out.printf("BLNKY STATIK DEBUG: source Node's body is null: label: %s%n", 
+        System.out.printf("BLNKY STATIK DEBUG: source Node's body is null: label: %s%n",
             source.getLabel());
         continue;
       }
@@ -87,7 +87,8 @@ public class IcfgManager {
           continue;
         }
         
-        sourceJava.pointsTo(targetJava);
+        if(sourceJava != targetJava)
+          sourceJava.pointsTo(targetJava);
       }
     }
     
