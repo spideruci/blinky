@@ -10,10 +10,14 @@ import java.util.List;
 import org.spideruci.analysis.statik.controlflow.Graph;
 import org.spideruci.analysis.statik.flow.StatikFlowGraph;
 
+import soot.Body;
+import soot.Scene;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 
 /**
  * @author vpalepu
@@ -30,6 +34,21 @@ public class Statik {
   
   public static final String RTJAR = "/rt.jar";
   public static final String JCEJAR = "/jce.jar";
+  
+  private static void RUN_SOOT(String[] args) {
+    soot.Main.main(args);
+  }
+  
+  public static List<SootMethod> GET_ENTRY_METHODS() {
+    return Scene.v().getEntryPoints();
+  }
+  
+  public static UnitGraph GET_UNIT_GRAPH(SootMethod method) {
+    Body body = method.retrieveActiveBody();
+    UnitGraph flowGraph = new ExceptionalUnitGraph(body);
+
+    return flowGraph;
+  }
   
   private static AnalysisConfig startup(final String[] args) {
     System.out.println(STARTUP_MSG);
