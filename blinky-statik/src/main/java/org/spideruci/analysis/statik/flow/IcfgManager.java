@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.spideruci.analysis.statik.Items;
 import org.spideruci.analysis.statik.Statik;
+import org.spideruci.analysis.statik.UnitIdTag;
 import org.spideruci.analysis.statik.controlflow.Graph;
 import org.spideruci.analysis.statik.controlflow.Node;
 
@@ -12,6 +13,8 @@ import soot.Body;
 import soot.PatchingChain;
 import soot.SootMethod;
 import soot.Unit;
+import soot.tagkit.AttributeValueException;
+import soot.tagkit.Tag;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
@@ -19,24 +22,29 @@ public class IcfgManager {
 
   private Graph<Unit> icfg;
   private HashMap<String, String> unitToMethod;
+  private HashMap<Unit, String> jimple2source;
 
   public IcfgManager() {
     this.icfg = Graph.create();
     unitToMethod = new HashMap<>();
+    jimple2source = new HashMap<>();
   }
   
   public Graph<Unit> icfg() {
     return this.icfg;
   }
   
-    private Node<String> getNode(Unit src, Graph<String> javaIcfg) {
+    private Node<String> getNode(Unit sootunit, Graph<String> javaIcfg) {
       
-      int srcLine = src.getJavaSourceStartLineNumber();
+      int srcLine = sootunit.getJavaSourceStartLineNumber();
       if(srcLine <= 0) {
         return null;
       }
       
-      String srcMethodName = unitToMethod.get(src.toString());
+      UnitIdTag unitIdTag = (UnitIdTag) sootunit.getTag(UnitIdTag.UNIT_ID_TAG_NAME);
+      final String sootunitLabel = unitIdTag.value();
+      
+      String srcMethodName = unitToMethod.get(sootunitLabel);
       final String srcLabel = srcLine + ":" + srcMethodName;
       
       Node<String> sourceJava;
@@ -46,6 +54,8 @@ public class IcfgManager {
         sourceJava = Node.create(srcLabel, javaIcfg);
         javaIcfg.nowHas(sourceJava);
       }
+      
+      jimple2source.put(sootunit, srcLabel);
       
       return sourceJava;
     }
@@ -92,6 +102,16 @@ public class IcfgManager {
       }
     }
     
+    System.out.println("\nJimple to Source Mapping");
+    for(Unit jimple : jimple2source.keySet()) {
+      UnitIdTag unitIdTag = (UnitIdTag) jimple.getTag(UnitIdTag.UNIT_ID_TAG_NAME);
+      final String sootunitLabel = unitIdTag.value();
+      String source = jimple2source.get(jimple);
+      System.out.printf("%s %s \t\t %s%n", source, sootunitLabel, jimple.toString());
+    }
+    System.out.println();
+    
+    
     return javaIcfg;
   }
 
@@ -112,7 +132,6 @@ public class IcfgManager {
   }
 
   public void addSootMethodToIcfg(SootMethod method) {
-    
     
     UnitGraph graph = Statik.GET_UNIT_GRAPH(method);
     Items<Unit> units = new Items<Unit>(graph.iterator());
@@ -141,13 +160,18 @@ public class IcfgManager {
   }
   
   private String getUnitLabel(Unit unit, SootMethod method) {
-    Body methodBody = method.retrieveActiveBody();
-    int unitIndex = indexOf(methodBody.getUnits(), unit);
-    String unitLabel = method.toString() + unitIndex;
-    unitLabel = unit.toString();
+    
+    final int lineNumber = unit.getJavaSourceStartColumnNumber();
+    final String methodString = method.toString();
+    final String unitString = unit.toString();
+    // TODO: issue #27
+    // final int bytecodeOffset = -1;
+    String unitLabel = methodString + "::" + lineNumber  + "::" + unitString;
+    unit.addTag(new UnitIdTag(unitLabel));
     return unitLabel;
   }
   
+  @SuppressWarnings("unused")
   private int indexOf(PatchingChain<Unit> units, Unit unit) {
     int index = -1;
     
