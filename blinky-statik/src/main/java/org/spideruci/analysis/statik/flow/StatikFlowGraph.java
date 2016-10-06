@@ -11,6 +11,7 @@ import org.spideruci.analysis.statik.controlflow.Graph;
 
 import soot.Body;
 import soot.MethodOrMethodContext;
+import soot.PatchingChain;
 import soot.Scene;
 import soot.SootMethod;
 import soot.Unit;
@@ -108,11 +109,11 @@ public class StatikFlowGraph {
     int i = 0;
     
     while(!worklist.isEmpty()) {
-    	
-    	if(i%10 == 0)
-    		System.out.println("building.....");
-    	i++;
-    	
+
+      if(i%10 == 0)
+        System.out.println("building.....");
+      i++;
+
       SootMethod srcMethod = worklist.remove(0);
       if(methodIsInvalid(srcMethod)) {
         continue;
@@ -131,9 +132,9 @@ public class StatikFlowGraph {
         Body tgtBody = tgtMethod.retrieveActiveBody();
         
         Unit callUnit = edge.srcUnit();
-        Unit entryUnit = tgtBody.getUnits().getFirst();
-        int tgtStartLine = tgtMethod.getJavaSourceStartLineNumber();
-        entryUnit.addTag(new LineNumberTag(tgtStartLine));
+        Unit entryUnit = getEntryUnit(tgtBody);
+//        int tgtStartLine = tgtMethod.getJavaSourceStartLineNumber();
+//        entryUnit.addTag(new LineNumberTag(tgtStartLine));
         
         List<Unit> tgtExitUnits = SootCommander.GET_UNIT_GRAPH(tgtMethod).getTails();
         
@@ -150,6 +151,17 @@ public class StatikFlowGraph {
     }
     
   }
+  
+    private Unit getEntryUnit(Body body) {
+      PatchingChain<Unit> units = body.getUnits();
+      
+      for(Unit unit : units) {
+        if(unit.getJavaSourceStartLineNumber() > 0)
+          return unit;
+      }
+      
+      return units.getFirst();
+    }
   
     private boolean methodIsInvalid(SootMethod method) {
       return method == null || !method.isConcrete();
