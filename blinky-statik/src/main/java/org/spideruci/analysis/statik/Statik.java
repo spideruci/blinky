@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.spideruci.analysis.statik.calls.CallGraphManager;
+import org.spideruci.analysis.statik.calls.StatikCallGraphBuilder;
 import org.spideruci.analysis.statik.controlflow.Graph;
 import org.spideruci.analysis.statik.flow.StatikFlowGraph;
 
@@ -35,19 +37,8 @@ public class Statik {
   public static final String RTJAR = "/rt.jar";
   public static final String JCEJAR = "/jce.jar";
   
-  private static void RUN_SOOT(String[] args) {
-    soot.Main.main(args);
-  }
-  
   public static List<SootMethod> GET_ENTRY_METHODS() {
     return Scene.v().getEntryPoints();
-  }
-  
-  public static UnitGraph GET_UNIT_GRAPH(SootMethod method) {
-    Body body = method.retrieveActiveBody();
-    UnitGraph flowGraph = new ExceptionalUnitGraph(body);
-
-    return flowGraph;
   }
   
   private static AnalysisConfig startup(final String[] args) {
@@ -56,6 +47,9 @@ public class Statik {
     final String configPath = args[0];
     AnalysisConfig analysisconfig = AnalysisConfig.init(configPath);
     final String jre7path = analysisconfig.get(AnalysisConfig.JRE7_LIB);
+    
+    DebugUtil.IS_DEBUG = 
+        Boolean.parseBoolean(analysisconfig.get(AnalysisConfig.DEBUG));
     
     System.out.println(jre7path);
     
@@ -78,45 +72,26 @@ public class Statik {
     AnalysisConfig analysisconfig = startup(args);
     DummyMainManager.setupDummyMain();
     
-    StatikCallGraphBuilder cgBuilder =  StatikCallGraphBuilder.create("call-graph");
+    StatikCallGraphBuilder cgBuilder = 
+        StatikCallGraphBuilder.build("call-graph", analysisconfig.getArgs());
+    
     cgBuilder.addEntryPoint(
         analysisconfig.get(AnalysisConfig.ENTRY_CLASS), 
         analysisconfig.get(AnalysisConfig.ENTRY_METHOD));
-    //
-    SootMethod main = Scene.v().getMainClass().getMethodByName("main");
+
+    SootMethod main = GET_MAIN_METHOD();
 //    SootMethod main = Scene.v().getMainClass().getMethodByName("testConstants");
 //    System.out.println(Scene.v().get);
-    //
-    cgBuilder.hookupWithSoot();
     
-    RUN_SOOT(analysisconfig.getArgs());
-    cgBuilder.buildCallGraph();
-
     CallGraph cg = cgBuilder.getCallGraph();
-    StatikFlowGraph flowGraph = StatikFlowGraph.init(cg, GET_ENTRY_METHODS());
-    //
-//    flowGraph.addEntryPoint(main);
     
-    ArrayList<SootMethod> visitedNodes = flowGraph.visitMethodsTopDown();
+    CallGraphManager cgm = CallGraphManager.init(cg, GET_ENTRY_METHODS());
 
     System.out.println("---- Call Graph ----");
-    for(SootMethod visitedNode : visitedNodes) {
-      SootMethod m = visitedNode;
-      System.out.println(m);
-      
-      if(!m.isConcrete())
-        continue;
-      
-      Iterator<Edge> edges = cg.edgesOutOf(m);
-      
-      while(edges.hasNext()) {
-        Edge edge = edges.next();
-        
-        Unit sourceUnit = edge.srcUnit();
-        SootMethod targetMethod = edge.tgt();
-        System.out.format("\t%s, calls: %s\n", sourceUnit, targetMethod);
-      }
-    }
+    
+    cgm.printGraph();
+    
+    StatikFlowGraph flowGraph = StatikFlowGraph.init(cgm);
     
     System.out.println("---- I C F G ----");
     

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.spideruci.analysis.statik.Items;
+import org.spideruci.analysis.statik.SootCommander;
 import org.spideruci.analysis.statik.Statik;
 import org.spideruci.analysis.statik.UnitIdTag;
 import org.spideruci.analysis.statik.controlflow.Graph;
@@ -133,7 +134,7 @@ public class IcfgManager {
 
   public void addSootMethodToIcfg(SootMethod method) {
     
-    UnitGraph graph = Statik.GET_UNIT_GRAPH(method);
+    UnitGraph graph = SootCommander.GET_UNIT_GRAPH(method);
     Items<Unit> units = new Items<Unit>(graph.iterator());
     for(Unit unit : units) {
       List<Unit> succs = graph.getSuccsOf(unit);

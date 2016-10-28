@@ -1,4 +1,4 @@
-package org.spideruci.analysis.statik;
+package org.spideruci.analysis.statik.calls;
 
 import static org.spideruci.analysis.statik.SootCommander.RUN_SOOT;
 
@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.spideruci.analysis.statik.DebugUtil;
+import org.spideruci.analysis.statik.SootCommander;
 
 import soot.PackManager;
 import soot.Scene;
@@ -29,8 +32,17 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
    */
   private TreeMap<String, HashSet<String>> entrypoints = new TreeMap<>(); 
   
-  public static StatikCallGraphBuilder create(String graphId) {
-    return new StatikCallGraphBuilder(graphId);
+  public static StatikCallGraphBuilder build(String graphId, String[] args) {
+    StatikCallGraphBuilder scgBuilder = new StatikCallGraphBuilder(graphId);
+    
+    { // hook up SCG Builder with Soot
+      Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", scgBuilder);
+      PackManager.v().getPack("wjtp").add(cgBuilderTrans);
+    }
+    
+    SootCommander.RUN_SOOT(args);
+    
+    return scgBuilder;
   }
   
   private StatikCallGraphBuilder(String graphId) {
@@ -39,6 +51,25 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
   
   public String graphId() {
     return graphId;
+  }
+
+  public void addEntryPoint(String classname, String methodname) {
+    HashSet<String> methods = entrypoints.get(classname);
+    if(methods == null) {
+      methods = new HashSet<>();
+      entrypoints.put(classname, methods);
+    }
+    
+    methods.add(methodname);
+  }
+  
+  public CallGraph buildCallGraph() {
+    
+    return SootCommander.GET_CALLGRAPH();
+  }
+
+  public CallGraph getCallGraph() {
+    return SootCommander.GET_CALLGRAPH();
   }
   
   @SuppressWarnings("unused")
@@ -55,29 +86,6 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     COMPUTE_CALL_GRAPH: {
       CHATransformer.v().transform();
     }
-  }
-  
-  public void hookupWithSoot() {
-    Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", this);
-    PackManager.v().getPack("wjtp").add(cgBuilderTrans);
-  }
-  
-  public void addEntryPoint(String classname, String methodname) {
-    HashSet<String> methods = entrypoints.get(classname);
-    if(methods == null) {
-      methods = new HashSet<>();
-      entrypoints.put(classname, methods);
-    }
-    
-    methods.add(methodname);
-  }
-  
-  public void buildCallGraph() {
-    
-  }
-
-  public CallGraph getCallGraph() {
-    return SootCommander.GET_CALLGRAPH();
   }
   
   // private method
