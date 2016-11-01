@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.spideruci.analysis.statik.AnalysisConfig;
 import org.spideruci.analysis.statik.DebugUtil;
 import org.spideruci.analysis.statik.SootCommander;
 
@@ -32,14 +33,19 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
    */
   private TreeMap<String, HashSet<String>> entrypoints = new TreeMap<>(); 
   
-  public static StatikCallGraphBuilder build(String graphId, String[] args) {
+  public static StatikCallGraphBuilder build(String graphId, AnalysisConfig config) {
     StatikCallGraphBuilder scgBuilder = new StatikCallGraphBuilder(graphId);
+    
+    scgBuilder.addEntryPoint(
+        config.get(AnalysisConfig.ENTRY_CLASS), 
+        config.get(AnalysisConfig.ENTRY_METHOD));
     
     { // hook up SCG Builder with Soot
       Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", scgBuilder);
       PackManager.v().getPack("wjtp").add(cgBuilderTrans);
     }
     
+    String[] args = config.getArgs();
     SootCommander.RUN_SOOT(args);
     
     return scgBuilder;

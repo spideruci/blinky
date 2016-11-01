@@ -55,7 +55,7 @@ public class Statik {
     
     List<String> argsList = new ArrayList<>();
     argsList.addAll(Arrays.asList(new String[] {
-        "--keep-line-number",
+        "-keep-line-number",
         "-cp",
         jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "./target/test-classes/",
 //        ".:" + jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "/Users/Ku/Documents/uci/research/joda-time/target/joda-time-2.9.4-jar-with-dependencies.jar:" + "/Users/Ku/Documents/uci/research/blinky/blinky-statik/target/test-classes",
@@ -73,7 +73,7 @@ public class Statik {
     DummyMainManager.setupDummyMain();
     
     StatikCallGraphBuilder cgBuilder = 
-        StatikCallGraphBuilder.build("call-graph", analysisconfig.getArgs());
+        StatikCallGraphBuilder.build("call-graph", analysisconfig);
     
     cgBuilder.addEntryPoint(
         analysisconfig.get(AnalysisConfig.ENTRY_CLASS), 
