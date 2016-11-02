@@ -15,6 +15,7 @@ public class AnalysisConfig {
   public final static String ARG_CLASS = "argclass";
   public final static String ENTRY_CLASS = "entryclass";
   public final static String ENTRY_METHOD = "entrymethod";
+  public final static String DEBUG = "debug";
   
   // Add new configuration file keys above here.
   

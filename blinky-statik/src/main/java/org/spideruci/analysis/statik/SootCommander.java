@@ -4,6 +4,7 @@ import java.util.List;
 
 import soot.Body;
 import soot.Scene;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -37,6 +38,14 @@ public class SootCommander {
   
   public static CallGraph GET_CALLGRAPH() {
     return Scene.v().getCallGraph();
+  }
+  
+  public static SootClass GET_MAIN_CLASS() {
+    return Scene.v().getMainClass();
+  }
+  
+  public static SootMethod GET_MAIN_METHOD() {
+    return Scene.v().getMainMethod();
   }
 
 }

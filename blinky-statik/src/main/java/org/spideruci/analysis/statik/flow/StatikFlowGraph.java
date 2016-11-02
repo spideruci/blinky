@@ -7,6 +7,7 @@ import org.spideruci.analysis.statik.DebugUtil;
 import org.spideruci.analysis.statik.Items;
 import org.spideruci.analysis.statik.SootCommander;
 import org.spideruci.analysis.statik.Statik;
+import org.spideruci.analysis.statik.calls.CallGraphManager;
 import org.spideruci.analysis.statik.controlflow.Graph;
 
 import soot.Body;
@@ -21,8 +22,9 @@ import soot.tagkit.LineNumberTag;
 
 public class StatikFlowGraph {
   
-  private CallGraph callgraph;
-  private ArrayList<SootMethod> entryPoints;
+//  private CallGraph callgraph;
+  private CallGraphManager callgraphMgr;
+//  private ArrayList<SootMethod> entryPoints;
   public final IcfgManager icfgMgr;
   
   /**
@@ -32,81 +34,26 @@ public class StatikFlowGraph {
    * @param entryMethods
    * @return
    */
-  public static StatikFlowGraph init(CallGraph cg, List<SootMethod> entryMethods) {
-    return init(cg, entryMethods, false);
+  public static StatikFlowGraph init(CallGraphManager cgm) {
+    return new StatikFlowGraph(cgm);
   }
   
-  public static StatikFlowGraph init(CallGraph cg, 
-      List<SootMethod> entryMethods, 
-      boolean useMainAsEntry) {
-    
-    StatikFlowGraph sfg = new StatikFlowGraph(cg);
-
-    for(SootMethod method : entryMethods)
-      sfg.addEntryPoint(method);
-   
-    if(useMainAsEntry) {
-      SootMethod main = Scene.v().getMainClass().getMethodByName("main");
-      sfg.addEntryPoint(main);
-    }
-
-    return sfg;
-  }
-  
-  private StatikFlowGraph(CallGraph cg) {
-    this.callgraph = cg;
-    this.entryPoints = new ArrayList<>();
+  private StatikFlowGraph(CallGraphManager cgm) {
+    this.callgraphMgr = cgm;
     this.icfgMgr = new IcfgManager();
-  }
-
-  public void addEntryPoint(SootMethod method) {
-    entryPoints.add(method);
   }
   
   public Graph<Unit> getIcfg() {
     return this.icfgMgr.icfg();
   }
-  
-  /**
-   * Does a BFS traversal over the call graph. This uses the entry
-   * methods as the start nodes for the traversal.
-   * 
-   * @return a list of SootMethod's in the order of visits 
-   * during the BSF traversal.
-   */
-  public ArrayList<SootMethod> visitMethodsTopDown() {
 
-    DebugUtil.printfln("visiting methods topdown");
-    ArrayList<SootMethod> worklist = initWorklist();
-    ArrayList<SootMethod> visited = new ArrayList<>();
-    
-    while(!worklist.isEmpty()) {
-      SootMethod src = worklist.remove(0);
-  	
-      System.out.println(src.getName());
-      
-      visited.add(src);
-     
-      Items<Edge> outEdges = new Items<>(callgraph.edgesOutOf(src));
-      
-      for(Edge edge : outEdges) {
-        SootMethod tgt = edge.tgt();
-        
-        if(!visited.contains(tgt) && !worklist.contains(tgt)) {
-          worklist.add(tgt);
-        }
-      }
-    }
-    
-    return visited;
-  }
-  
   public void buildIcfg() {
     
     ArrayList<SootMethod> worklist = initWorklist();
     ArrayList<SootMethod> visited = new ArrayList<>();
     
     int i = 0;
+    CallGraph callgraph = callgraphMgr.getCallgraph();
     
     while(!worklist.isEmpty()) {
 
@@ -170,15 +117,17 @@ public class StatikFlowGraph {
     private ArrayList<SootMethod> initWorklist() {
       DebugUtil.printfln("initializing worklist of Soot Methods.");
 
+      ArrayList<SootMethod> entryPoints = this.callgraphMgr.getEntryPoints();
       ArrayList<SootMethod> worklist = new ArrayList<>();
       
-      for(SootMethod entrypoint : this.entryPoints) {
+      for(SootMethod entrypoint : entryPoints) {
         DebugUtil.printfln(
             "adding entrypoint method to worklist: %s", 
             entrypoint.toString());
         worklist.add(entrypoint);
       }
       
+      CallGraph callgraph = callgraphMgr.getCallgraph();
       Items<MethodOrMethodContext> sources = new Items<>(callgraph.sourceMethods());
 
       for(MethodOrMethodContext momCtx : sources) {
