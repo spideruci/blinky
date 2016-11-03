@@ -1,7 +1,5 @@
 package org.spideruci.analysis.statik.calls;
 
-import static org.spideruci.analysis.statik.SootCommander.RUN_SOOT;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +25,7 @@ import soot.util.Chain;
 public final class StatikCallGraphBuilder extends SceneTransformer {
   
   private final String graphId;
+  private final CallGraphAlgorithm cgAlgo;
   
   /**
    * className => [methodname]
@@ -34,7 +33,13 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
   private TreeMap<String, HashSet<String>> entrypoints = new TreeMap<>(); 
   
   public static StatikCallGraphBuilder build(String graphId, AnalysisConfig config) {
-    StatikCallGraphBuilder scgBuilder = new StatikCallGraphBuilder(graphId);
+    final String cgAlgoOpt = config.get(AnalysisConfig.CALL_GRAPH_ALGO);
+    
+    CallGraphAlgorithm cgAlgo = (cgAlgoOpt == null) ? 
+        CallGraphAlgorithm.CHA : CallGraphAlgorithm.fromString(cgAlgoOpt);
+    
+    StatikCallGraphBuilder scgBuilder = 
+        new StatikCallGraphBuilder(graphId, cgAlgo);
     
     scgBuilder.addEntryPoint(
         config.get(AnalysisConfig.ENTRY_CLASS), 
@@ -51,8 +56,9 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     return scgBuilder;
   }
   
-  private StatikCallGraphBuilder(String graphId) {
+  private StatikCallGraphBuilder(String graphId, CallGraphAlgorithm cgAlgo) {
     this.graphId = graphId;
+    this.cgAlgo = cgAlgo;
   }
   
   public String graphId() {
@@ -86,11 +92,19 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     setupEntryPoints();
     
     COMPUTER_LINEMAP: {
-      
+      // TODO issue #27 Blinky Statik: Add bytecode offset to Soot Units
     }
     
     COMPUTE_CALL_GRAPH: {
-      CHATransformer.v().transform();
+      switch (this.cgAlgo) {
+      case CHA:
+        CHATransformer.v().transform();
+        break;
+        
+      case SPARK:
+        setSparkPointsToAnalysis();
+        break;
+      }
     }
   }
   
@@ -126,7 +140,6 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
    * Use this method to do perform call graph generation using 
    * a more precise points-to analysis than what class hierarchy gives you.
    */
-  @SuppressWarnings("unused")
   private void setSparkPointsToAnalysis() {
     System.out.println("[spark] Starting analysis ...");
         
