@@ -6,14 +6,18 @@ import java.util.Iterator;
 
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.TraceEvent;
+import org.spideruci.analysis.trace.io.TraceData;
+
 
 public class TraceReader {
 	private final Iterator<TraceEvent> traceIterator;
 	private TraceEvent currentEvent = null;
+	private TraceData traceData;
 
 	public TraceReader(final File file) {
 		TraceScanner scanner = new TraceScanner(file);
 		traceIterator = scanner.iterator();
+		traceData = TraceData.getInstance();
 	}
 
 	public TraceEvent readNextExecutedEvent() {
@@ -28,12 +32,12 @@ public class TraceReader {
 			}
 
 			if(type.isDecl()) {
-				TraceData.methodDeclTable.put(event.getId(), event);
+				traceData.putMethodDecl(event.getId(), event);
 				continue;
 			}
 
 			if(type.isInsn()) {
-				TraceData.insnTable.put(event.getId(), event);
+				traceData.putInsnEvent(event.getId(), event);
 				continue;
 			}
 
@@ -66,7 +70,7 @@ public class TraceReader {
 	private TraceEvent getDeclEvent(TraceEvent execEvent) {
 		TraceEvent insnEvent = getInsnEvent(execEvent);
 		int declId = insnEvent.getInsnDeclHostId();
-		TraceEvent declEvent = TraceData.methodDeclTable.get(declId);
+		TraceEvent declEvent = traceData.getDeclEvent(declId);
 		return declEvent;
 	}
 
@@ -80,7 +84,7 @@ public class TraceReader {
 		}
 
 		int execEventId = Integer.parseInt(execEvent.getExecInsnEventId());
-		TraceEvent insnEvent = TraceData.insnTable.get(execEventId);
+		TraceEvent insnEvent = traceData.getInsnEvent(execEventId);
 		return insnEvent;
 	}
 
