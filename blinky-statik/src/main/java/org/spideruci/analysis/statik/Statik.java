@@ -11,6 +11,7 @@ import org.spideruci.analysis.statik.calls.CallGraphManager;
 import org.spideruci.analysis.statik.calls.StatikCallGraphBuilder;
 import org.spideruci.analysis.statik.controlflow.Graph;
 import org.spideruci.analysis.statik.flow.StatikFlowGraph;
+import org.spideruci.analysis.statik.flow.data.SourceICFG;
 
 import soot.Body;
 import soot.Scene;
@@ -37,6 +38,9 @@ public class Statik {
   public static final String RTJAR = "/rt.jar";
   public static final String JCEJAR = "/jce.jar";
   
+  private static final String JARPATH = "/Users/Ku/workspace/joda-time/target/joda-time-2.9.5-SNAPSHOT-jar-with-dependencies.jar";
+  private static final String CLASSPATH = "/Users/Ku/workspace/joda-time/target/test-classes";
+  
   public static List<SootMethod> GET_ENTRY_METHODS() {
     return Scene.v().getEntryPoints();
   }
@@ -57,9 +61,8 @@ public class Statik {
     argsList.addAll(Arrays.asList(new String[] {
         "-keep-line-number",
         "-cp",
-        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "./target/test-classes/",
-//        ".:" + jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "/Users/Ku/Documents/uci/research/joda-time/target/joda-time-2.9.4-jar-with-dependencies.jar:" + "/Users/Ku/Documents/uci/research/blinky/blinky-statik/target/test-classes",
-//        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "/Users/Ku/Documents/uci/research/joda-time/target/classes/org/joda/time/:" + "target/test-classes/" ,
+//        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "./target/test-classes/",
+        ".:" + jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + JARPATH + ":"+ CLASSPATH,
         "-w",
         analysisconfig.get(AnalysisConfig.ARG_CLASS)
     }));
@@ -71,7 +74,7 @@ public class Statik {
   public static void main(String[] args) {
     AnalysisConfig analysisconfig = startup(args);
     DummyMainManager.setupDummyMain();
-    
+            
     StatikCallGraphBuilder cgBuilder = 
         StatikCallGraphBuilder.build("call-graph", analysisconfig);
     
@@ -92,15 +95,25 @@ public class Statik {
     cgm.printGraph();
     
     StatikFlowGraph flowGraph = StatikFlowGraph.init(cgm);
-    
+        
     System.out.println("---- I C F G ----");
     
     flowGraph.buildIcfg();
     Graph<Unit> icfg = flowGraph.getIcfg();
     System.out.println(icfg);
-    
+        
     System.out.println("---- Java Source Icfg ----");
-    System.out.println(flowGraph.icfgMgr.icfgJavaSourceLines());
+    
+    Graph<String> icfgGraph = flowGraph.icfgMgr.icfgJavaSourceLines();
+    System.out.println(icfgGraph);    
+    
+    System.out.println("---- Writing to Database ----");
+  
+    SourceICFG sIcfg = new SourceICFG(icfgGraph);
+    sIcfg.dumpData();
+    
+    System.out.println("Done!");
+    
   }
 
 }
