@@ -39,11 +39,11 @@
       <systemPath>${basedir}/soot-trunk.jar</systemPath>
     </dependency>
 
+
     <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.1</version>
+    	<groupId>org.xerial</groupId>
+    	<artifactId>sqlite-jdbc</artifactId>
+    	<version>3.15.1</version>
     </dependency>
-    
   </dependencies>
 </project>
