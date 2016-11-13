@@ -58,7 +58,7 @@
   </profile>
 
   <profile>
-   <id>diagnose</id>
+   <id>diagnostics</id>
    <modules>
     <module>blinky-core</module>
     <module>blinky-util</module>
