@@ -10,9 +10,9 @@ import java.util.Map;
 import org.spideruci.analysis.statik.flow.data.SourceICFGNode;
 
 public class DatabaseWriter {
-	private static Connection c = null;
-	private static Map<SourceICFGNode, Integer> nodeIdMap = new HashMap<>();
-	private static int nodeId = 0; 
+	private Connection c = null;
+	private Map<SourceICFGNode, Integer> nodeIdMap = new HashMap<>();
+	private int nodeId = 0; 
 
 	public DatabaseWriter(Connection c) {
 		this.c = c;
@@ -25,7 +25,9 @@ public class DatabaseWriter {
 			id = nodeId++;
 			nodeIdMap.put(node, id);
 		}
-		else id = nodeIdMap.get(node);
+		else{
+			id = nodeIdMap.get(node);
+		}
 		return id;
 	}
 	

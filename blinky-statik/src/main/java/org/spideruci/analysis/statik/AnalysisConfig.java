@@ -16,6 +16,8 @@ public class AnalysisConfig {
   public final static String ENTRY_METHOD = "entrymethod";
   public final static String DEBUG = "debug";
   public final static String CALL_GRAPH_ALGO = "callgraph-algo";
+  public final static String CLASSPATH = "classpath";
+  private final static String SUT_JARPATH = "sutjarpath";
   
   // Add new configuration file keys above here.
   
@@ -49,6 +51,8 @@ public class AnalysisConfig {
   }
   
   private void parse() {
+    String sutjarpath = null;
+    
     try {
       Scanner scanner = new Scanner(configFile);
       while(scanner.hasNextLine()) {
@@ -68,6 +72,19 @@ public class AnalysisConfig {
         boolean valueInvalid = 
             split.length < 2 || split[1] == null || split[1].isEmpty();
 
+        
+        if(split[0].equals(SUT_JARPATH)){
+        	sutjarpath = split[1].replaceAll(",", ":");
+        	continue;
+        }
+        
+        if(split[0].equals(CLASSPATH)){
+        	split[1] = split[1].replaceAll(",", ":");
+        	
+        	if(sutjarpath != null)
+        		split[1] = split[1] + ":" + sutjarpath;
+        }
+        
         final String key = split[0];
         final String value = valueInvalid ? null : split[1];
         this.configs.put(key, value);
@@ -80,7 +97,7 @@ public class AnalysisConfig {
   }
   
   private boolean isLineComment(final String line) {
-    return line.startsWith("#") && line.startsWith("//");
+    return line.startsWith("#") || line.startsWith("//");
   }
   
   private boolean doesLineContainProperty(final String line) {

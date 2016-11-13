@@ -51,4 +51,12 @@ public class SourceICFGNode {
 		return false;
 	}
 
+	@Override
+	public int hashCode(){
+		int hash = 17;
+		hash = 31 * hash + this.lineNum;
+		hash = 31 * hash + this.className.hashCode();
+		hash = 31 * hash + this.methodName.hashCode();
+		return hash;
+	}
 }

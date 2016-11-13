@@ -38,9 +38,6 @@ public class Statik {
   public static final String RTJAR = "/rt.jar";
   public static final String JCEJAR = "/jce.jar";
   
-  private static final String JARPATH = "/Users/Ku/workspace/joda-time/target/joda-time-2.9.5-SNAPSHOT-jar-with-dependencies.jar";
-  private static final String CLASSPATH = "/Users/Ku/workspace/joda-time/target/test-classes";
-  
   public static List<SootMethod> GET_ENTRY_METHODS() {
     return Scene.v().getEntryPoints();
   }
@@ -51,18 +48,20 @@ public class Statik {
     final String configPath = args[0];
     AnalysisConfig analysisconfig = AnalysisConfig.init(configPath);
     final String jre7path = analysisconfig.get(AnalysisConfig.JRE7_LIB);
+    final String classpath = analysisconfig.get(AnalysisConfig.CLASSPATH);
     
     DebugUtil.IS_DEBUG = 
         Boolean.parseBoolean(analysisconfig.get(AnalysisConfig.DEBUG));
     
     System.out.println(jre7path);
+    System.out.println(classpath);
     
     List<String> argsList = new ArrayList<>();
     argsList.addAll(Arrays.asList(new String[] {
         "-keep-line-number",
         "-cp",
 //        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "./target/test-classes/",
-        ".:" + jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + JARPATH + ":"+ CLASSPATH,
+        ".:" + jre7path + RTJAR + ":" + jre7path + JCEJAR + ":" + classpath,
         "-w",
         analysisconfig.get(AnalysisConfig.ARG_CLASS)
     }));
