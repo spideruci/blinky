@@ -76,6 +76,27 @@
     </executions>
    
    </plugin>
+
+   <plugin>
+    <groupId>org.spideruci.analysis.config</groupId>
+    <artifactId>blinky-config</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <configuration>
+      <clientName>Blinky Core</clientName>
+      <targetClasses>${basedir}/target/classes</targetClasses>
+      <configFile>${basedir}/resources/config.yaml</configFile>
+      <configClassName>org.spideruci.analysis.statik.instrumentation.Deputy</configClassName>
+    </configuration>
+    <executions>
+     <execution>
+      <phase>compile</phase>
+      <goals>
+       <goal>configure</goal>
+      </goals>
+     </execution>
+    </executions>
+   </plugin>
+   
   </plugins>
  </build>
 

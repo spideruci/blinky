@@ -1,15 +1,11 @@
 package org.spideruci.analysis.statik.instrumentation;
 
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.objectweb.asm.Opcodes;
 
 public class Deputy {
   public static int LINE_COUNT = 0;
   
-  public static final ArrayList<String> exclusionList;
+  public static final String[] exclusionList;
   public static final String[] inclusionList;
   
   public static boolean checkInclusionList = false;
@@ -35,53 +31,58 @@ public class Deputy {
   public static final String LDC_16 = "$ldc_16$";
   public static final String LDC_8 = "$ldc_8$";
   
+  public static final String NULL = null;
+  public static String UNDEFINED;
+  public static String[] UNDEFINED_ARRAY;
+  
   static {
-    exclusionList = new ArrayList<String>();
+    exclusionList = new String[] {
     
-    exclusionList.add("java/");
-    exclusionList.add("java/lang");
-    exclusionList.add("org/objectweb/asm");
-    exclusionList.add("edu/uci/spiderlab/analysis");
-    exclusionList.add("org/spideruci/analysis");
-    exclusionList.add("test/");
-    exclusionList.add("Core/");
-    exclusionList.add("Data/");
-    exclusionList.add("dacapo");
-    exclusionList.add("Harness");
-    exclusionList.add("com/google");
-    exclusionList.add("sun");
-    exclusionList.add("apple/");
-    exclusionList.add("com/apple");
-    exclusionList.add("com/sun");
-    exclusionList.add("javax/");
-    exclusionList.add("org/ietf");
-    exclusionList.add("org/jcp");
-    exclusionList.add("org/omg");
-    exclusionList.add("org/w3c");
-    exclusionList.add("org/xml");
-    exclusionList.add("org/objenesis");
-    exclusionList.add("org/eclipse");
-    exclusionList.add("org/mockito");
-    exclusionList.add("org/hamcrest");
-    exclusionList.add("sunw");
-    exclusionList.add("com/thoughtworks/xstream");
-    exclusionList.add("junit");
-    exclusionList.add("org/junit");
-    exclusionList.add("org/fest");
-    exclusionList.add("junit/tests/framework/");
-    exclusionList.add("junit/tests/runner/TextFeedbackTest");
-    exclusionList.add("junit/tests/runner/TextRunnerTest");
-    exclusionList.add("junit/tests/extensions");
-    exclusionList.add("org/apache/commons/logging");
-    exclusionList.add("org/apache/commons/logging");
-    exclusionList.add("org/codehaus/plexus");
-    exclusionList.add("org/spideruci/tacoco");
-    exclusionList.add("org/apache/maven");
-    
-    exclusionList.add("org/gjt/sp/util/Log$");
-    exclusionList.add("org/gjt/sp/util/Log$LogPrintStream");
-    exclusionList.add("org/gjt/sp/util/Log$LogInputStream");
-    exclusionList.add("org/gjt/sp/util/Log$LogOutputStream");
+        "java/",
+        "java/lang",
+        "org/objectweb/asm",
+        "edu/uci/spiderlab/analysis",
+        "org/spideruci/analysis",
+        "test/",
+        "Core/",
+        "Data/",
+        "dacapo",
+        "Harness",
+        "com/google",
+        "sun",
+        "apple/",
+        "com/apple",
+        "com/sun",
+        "javax/",
+        "org/ietf",
+        "org/jcp",
+        "org/omg",
+        "org/w3c",
+        "org/xml",
+        "org/objenesis",
+        "org/eclipse",
+        "org/mockito",
+        "org/hamcrest",
+        "sunw",
+        "com/thoughtworks/xstream",
+        "junit",
+        "org/junit",
+        "org/fest",
+        "junit/tests/framework/",
+        "junit/tests/runner/TextFeedbackTest",
+        "junit/tests/runner/TextRunnerTest",
+        "junit/tests/extensions",
+        "org/apache/commons/logging",
+        "org/apache/commons/logging",
+        "org/codehaus/plexus",
+        "org/spideruci/tacoco",
+        "org/apache/maven",
+
+        "org/gjt/sp/util/Log$",
+        "org/gjt/sp/util/Log$LogPrintStream",
+        "org/gjt/sp/util/Log$LogInputStream",
+        "org/gjt/sp/util/Log$LogOutputStream"
+    };
     
     inclusionList = new String[] {
         "java/io",

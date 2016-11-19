@@ -43,6 +43,7 @@
   <module>blinky-util</module>
   <module>blinky-trace-manager</module>
   <module>blinky-tacoco</module>
+  <module>blinky-config</module>
  </modules>
 
  <profiles>

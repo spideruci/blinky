@@ -1,0 +1,111 @@
+package org.spideruci.analysis.config.definer;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.objectweb.asm.ClassWriter;
+
+public class TestConfigFieldsDefiner {
+
+  private final String className = "org/spideruci/analysis/statik/instrumentation/Deputy";
+  private final String classPath = "/Users/vpalepu/phd-open-source/blinky/blinky-core/target/classes/";
+  private final File classFile;
+  
+  public TestConfigFieldsDefiner() {
+    this.classFile = new File(classPath + className + ".class");
+  }
+  
+  @Test
+//  @Ignore
+  public void testRedefinition() {
+    
+    Map<String, String> config = new HashMap<>();
+    config.put("UNDEFINED", "blah");
+    
+    ConfigFieldsDefiner.rewrite(className, classFile, config);
+  }
+  
+  @Test
+  @Ignore
+  public void testConfigClassScanner() {
+    // given
+    ConfigClassScanner configClassScanner = 
+        new ConfigClassScanner(ClassWriter.COMPUTE_MAXS, className);
+    //and
+    ClassAdapterRunner configScanRunner = 
+        ClassAdapterRunner.create(configClassScanner, classFile);
+    
+    String[][] publicStaticFieldNames = {
+        { "exclusionList", "def" },
+        { "inclusionList", "def" },
+        { "checkInclusionList", "def" },
+        { "STATIC_IDENT", "def" },
+        { "NA", "def" },
+        { "PROFILER_NAME", "def" },
+        { "RUNTIME_TYPE_PROFILER_NAME", "def" },
+        { "STRING_DESC", "def" },
+        { "OBJECT_DESC", "def" },
+        { "EVENT_TYPE_DESC", "def" },
+        { "INT_TYPEDESC", "def" },
+        { "FLOAT_TYPEDESC", "def" },
+        { "CHAR_TYPEDESC", "def" },
+        { "BOOLEAN_TYPEDESC", "def" },
+        { "BYTE_TYPEDESC", "def" },
+        { "DOUBLE_TYPEDESC", "def" },
+        { "LONG_TYPEDESC", "def" },
+        { "LDC_16", "def" },
+        { "LDC_8", "def" },
+        { "NULL", "def" },
+        { "UNDEFINED", "undef" },
+        { "UNDEFINED_ARRAY", "undef" },
+    };
+    
+    // when
+    configScanRunner.run();
+    
+    // then
+    assertTrue(configClassScanner.containsClinit());
+    
+    // and
+    System.out.println("FIELD_NAME, Presence Check, (un)Defined Check");
+    for(String[] publicStaticField : publicStaticFieldNames) {
+      final String publicStaticFieldName = publicStaticField[0];
+      final boolean isFieldDefined =  !"undef".equals(publicStaticField[1]);
+      System.out.print(publicStaticFieldName);
+      
+      String errMsg1 = 
+          String.format(
+              "Expected class to have a public static field w/ the name: %s.", 
+              publicStaticFieldName);
+      assertTrue(errMsg1,
+          configClassScanner.containsPublicStaticField(publicStaticFieldName));
+      
+      System.out.print(" ✓");
+      
+      if(isFieldDefined) {
+        String errMsg2 = 
+            String.format(
+                "Expected field w/ name `%s` to be defined in class.", 
+                publicStaticFieldName);
+        assertTrue(errMsg2, 
+            configClassScanner.publicStaticFieldIsDefined(publicStaticFieldName));
+      } else {
+        String errMsg2 = 
+            String.format(
+                "Expected field w/ name `%s` to be not defined in class.", 
+                publicStaticFieldName);
+        assertFalse(errMsg2, 
+            configClassScanner.publicStaticFieldIsDefined(publicStaticFieldName));
+      }
+      
+      System.out.println(" ✓");
+      
+    }
+  }
+
+}
