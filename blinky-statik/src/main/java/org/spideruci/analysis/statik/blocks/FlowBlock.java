@@ -10,7 +10,7 @@ import soot.Unit;
 public class FlowBlock extends AnalysisBlock {
 
   @Override
-  public void run(CallGraphManager cgm) {
+  public void execute(CallGraphManager cgm) {
     StatikFlowGraph flowGraph = StatikFlowGraph.init(cgm);
     
     System.out.println("---- I C F G ----");

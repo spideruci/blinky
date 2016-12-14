@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
+
+import org.spideruci.analysis.statik.blocks.AnalysisBlock;
 
 public class AnalysisConfig {
   
@@ -19,11 +22,14 @@ public class AnalysisConfig {
   public final static String CLASSPATH = "classpath";
   private final static String SUT_JARPATH = "sutjarpath";
   
+  private final static String EXEC_MARKER = "$";
+  
   // Add new configuration file keys above here.
   
   private final File configFile;
   private final TreeMap<String, String> configs;
   private List<String> argsList;
+  private final List<Class<? extends AnalysisBlock>> executableBlocks;
   
   
   public static AnalysisConfig init(final String configPath) {
@@ -36,6 +42,7 @@ public class AnalysisConfig {
   private AnalysisConfig(File configFile) {
     this.configFile = configFile;
     this.configs = new TreeMap<>();
+    this.executableBlocks = new ArrayList<>();
   }
   
   public void setArgs(List<String> argsList) {
@@ -61,9 +68,15 @@ public class AnalysisConfig {
       Scanner scanner = new Scanner(configFile);
       while(scanner.hasNextLine()) {
         String line = scanner.nextLine();
-        if(line == null 
-            || line.isEmpty() 
+        
+        if(line == null)
+          continue;
+        
+        line = line.trim();
+        
+        if(line.isEmpty() 
             || isLineComment(line) 
+            || lineIsExecutable(line)
             || !doesLineContainProperty(line)) {
           continue;
         }
@@ -78,15 +91,15 @@ public class AnalysisConfig {
 
         
         if(split[0].equals(SUT_JARPATH)){
-        	sutjarpath = split[1].replaceAll(",", ":");
-        	continue;
+          sutjarpath = split[1].replaceAll(",", ":");
+          continue;
         }
         
         if(split[0].equals(CLASSPATH)){
-        	split[1] = split[1].replaceAll(",", ":");
-        	
-        	if(sutjarpath != null)
-        		split[1] = split[1] + ":" + sutjarpath;
+          split[1] = split[1].replaceAll(",", ":");
+          
+          if(sutjarpath != null)
+            split[1] = split[1] + ":" + sutjarpath;
         }
         
         final String key = split[0];
@@ -100,12 +113,38 @@ public class AnalysisConfig {
     }
   }
   
+  @SuppressWarnings("unchecked")
+  private boolean lineIsExecutable(String line) {
+    if(line.startsWith(EXEC_MARKER)) {
+      final String trimmedLine = line.substring(EXEC_MARKER.length()).trim();
+      try {
+        Class<?> klass = Class.forName(trimmedLine);
+        
+        if(klass != null && AnalysisBlock.class.isAssignableFrom(klass)) {
+          this.executableBlocks.add((Class<? extends AnalysisBlock>)klass);
+          return true;
+        }
+        
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    // Given that we cannot find an executable class on this line,
+    // this line is not executable.
+    return false;
+  }
+
   private boolean isLineComment(final String line) {
     return line.startsWith("#") || line.startsWith("//");
   }
   
   private boolean doesLineContainProperty(final String line) {
     return line.contains("=");
+  }
+
+  public List<Class<? extends AnalysisBlock>> getBlocks() {
+    return this.executableBlocks  ;
   }
 
 }

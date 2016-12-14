@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.spideruci.analysis.statik.blocks.AnalysisBlock;
 import org.spideruci.analysis.statik.blocks.CallGraphBlock;
 import org.spideruci.analysis.statik.blocks.FlowBlock;
 import org.spideruci.analysis.statik.calls.CallGraphManager;
@@ -83,10 +84,20 @@ public class Statik {
     
     CallGraphManager cgm = CallGraphManager.init(cg, GET_ENTRY_METHODS());
 
-    new CallGraphBlock().run(cgm);
+    List<Class<? extends AnalysisBlock>> analysisBlocks = analysisconfig.getBlocks();
+    for(Class<? extends AnalysisBlock> block : analysisBlocks) {
+      try {
+        AnalysisBlock liveBlock = block.newInstance();
+        liveBlock.execute(cgm);
+      } catch (InstantiationException | IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+    
+//    new CallGraphBlock().run(cgm);
     
     
-    new FlowBlock().run(cgm);
+//    new FlowBlock().run(cgm);
     
   }
 

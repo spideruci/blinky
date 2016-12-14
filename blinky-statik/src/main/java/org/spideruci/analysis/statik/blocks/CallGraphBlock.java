@@ -7,7 +7,7 @@ import soot.SootMethod;
 public class CallGraphBlock extends AnalysisBlock {
 
   @Override
-  public void run(CallGraphManager cgm) {
+  public void execute(CallGraphManager cgm) {
 
     System.out.println("----");
 

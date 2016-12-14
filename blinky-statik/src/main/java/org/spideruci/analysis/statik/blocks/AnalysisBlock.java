@@ -4,6 +4,6 @@ import org.spideruci.analysis.statik.calls.CallGraphManager;
 
 public abstract class AnalysisBlock {
   
-  public abstract void run(CallGraphManager cgm);
+  public abstract void execute(CallGraphManager cgm);
 
 }
