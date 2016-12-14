@@ -19,15 +19,15 @@ class A {
   B field;
   
   public void foo() {
-    bar();
+//    bar(new B());
   }
   
-  private int bar() {
-    this.field = new B();
+  public int bar(B arg) {
+    this.field = arg;
     B temp = this.field;
     int localFoo = temp.foo;
     
-    temp.foo();
+//    temp.foo();
     
     temp.foo = temp.foo + this.field.foo;
     

@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.spideruci.analysis.statik.blocks.AnalysisBlock;
+import org.spideruci.analysis.statik.blocks.CallGraphBlock;
+import org.spideruci.analysis.statik.blocks.FlowBlock;
 import org.spideruci.analysis.statik.calls.CallGraphManager;
 import org.spideruci.analysis.statik.calls.StatikCallGraphBuilder;
 import org.spideruci.analysis.statik.controlflow.Graph;
@@ -76,42 +79,25 @@ public class Statik {
             
     StatikCallGraphBuilder cgBuilder = 
         StatikCallGraphBuilder.build("call-graph", analysisconfig);
-    
-    cgBuilder.addEntryPoint(
-        analysisconfig.get(AnalysisConfig.ENTRY_CLASS), 
-        analysisconfig.get(AnalysisConfig.ENTRY_METHOD));
 
-    SootMethod main = GET_MAIN_METHOD();
-//    SootMethod main = Scene.v().getMainClass().getMethodByName("testConstants");
-//    System.out.println(Scene.v().get);
-    
     CallGraph cg = cgBuilder.getCallGraph();
     
     CallGraphManager cgm = CallGraphManager.init(cg, GET_ENTRY_METHODS());
 
-    System.out.println("---- Call Graph ----");
+    List<Class<? extends AnalysisBlock>> analysisBlocks = analysisconfig.getBlocks();
+    for(Class<? extends AnalysisBlock> block : analysisBlocks) {
+      try {
+        AnalysisBlock liveBlock = block.newInstance();
+        liveBlock.execute(cgm);
+      } catch (InstantiationException | IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
     
-    cgm.printGraph();
+//    new CallGraphBlock().run(cgm);
     
-    StatikFlowGraph flowGraph = StatikFlowGraph.init(cgm);
-        
-    System.out.println("---- I C F G ----");
     
-    flowGraph.buildIcfg();
-    Graph<Unit> icfg = flowGraph.getIcfg();
-    System.out.println(icfg);
-        
-    System.out.println("---- Java Source Icfg ----");
-    
-    Graph<String> icfgGraph = flowGraph.icfgMgr.icfgJavaSourceLines();
-    System.out.println(icfgGraph);    
-    
-    System.out.println("---- Writing to Database ----");
-  
-    SourceICFG sIcfg = new SourceICFG(icfgGraph);
-    sIcfg.dumpData();
-    
-    System.out.println("Done!");
+//    new FlowBlock().run(cgm);
     
   }
 

@@ -1,5 +1,8 @@
 package org.spideruci.analysis.statik.calls;
 
+import static org.spideruci.analysis.statik.AnalysisConfig.ENTRY_CLASS;
+import static org.spideruci.analysis.statik.AnalysisConfig.ENTRY_METHOD;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,9 +44,10 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     StatikCallGraphBuilder scgBuilder = 
         new StatikCallGraphBuilder(graphId, cgAlgo);
     
-    scgBuilder.addEntryPoint(
-        config.get(AnalysisConfig.ENTRY_CLASS), 
-        config.get(AnalysisConfig.ENTRY_METHOD));
+    if(config.contains(ENTRY_CLASS) && config.contains(ENTRY_METHOD)) {
+      scgBuilder.addEntryPoint(config.get(ENTRY_CLASS), config.get(ENTRY_METHOD));
+    }
+
     
     { // hook up SCG Builder with Soot
       Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", scgBuilder);
@@ -133,7 +137,9 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
       }
     }
     
-    Scene.v().setEntryPoints(entryPoints);
+    if(!entryPoints.isEmpty()) {
+      Scene.v().setEntryPoints(entryPoints);
+    }
   }
   
   /**
