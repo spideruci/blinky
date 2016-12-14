@@ -122,10 +122,13 @@ public class AnalysisConfig {
         
         if(klass != null && AnalysisBlock.class.isAssignableFrom(klass)) {
           this.executableBlocks.add((Class<? extends AnalysisBlock>)klass);
+          DebugUtil.printfln("Registering %s as an executable analysis block.", trimmedLine);
           return true;
         }
         
+        DebugUtil.printfln("%s is not an executable analysis block.", trimmedLine);
       } catch (ClassNotFoundException e) {
+        DebugUtil.printfln("Unable to find class by the name: %s.", trimmedLine);
         e.printStackTrace();
       }
     }

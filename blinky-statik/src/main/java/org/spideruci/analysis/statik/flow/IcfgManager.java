@@ -3,6 +3,7 @@ package org.spideruci.analysis.statik.flow;
 import java.util.HashMap;
 import java.util.List;
 
+import org.spideruci.analysis.statik.DebugUtil;
 import org.spideruci.analysis.statik.Items;
 import org.spideruci.analysis.statik.SootCommander;
 import org.spideruci.analysis.statik.Statik;
@@ -103,18 +104,25 @@ public class IcfgManager {
       }
     }
     
-    System.out.println("\nJimple to Source Mapping");
-    for(Unit jimple : jimple2source.keySet()) {
-      UnitIdTag unitIdTag = (UnitIdTag) jimple.getTag(UnitIdTag.UNIT_ID_TAG_NAME);
-      final String sootunitLabel = unitIdTag.value();
-      String source = jimple2source.get(jimple);
-      System.out.printf("%s %s \t\t %s%n", source, sootunitLabel, jimple.toString());
-    }
-    System.out.println();
-    
+    logJimpleToSourceMapping();
     
     return javaIcfg;
   }
+
+    private void logJimpleToSourceMapping() {
+      if(!DebugUtil.IS_DEBUG)
+        return;
+      
+      DebugUtil.printfln("\nJimple to Source Mapping");
+      for(Unit jimple : jimple2source.keySet()) {
+        UnitIdTag unitIdTag = (UnitIdTag) jimple.getTag(UnitIdTag.UNIT_ID_TAG_NAME);
+        final String sootunitLabel = unitIdTag.value();
+        String source = jimple2source.get(jimple);
+        DebugUtil.printfln("%s %s \t\t %s%n", source, sootunitLabel, jimple.toString());
+      }
+      
+      DebugUtil.printfln();
+    }
 
   public void addIcfgEdge(Unit src, SootMethod srcMethod, Unit tgt, SootMethod tgtMethod) {
     Node<Unit> source = addIcfgNode(src, srcMethod);
