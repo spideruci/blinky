@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.spideruci.analysis.statik.DebugUtil;
 import org.spideruci.analysis.statik.Items;
@@ -115,7 +117,11 @@ public class CallGraphManager {
   }
   
   public Iterable<SootMethod> getBottomupTopology() {
-    Algorithms.collapseStrongComponents(shadowCallgraph);
+    
+    HashMap<Node<SootMethod>, Node<SootMethod>> leaders = 
+        Algorithms.collapseStrongComponents(shadowCallgraph);
+    
+    System.out.println(new HashSet<>(leaders.values()).size());
     
     ArrayList<Node<SootMethod>> topology = 
         Algorithms.bottomUpTopologicalSort(shadowCallgraph);
@@ -133,7 +139,9 @@ public class CallGraphManager {
   }
   
   public Iterable<SootMethod> getBfsTraversal() {
-    ArrayList<Node<SootMethod>> traversal = Algorithms.traverseBfs(shadowCallgraph);
+    Collection<Node<SootMethod>> traversal = shadowCallgraph.getNodes();// Algorithms.traverseBfs(shadowCallgraph);
+    System.out.println(shadowCallgraph.getNodes().size());
+//    System.out.println(traversal.size());
     Iterable<SootMethod> methods = fromShadowMethods(traversal);
     return methods;
   }
@@ -147,7 +155,7 @@ public class CallGraphManager {
         continue;
       
       SootMethod m = visitedNode.getBody();
-      System.out.println(visitedNode);
+      System.out.println(visitedNode.getLabel());
       
       if(!m.isConcrete())
         continue;
@@ -155,7 +163,7 @@ public class CallGraphManager {
       ArrayList<Node<SootMethod>> neighbors = visitedNode.pointsTo();
       
       for(Node<SootMethod> neighbor : neighbors) {
-        System.out.format("\t↪ %s%n", neighbor);
+        System.out.format("\t↪ %s%n", neighbor.getLabel());
       }
     }
   }

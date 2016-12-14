@@ -111,7 +111,14 @@ public class StatikFlowGraph {
     }
   
     private boolean methodIsInvalid(SootMethod method) {
-      return method == null || !method.isConcrete();
+      return method == null 
+          || !method.isConcrete() 
+          || methodBodyIsInvalid(method.retrieveActiveBody());
+    }
+    
+    private boolean methodBodyIsInvalid(Body body) {
+      PatchingChain<Unit> units = body == null ? null : body.getUnits();
+      return units == null || units.isEmpty();
     }
   
     private ArrayList<SootMethod> initWorklist() {

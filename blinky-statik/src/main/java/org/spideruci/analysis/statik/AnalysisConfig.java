@@ -46,6 +46,10 @@ public class AnalysisConfig {
     return this.argsList.toArray(new String[0]);
   }
   
+  public boolean contains(final String key) {
+    return configs.containsKey(key);
+  }
+  
   public String get(final String key) {
     return configs.get(key);
   }
