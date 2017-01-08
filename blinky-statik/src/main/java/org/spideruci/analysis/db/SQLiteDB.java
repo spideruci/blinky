@@ -49,4 +49,10 @@ public class SQLiteDB {
 		return dw;
 	}
 
+	public DatabaseReader runDatabaseReader(){
+		DatabaseReader dr = new DatabaseReader(c);
+		
+		return dr;
+	}
+	
 }

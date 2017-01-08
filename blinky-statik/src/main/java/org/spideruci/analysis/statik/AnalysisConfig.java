@@ -17,6 +17,7 @@ public class AnalysisConfig {
   public final static String ARG_CLASS = "argclass";
   public final static String ENTRY_CLASS = "entryclass";
   public final static String ENTRY_METHOD = "entrymethod";
+  public final static String ENTRY_METHODS_DB = "entrymethodsdb";
   public final static String DEBUG = "debug";
   public final static String CALL_GRAPH_ALGO = "callgraph-algo";
   public final static String CLASSPATH = "classpath";
