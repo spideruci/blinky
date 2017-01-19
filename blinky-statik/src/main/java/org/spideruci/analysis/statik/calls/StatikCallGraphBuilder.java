@@ -2,14 +2,18 @@ package org.spideruci.analysis.statik.calls;
 
 import static org.spideruci.analysis.statik.AnalysisConfig.ENTRY_CLASS;
 import static org.spideruci.analysis.statik.AnalysisConfig.ENTRY_METHOD;
+import static org.spideruci.analysis.statik.AnalysisConfig.ENTRY_METHODS_DB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.spideruci.analysis.db.DatabaseReader;
+import org.spideruci.analysis.db.SQLiteDB;
 import org.spideruci.analysis.statik.AnalysisConfig;
 import org.spideruci.analysis.statik.DebugUtil;
 import org.spideruci.analysis.statik.SootCommander;
@@ -47,17 +51,46 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
     if(config.contains(ENTRY_CLASS) && config.contains(ENTRY_METHOD)) {
       scgBuilder.addEntryPoint(config.get(ENTRY_CLASS), config.get(ENTRY_METHOD));
     }
-
+    
+    if(config.contains(ENTRY_METHODS_DB)){
+    	scgBuilder.addMultipleEntryPoints(config.get(ENTRY_METHODS_DB));	
+    }
     
     { // hook up SCG Builder with Soot
       Transform cgBuilderTrans = new Transform("wjtp.cgbuilder", scgBuilder);
       PackManager.v().getPack("wjtp").add(cgBuilderTrans);
     }
     
+//    scgBuilder.verifyEntryPoints();
+    
     String[] args = config.getArgs();
     SootCommander.RUN_SOOT(args);
     
     return scgBuilder;
+  }
+  
+  private void addMultipleEntryPoints(String dbPath){
+	  SQLiteDB db = new SQLiteDB();
+		
+	  db.openConnection(dbPath);
+	  DatabaseReader dr = db.runDatabaseReader();
+		
+	  dr.getTestCase();
+	  HashMap<String, HashSet<String>> entryHash = dr.getClassMethod();
+	  
+	  for(Entry<String, HashSet<String>> entry: entryHash.entrySet()){
+		  for(String s: entry.getValue()){
+			  addEntryPoint(entry.getKey(), s);
+		  }
+	  }
+  }
+  
+  private void verifyEntryPoints(){
+	  for(Entry<String, HashSet<String>> entry: entrypoints.entrySet()){
+		  for(String s: entry.getValue()){
+			  System.out.println(entry.getKey() + "." + s);
+		  }
+	  }
   }
   
   private StatikCallGraphBuilder(String graphId, CallGraphAlgorithm cgAlgo) {

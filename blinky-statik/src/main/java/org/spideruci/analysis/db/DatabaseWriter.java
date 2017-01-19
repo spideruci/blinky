@@ -51,10 +51,11 @@ public class DatabaseWriter {
 	
 	public void createNodeTable(){
 		String nodeTable="CREATE TABLE IF NOT EXISTS `NODE` ( "
-				+ "`ID`			INTEGER,"
-				+ "`CLASS`		TEXT,"
-				+ "`METHOD`		TEXT,"
-				+ "`LINE_NUM`	INTEGER"			
+				+ "`ID`				INTEGER,"
+				+ "`CLASS`			TEXT,"
+				+ "`METHOD`			TEXT,"
+				+ "`RETURN_METHOD`	TEXT,"
+				+ "`LINE_NUM`		INTEGER"			
 				+ ");";
 		
 		execute(nodeTable);
@@ -68,9 +69,10 @@ public class DatabaseWriter {
 			return;
 		
 		System.out.println("Insert node: " + node.getClassName() + " " + node.getMethodName() + " " + node.getLineNum());
+		String[] methodName = node.getMethodName().split(" ");
 		String sql = "INSERT INTO NODE "
-				+"VALUES(?,?,?,?)";
-		executePsmt(sql, getNodeId(node), node.getClassName(), node.getMethodName(), node.getLineNum());
+				+"VALUES(?,?,?,?,?)";
+		executePsmt(sql, getNodeId(node), node.getClassName(), methodName[1], methodName[0], node.getLineNum());
 	}
 	
 	protected void execute(String query){
