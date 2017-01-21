@@ -21,154 +21,180 @@ import soot.jimple.toolkits.callgraph.Edge;
 import soot.tagkit.LineNumberTag;
 
 public class StatikFlowGraph {
-  
-//  private CallGraph callgraph;
-  private CallGraphManager callgraphMgr;
-//  private ArrayList<SootMethod> entryPoints;
-  public final IcfgManager icfgMgr;
-  
-  /**
-   * Initializes a static inter-proc flow graph, without using the main method
-   * as an entry point.
-   * @param cg
-   * @param entryMethods
-   * @return
-   */
-  public static StatikFlowGraph init(CallGraphManager cgm) {
-    return new StatikFlowGraph(cgm);
-  }
-  
-  private StatikFlowGraph(CallGraphManager cgm) {
-    this.callgraphMgr = cgm;
-    this.icfgMgr = new IcfgManager();
-  }
-  
-  public Graph<Unit> getIcfg() {
-    return this.icfgMgr.icfg();
-  }
 
-  public void buildIcfg() {
-    
-    ArrayList<SootMethod> worklist = initWorklist();
-    ArrayList<SootMethod> visited = new ArrayList<>();
-    
-    int i = 0;
-    CallGraph callgraph = callgraphMgr.getCallgraph();
-    
-    while(!worklist.isEmpty()) {
+	//  private CallGraph callgraph;
+	private CallGraphManager callgraphMgr;
+	//  private ArrayList<SootMethod> entryPoints;
+	public final IcfgManager icfgMgr;
 
-      if(i%10 == 0)
-        System.out.println("building.....");
-      i++;
+	/**
+	 * Initializes a static inter-proc flow graph, without using the main method
+	 * as an entry point.
+	 * @param cg
+	 * @param entryMethods
+	 * @return
+	 */
+	public static StatikFlowGraph init(CallGraphManager cgm) {
+		return new StatikFlowGraph(cgm);
+	}
 
-      SootMethod srcMethod = worklist.remove(0);
-      if(methodIsInvalid(srcMethod)) {
-        continue;
-      }
+	private StatikFlowGraph(CallGraphManager cgm) {
+		this.callgraphMgr = cgm;
+		this.icfgMgr = new IcfgManager();
+	}
 
-      visited.add(srcMethod);
-      icfgMgr.addSootMethodToIcfg(srcMethod);
-      Items<Edge> outEdges = new Items<>(callgraph.edgesOutOf(srcMethod));
+	public Graph<Unit> getIcfg() {
+		return this.icfgMgr.icfg();
+	}
 
-      for(Edge edge : outEdges) {
-        SootMethod tgtMethod = edge.tgt();
-        
-        if(methodIsInvalid(tgtMethod))
-          continue;
-        
-        Body tgtBody = tgtMethod.retrieveActiveBody();
-        
-        Unit callUnit = edge.srcUnit();
-        Unit entryUnit = getEntryUnit(tgtBody);
-//        int tgtStartLine = tgtMethod.getJavaSourceStartLineNumber();
-//        entryUnit.addTag(new LineNumberTag(tgtStartLine));
-        
-        List<Unit> tgtExitUnits = SootCommander.GET_UNIT_GRAPH(tgtMethod).getTails();
-        
-        icfgMgr.addIcfgEdge(callUnit, srcMethod, entryUnit, tgtMethod);
-        
-        for(Unit tgtExit : tgtExitUnits) {
-          icfgMgr.addIcfgEdge(tgtExit, tgtMethod, callUnit, srcMethod);
-        }
-        
-        if(!visited.contains(tgtMethod) && !worklist.contains(tgtMethod)) {
-          worklist.add(tgtMethod);
-        }
-      }
-    }
-    
-  }
-  
-    private Unit getEntryUnit(Body body) {
-      PatchingChain<Unit> units = body.getUnits();
-      
-      for(Unit unit : units) {
-        if(unit.getJavaSourceStartLineNumber() > 0)
-          return unit;
-      }
-      
-      return units.getFirst();
-    }
-  
-    private boolean methodIsInvalid(SootMethod method) {
-      return method == null 
-          || !method.isConcrete() 
-          || methodBodyIsInvalid(method.retrieveActiveBody());
-    }
-    
-    private boolean methodBodyIsInvalid(Body body) {
-      PatchingChain<Unit> units = body == null ? null : body.getUnits();
-      return units == null || units.isEmpty();
-    }
-  
-    private ArrayList<SootMethod> initWorklist() {
-      DebugUtil.printfln("initializing worklist of Soot Methods.");
+	public void buildIcfg(String subject) {
 
-      ArrayList<SootMethod> entryPoints = this.callgraphMgr.getEntryPoints();
-      ArrayList<SootMethod> worklist = new ArrayList<>();
-      
-      for(SootMethod entrypoint : entryPoints) {
-        DebugUtil.printfln(
-            "adding entrypoint method to worklist: %s", 
-            entrypoint.toString());
-        worklist.add(entrypoint);
-      }
-      
-      CallGraph callgraph = callgraphMgr.getCallgraph();
-      Items<MethodOrMethodContext> sources = new Items<>(callgraph.sourceMethods());
+		ArrayList<SootMethod> worklist = initWorklist();
+		ArrayList<SootMethod> visited = new ArrayList<>();
 
-      for(MethodOrMethodContext momCtx : sources) {
-        if(momCtx == null)
-          continue;
-        
-        SootMethod method = momCtx.method();
-        if(method == null) {
-          continue;
-        }
-        
-        if(!method.isConcrete()) {
-          DebugUtil.printfln("Not adding %s to worklist because "
-              + "method is not concrete", method.toString());
-          continue;
-        }
-        
-        if(!entryPoints.contains(method)) {
-          DebugUtil.printfln("Not adding %s to worklist because "
-              + "method not an entrypoint", method.toString());
-          continue;
-        }
-        
-        if(worklist.contains(method)) {
-          DebugUtil.printfln("Not adding %s to worklist because "
-              + "worklist alread contains it.", method.toString());
-          continue;
-        }
-        
-        DebugUtil.printfln("adding method to worklist: %s", method.toString());
-        worklist.add(method);
-      }
+		int i = 0;
+		CallGraph callgraph = callgraphMgr.getCallgraph();
 
-      return worklist;
-    }
-    
+		while(!worklist.isEmpty()) {
+			boolean testMethodFlag = false;
+
+			if(i%1000 == 0)
+				System.out.println("building.....");
+			i++;
+
+			SootMethod srcMethod = worklist.remove(0);
+
+			if(methodIsInvalid(srcMethod)) {
+				continue;
+			}
+
+			String srcClassName = srcMethod.getDeclaringClass().getName();
+
+			if(!srcClassName.contains(subject))
+				continue;
+
+			visited.add(srcMethod);
+			
+			if(!srcClassName.contains("test") && !srcClassName.contains("Test")){
+				icfgMgr.addSootMethodToIcfg(srcMethod);
+				System.out.println(srcClassName);
+			}
+			else
+				testMethodFlag = true;
+
+			Items<Edge> outEdges = new Items<>(callgraph.edgesOutOf(srcMethod));
+
+			for(Edge edge : outEdges) {
+				SootMethod tgtMethod = edge.tgt();
+
+				if(methodIsInvalid(tgtMethod))
+					continue;
+
+				String tgtClassName = tgtMethod.getDeclaringClass().getName();
+
+				if(!tgtClassName.contains(subject) || tgtClassName.contains("test") || tgtClassName.contains("Test"))
+					continue;
+
+				if(!testMethodFlag){
+					
+					System.out.println(srcClassName + "   ->    " + tgtClassName);
+					
+					Body tgtBody = tgtMethod.retrieveActiveBody();
+
+					Unit callUnit = edge.srcUnit();
+					Unit entryUnit = getEntryUnit(tgtBody);
+					//        int tgtStartLine = tgtMethod.getJavaSourceStartLineNumber();
+					//        entryUnit.addTag(new LineNumberTag(tgtStartLine));
+
+					List<Unit> tgtExitUnits = SootCommander.GET_UNIT_GRAPH(tgtMethod).getTails();
+
+
+
+					icfgMgr.addIcfgEdge(callUnit, srcMethod, entryUnit, tgtMethod);
+
+					for(Unit tgtExit : tgtExitUnits) {
+						icfgMgr.addIcfgEdge(tgtExit, tgtMethod, callUnit, srcMethod);
+					}
+				}
+
+				if(!visited.contains(tgtMethod) && !worklist.contains(tgtMethod)) {
+					worklist.add(tgtMethod);
+				}
+			}
+		}
+
+	}
+
+	private Unit getEntryUnit(Body body) {
+		PatchingChain<Unit> units = body.getUnits();
+
+		for(Unit unit : units) {
+			if(unit.getJavaSourceStartLineNumber() > 0)
+				return unit;
+		}
+
+		return units.getFirst();
+	}
+
+	private boolean methodIsInvalid(SootMethod method) {
+		return method == null 
+				|| !method.isConcrete() 
+				|| methodBodyIsInvalid(method.retrieveActiveBody());
+	}
+
+	private boolean methodBodyIsInvalid(Body body) {
+		PatchingChain<Unit> units = body == null ? null : body.getUnits();
+		return units == null || units.isEmpty();
+	}
+
+	private ArrayList<SootMethod> initWorklist() {
+		DebugUtil.printfln("initializing worklist of Soot Methods.");
+
+		ArrayList<SootMethod> entryPoints = this.callgraphMgr.getEntryPoints();
+		ArrayList<SootMethod> worklist = new ArrayList<>();
+
+		for(SootMethod entrypoint : entryPoints) {
+			DebugUtil.printfln(
+					"adding entrypoint method to worklist: %s", 
+					entrypoint.toString());
+			worklist.add(entrypoint);
+		}
+
+		CallGraph callgraph = callgraphMgr.getCallgraph();
+		Items<MethodOrMethodContext> sources = new Items<>(callgraph.sourceMethods());
+
+		for(MethodOrMethodContext momCtx : sources) {
+			if(momCtx == null)
+				continue;
+
+			SootMethod method = momCtx.method();
+			if(method == null) {
+				continue;
+			}
+
+			if(!method.isConcrete()) {
+				DebugUtil.printfln("Not adding %s to worklist because "
+						+ "method is not concrete", method.toString());
+				continue;
+			}
+
+			if(!entryPoints.contains(method)) {
+				DebugUtil.printfln("Not adding %s to worklist because "
+						+ "method not an entrypoint", method.toString());
+				continue;
+			}
+
+			if(worklist.contains(method)) {
+				DebugUtil.printfln("Not adding %s to worklist because "
+						+ "worklist alread contains it.", method.toString());
+				continue;
+			}
+
+			DebugUtil.printfln("adding method to worklist: %s", method.toString());
+			worklist.add(method);
+		}
+
+		return worklist;
+	}
+
 }

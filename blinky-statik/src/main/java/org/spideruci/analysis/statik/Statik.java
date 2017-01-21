@@ -45,10 +45,10 @@ public class Statik {
     return Scene.v().getEntryPoints();
   }
   
-  private static AnalysisConfig startup(final String[] args) {
+  private static AnalysisConfig startup(final String args) {
     System.out.println(STARTUP_MSG);
     
-    final String configPath = args[0];
+    final String configPath = args;
     AnalysisConfig analysisconfig = AnalysisConfig.init(configPath);
     final String jre7path = analysisconfig.get(AnalysisConfig.JRE7_LIB);
     final String classpath = analysisconfig.get(AnalysisConfig.CLASSPATH);
@@ -66,15 +66,25 @@ public class Statik {
 //        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "./target/test-classes/",
         ".:" + jre7path + RTJAR + ":" + jre7path + JCEJAR + ":" + classpath,
         "-w",
+        "-process-dir",
         analysisconfig.get(AnalysisConfig.ARG_CLASS)
     }));
+    
+//    argsList.addAll(Arrays.asList(new String[] {
+//    		"-keep-line-number",
+//    		"-process-dir",
+////        jre7path + "/rt.jar:" + jre7path + "/jce.jar:" + "./target/test-classes/",
+//    		".:" + classpath,
+//    		"-O",
+//    		analysisconfig.get(AnalysisConfig.ARG_CLASS)
+//    }));
     
     analysisconfig.setArgs(argsList);
     return analysisconfig;
   }
   
   public static void main(String[] args) {
-    AnalysisConfig analysisconfig = startup(args);
+    AnalysisConfig analysisconfig = startup(args[0]);
     DummyMainManager.setupDummyMain();
             
     StatikCallGraphBuilder cgBuilder = 
@@ -97,6 +107,7 @@ public class Statik {
     for(Class<? extends AnalysisBlock> block : analysisBlocks) {
       try {
         AnalysisBlock liveBlock = block.newInstance();
+        liveBlock.setSubject(args[1]);
         liveBlock.execute(cgm);
       } catch (InstantiationException | IllegalAccessException e) {
         e.printStackTrace();
