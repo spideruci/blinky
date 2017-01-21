@@ -459,7 +459,7 @@ public class Profiler {
   
   synchronized static public void printTraceCount() {
     $guard1$ = true;
-    REAL_OUT.println("Trace Size:" + count);
+    REAL_OUT.println("\n\nTrace Size:" + count);
     long t = System.currentTimeMillis() - time;
     REAL_OUT.println("Time Taken:" + t);
     time = System.currentTimeMillis();

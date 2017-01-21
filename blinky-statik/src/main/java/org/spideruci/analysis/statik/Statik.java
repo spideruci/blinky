@@ -83,7 +83,16 @@ public class Statik {
     CallGraph cg = cgBuilder.getCallGraph();
     
     CallGraphManager cgm = CallGraphManager.init(cg, GET_ENTRY_METHODS());
-
+    
+    System.out.println();
+    System.out.println("-------------------------------");
+    System.out.println();
+    
+    
+//    for(SootMethod sm: GET_ENTRY_METHODS()){
+//    	System.out.println(sm.toString());
+//    }
+    
     List<Class<? extends AnalysisBlock>> analysisBlocks = analysisconfig.getBlocks();
     for(Class<? extends AnalysisBlock> block : analysisBlocks) {
       try {
