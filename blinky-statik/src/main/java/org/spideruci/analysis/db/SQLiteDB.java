@@ -8,7 +8,7 @@ public class SQLiteDB {
 
 	private static Connection c = null;
 
-	public static void openConnection(String fileName){
+	public void openConnection(String fileName){
 		try {
 			Class.forName("org.sqlite.JDBC");
 			c = DriverManager.getConnection("jdbc:sqlite:" + fileName);
@@ -23,7 +23,7 @@ public class SQLiteDB {
 
 	public void create(String root, String name){
 		File output = new File(root);
-		String db = output + name + ".db";
+		String db = output.getAbsolutePath() + "/" + name + ".db";
 
 		File dbFile = new File(db);
 

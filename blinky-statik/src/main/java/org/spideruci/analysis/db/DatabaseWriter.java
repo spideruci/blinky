@@ -9,29 +9,45 @@ import java.util.Map;
 
 import org.spideruci.analysis.statik.flow.data.SourceICFGNode;
 
+import soot.Unit;
+
 public class DatabaseWriter {
 	private Connection c = null;
-	private Map<SourceICFGNode, Integer> nodeIdMap = new HashMap<>();
+	private Map<SourceICFGNode, Integer> sourceICFGNodeIdMap = new HashMap<>();
+	private Map<Unit, Integer> ICFGNodeIdMap = new HashMap<>();
 	private int nodeId = 0; 
 
 	public DatabaseWriter(Connection c) {
 		this.c = c;
 	}
 	
-	private int getNodeId(SourceICFGNode node){
+	private int getSourceICFGNodeId(SourceICFGNode node){
 
 		int id;
-		if(nodeIdMap.get(node) == null){
+		if(sourceICFGNodeIdMap.get(node) == null){
 			id = nodeId++;
-			nodeIdMap.put(node, id);
+			sourceICFGNodeIdMap.put(node, id);
 		}
 		else{
-			id = nodeIdMap.get(node);
+			id = sourceICFGNodeIdMap.get(node);
 		}
 		return id;
 	}
 	
-	public void createEdgeTable(){
+	private int getICFGNodeId(Unit node){
+
+		int id;
+		if(ICFGNodeIdMap.get(node) == null){
+			id = nodeId++;
+			ICFGNodeIdMap.put(node, id);
+		}
+		else{
+			id = ICFGNodeIdMap.get(node);
+		}
+		return id;
+	}
+	
+	public void createSourceICFGEdgeTable(){
 		String edgeTable="CREATE TABLE IF NOT EXISTS `EDGE` ( "
 				+ "`SOURCE_ID`		INTEGER,"
 				+ "`TARGET_ID`	    INTEGER"			
@@ -42,15 +58,15 @@ public class DatabaseWriter {
 		System.out.println("Create EDGE table");
 	}
 
-	public void insertEdgeTable(SourceICFGNode source, SourceICFGNode target){
+	public void insertSourceICFGEdgeTable(SourceICFGNode source, SourceICFGNode target){
 		System.out.println("Insert Edge");
 		String sql = "INSERT INTO EDGE "
 				+"VALUES(?,?)";
-		executePsmt(sql, getNodeId(source), getNodeId(target));
+		executePsmt(sql, getSourceICFGNodeId(source), getSourceICFGNodeId(target));
 	}
 	
-	public void createNodeTable(){
-		String nodeTable="CREATE TABLE IF NOT EXISTS `NODE` ( "
+	public void createSourceICFGNodeTable(){
+		String sourceICFGNodeTable="CREATE TABLE IF NOT EXISTS `NODE` ( "
 				+ "`ID`				INTEGER,"
 				+ "`CLASS`			TEXT,"
 				+ "`METHOD`			TEXT,"
@@ -58,21 +74,43 @@ public class DatabaseWriter {
 				+ "`LINE_NUM`		INTEGER"			
 				+ ");";
 		
-		execute(nodeTable);
+		execute(sourceICFGNodeTable);
 		
-		System.out.println("Create Node table");
+		System.out.println("Create SourceICFG Node table");
 	}
 	
-	public void insertNodeTable(SourceICFGNode node){
+	public void insertSourceICFGNodeTable(SourceICFGNode node){
 		
-		if(nodeIdMap.containsKey(node))
+		if(sourceICFGNodeIdMap.containsKey(node))
 			return;
 		
 		System.out.println("Insert node: " + node.getClassName() + " " + node.getMethodName() + " " + node.getLineNum());
 		String[] methodName = node.getMethodName().split(" ");
 		String sql = "INSERT INTO NODE "
 				+"VALUES(?,?,?,?,?)";
-		executePsmt(sql, getNodeId(node), node.getClassName(), methodName[1], methodName[0], node.getLineNum());
+		executePsmt(sql, getSourceICFGNodeId(node), node.getClassName(), methodName[1], methodName[0], node.getLineNum());
+	}
+	
+	public void createICFGNodeTable(){
+		String ICFGNodeTable="CREATE TABLE IF NOT EXISTS `NODE` ( "
+				+ "`ID`				INTEGER,"
+				+ "`UNIT`			TEXT"		
+				+ ");";
+		
+		execute(ICFGNodeTable);
+		
+		System.out.println("Create ICFG Node table");
+	}
+	
+	public void insertSourceICFGNodeTable(Unit node){
+		
+		if(ICFGNodeIdMap.containsKey(node))
+			return;
+		
+		System.out.println("Insert node: " + node.toString());
+		String sql = "INSERT INTO NODE "
+				+"VALUES(?,?)";
+		executePsmt(sql, getICFGNodeId(node), node.toString());
 	}
 	
 	protected void execute(String query){
