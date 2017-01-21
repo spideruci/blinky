@@ -14,24 +14,30 @@ public class SourceICFG {
 
 	private Graph<String> icfg = null;
 	private String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-	private String dir = "./blinky-statik/";
-	private String filename = "SOOT_static_analysis_" + timeStamp;
+	private String dir = System.getProperty("user.dir");
+//	private String filename = "SOOT_" + timeStamp;
 	private static Pattern FILTER = Pattern.compile("^([0-9]+):<(.*): (.*)>");
 	
 	public SourceICFG(Graph<String> icfg){
 		this.icfg = icfg;
 	}
 	
-	public void dumpData(){
+	public void dumpData(String subject){
 		
 		SQLiteDB db = new SQLiteDB();
-		db.create(dir, filename);
+		db.create(dir, subject.concat(timeStamp));
 
 		DatabaseWriter dw = db.runDatabaseWriter();
-		dw.createNodeTable();
-		dw.createEdgeTable();
+		dw.createSourceICFGNodeTable();
+		dw.createSourceICFGEdgeTable();
 
+		int size = icfg.getNodes().size();
+		int count = 0;
+		
 		for(Node<String> source : icfg.getNodes()){
+			
+			System.out.println(count++ + " / " + size);
+			
 			if(source == null)
 				continue;
 
@@ -46,7 +52,7 @@ public class SourceICFG {
 			
 			SourceICFGNode sourceNode = new SourceICFGNode(Integer.parseInt(sourceMatcher.group(1)), sourceMatcher.group(2), sourceMatcher.group(3));
 			
-			dw.insertNodeTable(sourceNode);
+			dw.insertSourceICFGNodeTable(sourceNode);
 
 			for(Node<String> target : source.pointsTo()) {
 				if(target == null)
@@ -62,8 +68,8 @@ public class SourceICFG {
 				}
 				
 				SourceICFGNode targetNode = new SourceICFGNode(Integer.parseInt(targetMatcher.group(1)), targetMatcher.group(2), targetMatcher.group(3));
-				dw.insertNodeTable(targetNode);
-				dw.insertEdgeTable(sourceNode, targetNode);
+				dw.insertSourceICFGNodeTable(targetNode);
+				dw.insertSourceICFGEdgeTable(sourceNode, targetNode);
 			}
 		}
 	}
