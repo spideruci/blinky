@@ -78,17 +78,23 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
 	  dr.getTestCase();
 	  HashMap<String, HashSet<String>> entryHash = dr.getClassMethod();
 	  
+	  int count = 1;
+	  
 	  for(Entry<String, HashSet<String>> entry: entryHash.entrySet()){
 		  for(String s: entry.getValue()){
 			  addEntryPoint(entry.getKey(), s);
+			  
+			  count++;
 		  }
 	  }
+	  
+	  System.out.println(count + " added " + entryHash.size());
   }
   
   private void verifyEntryPoints(){
 	  for(Entry<String, HashSet<String>> entry: entrypoints.entrySet()){
 		  for(String s: entry.getValue()){
-			  System.out.println(entry.getKey() + "." + s);
+			  System.out.println(entry.getKey() + " " + s);
 		  }
 	  }
   }
@@ -150,6 +156,7 @@ public final class StatikCallGraphBuilder extends SceneTransformer {
   private void setupEntryPoints() {
     List<SootMethod> entryPoints = new ArrayList<>();
     
+    //????
     Chain<SootClass> classes = Scene.v().getClasses();
     for(SootClass sootClass : classes) {
       String className = sootClass.getName();
