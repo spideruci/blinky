@@ -29,7 +29,22 @@ public class ClassAdapterRunner {
     return runner;
   }
   
-  public static ClassAdapterRunner create(PrototypicalClassNode classAdapter, File classFile) {
+  public static ClassAdapterRunner create(
+      PrototypicalClassAdapter classAdapter, 
+      byte[] bytecode) {
+    
+    ClassWriter cw = classAdapter.getClassWriter();
+    ClassVisitor ca = classAdapter;
+    ClassReader cr = new ClassReader(bytecode);
+    
+    ClassAdapterRunner runner = new ClassAdapterRunner(cr, ca, cw);
+    return runner;
+  }
+  
+  public static ClassAdapterRunner create(
+      PrototypicalClassNode classAdapter, 
+      File classFile) {
+    
     ClassWriter cw = classAdapter.getClassWriter();
     ClassVisitor ca = classAdapter;
     ClassReader cr = getClassReader(classFile);

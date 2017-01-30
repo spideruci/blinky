@@ -11,7 +11,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.spideruci.analysis.statik.instrumentation.Deputy;
+import org.spideruci.analysis.statik.instrumentation.Config;
 import org.spideruci.analysis.statik.instrumentation.OfflineInstrumenter;
 import org.spideruci.analysis.dynamic.RuntimeClassRedefiner.RedefinitionTargets;
 import org.spideruci.analysis.logging.ErrorLogManager;
@@ -96,15 +96,15 @@ public class Blinksformer implements ClassFileTransformer {
       return !shouldInstrument;
     }
     
-    if(Deputy.checkInclusionList) {
-      for(String item : Deputy.inclusionList) {
+    if(Config.checkInclusionList) {
+      for(String item : Config.inclusionList) {
         if(className.startsWith(item)) {
           return shouldInstrument;
         }
       }
     }
     
-    for(String item : Deputy.exclusionList) {
+    for(String item : Config.exclusionList) {
       if(className.startsWith(item)) {
         return !shouldInstrument;
       }

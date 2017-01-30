@@ -22,72 +22,49 @@ public class ClinitRewriter extends MethodVisitor {
   
   @Override
   public void visitInsn(int opcode) {
-    if(opcode != Opcodes.RETURN) {
-      super.visitInsn(opcode);
-      return;
+    if(opcode == Opcodes.RETURN) {
+      for(String fieldName : config.keySet()) {
+        Object fieldValue = config.get(fieldName);
+        Class<?> fieldClass = fieldValue.getClass();
+        Type fieldType = toPrimitiveType(fieldClass);
+
+        switch(fieldType.getSort()) {
+        case Type.INT: case Type.BOOLEAN: case Type.FLOAT: case Type.DOUBLE:
+          break;
+
+        case Type.OBJECT:
+          if(fieldValue.getClass() != String.class) {
+            throw new RuntimeException("Unhandled type: " + fieldClass.getName());
+          }
+          break;
+
+        case Type.ARRAY:
+          @SuppressWarnings("unchecked")
+          ArrayList<String> list = (ArrayList<String>)fieldValue;
+          assignField(list, fieldName);
+          break;
+
+        default:
+          throw new RuntimeException("Unhandled type: " + fieldClass.getName());
+        }
+      }
     }
     
-    // erase the return.
+    super.visitInsn(opcode);
   }
   
   @Override
   public void visitEnd() {
-    
-    for(String fieldName : config.keySet()) {
-      Object fieldValue = config.get(fieldName);
-      Class<?> fieldClass = fieldValue.getClass();
-      
-      Type fieldType = toPrimitiveType(fieldClass);
-      
-      switch(fieldType.getSort()) {
-      case Type.INT:
-        assignField((Integer)fieldValue, fieldName);
-        break;
-        
-      case Type.BOOLEAN:
-        assignField((Boolean)fieldValue, fieldName);
-        break;
-        
-      case Type.FLOAT:
-        assignField((Float)fieldValue, fieldName);
-        break;
-        
-      case Type.DOUBLE:
-        assignField((Double)fieldValue, fieldName);
-        break;
-        
-      case Type.OBJECT:
-        if(fieldValue.getClass() == String.class) {
-          assignField((String)fieldValue, fieldName);
-        } else {
-          throw new RuntimeException("Unhandled type: " + fieldClass.getName());
-        }
-        
-        break;
-        
-      case Type.ARRAY:
-        @SuppressWarnings("unchecked")
-        ArrayList<String> list = (ArrayList<String>)fieldValue;
-        assignField(list, fieldName);
-        break;
-        
-      default:
-        throw new RuntimeException("Unhandled type: " + fieldClass.getName());
-      }
-      
-      
-    }
-    
-    mv.visitInsn(Opcodes.RETURN);
-    
     super.visitEnd();
   }
   
+  @SuppressWarnings("unused")
   private void assignField(int value, String fieldName) {
     mv.visitLdcInsn(value);
     mv.visitFieldInsn(Opcodes.PUTSTATIC, className, fieldName, "I");
   }
   
+  @SuppressWarnings("unused")
   private void assignField(double value, String fieldName) {
     assignField((float) value, fieldName);
   }
@@ -97,22 +74,23 @@ public class ClinitRewriter extends MethodVisitor {
     mv.visitFieldInsn(Opcodes.PUTSTATIC, className, fieldName, "F");
   }
   
+  @SuppressWarnings("unused")
   private void assignField(boolean value, String fieldName) {
     mv.visitLdcInsn(value);
     mv.visitFieldInsn(Opcodes.PUTSTATIC, className, fieldName, "Z");
   }
   
+  @SuppressWarnings("unused")
   private void assignField(String value, String fieldName) {
     mv.visitLdcInsn(value);
-    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, fieldName, "Ljava/lang/String;");
+    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, fieldName, stringDesc);
   }
   
   private void assignField(ArrayList<String> value, String fieldName) {
     final int arraysize = value.size();
     
     mv.visitLdcInsn(arraysize);
-    mv.visitTypeInsn(Opcodes.ANEWARRAY, "[Ljava/lang/String;");
-    
+    mv.visitTypeInsn(Opcodes.ANEWARRAY, stringArrayDesc);
     
     for(int index = 0; index < arraysize; index += 1) {
       mv.visitInsn(Opcodes.DUP);
@@ -122,8 +100,9 @@ public class ClinitRewriter extends MethodVisitor {
       mv.visitInsn(Opcodes.AASTORE);
     }
     
-    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, fieldName, "[Ljava/lang/String;");
+    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, fieldName, stringArrayDesc);
   }
 
-
+  private static final String stringArrayDesc = "[Ljava/lang/String;";
+  private static final String stringDesc = "Ljava/lang/String;";
 }

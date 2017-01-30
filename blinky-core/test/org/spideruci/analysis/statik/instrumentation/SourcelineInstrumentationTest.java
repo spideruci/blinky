@@ -1,7 +1,7 @@
 package org.spideruci.analysis.statik.instrumentation;
 
 import static org.mockito.Mockito.*;
-import static org.spideruci.analysis.statik.instrumentation.Deputy.*;
+import static org.spideruci.analysis.statik.instrumentation.Config.*;
 import static org.spideruci.analysis.dynamic.Profiler.*;
 
 import org.junit.After;

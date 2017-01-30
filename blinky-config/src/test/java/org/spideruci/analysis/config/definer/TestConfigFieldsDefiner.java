@@ -3,43 +3,78 @@ package org.spideruci.analysis.config.definer;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.objectweb.asm.ClassWriter;
 
 public class TestConfigFieldsDefiner {
 
-  private final String className = "org/spideruci/analysis/statik/instrumentation/Deputy";
-  private final String classPath = "/Users/vpalepu/phd-open-source/blinky/blinky-core/target/classes/";
-  private final File classFile;
+  private final static String className = "org/spideruci/analysis/statik/instrumentation/Deputy";
+  private static File classFile;
   
-  public TestConfigFieldsDefiner() {
-    this.classFile = new File(classPath + className + ".class");
+  @BeforeClass
+  public static void beforeTest() {
+    ClassLoader classLoader = TestConfigFieldsDefiner.class.getClassLoader();
+    final String classFileName = "Deputy.class";
+    URL classfileURL = classLoader.getResource(classFileName);
+    classFile = new File(classfileURL.getFile());
   }
   
   @Test
-//  @Ignore
-  public void testRedefinition() {
+  public void smokeTestRedefinition() {
+    Map<String, String> config = new HashMap<>();
+    
+    final String field = "UNDEFINED";
+    final String value = "blah";
+    config.put(field, value);
+    
+    ConfigFieldsDefiner.define(className, classFile, config);
+  }
+  
+  @Test
+  public void testConfigValuesForArray() {
+    // given
+    ConfigClassScanner configClassScanner = runClassScanner(className, classFile, null);
+    
+    // when
+    Object value = configClassScanner.getPublicStaticFieldValue("exclusionList");
+    
+    // then
+    assertNull(value);
+  }
+
+  @Test
+  public void testConfigFieldsDefiner() {
+    final String field = "UNDEFINED";
+    final String value = "blah";
     
     Map<String, String> config = new HashMap<>();
-    config.put("UNDEFINED", "blah");
+    config.put(field, value);
     
-    ConfigFieldsDefiner.rewrite(className, classFile, config);
+    byte[] bytecode = ConfigFieldsDefiner.define(className, classFile, config);
+    
+    ConfigClassScanner configClassScanner = runClassScanner(className, null, bytecode);
+    
+    Object definedValue = configClassScanner.getPublicStaticFieldValue(field);
+    assertEquals(value, definedValue);
   }
   
+  
   @Test
-  @Ignore
   public void testConfigClassScanner() {
     // given
     ConfigClassScanner configClassScanner = 
         new ConfigClassScanner(ClassWriter.COMPUTE_MAXS, className);
+    
     //and
     ClassAdapterRunner configScanRunner = 
         ClassAdapterRunner.create(configClassScanner, classFile);
     
+    //and
     String[][] publicStaticFieldNames = {
         { "exclusionList", "def" },
         { "inclusionList", "def" },
@@ -75,37 +110,54 @@ public class TestConfigFieldsDefiner {
     System.out.println("FIELD_NAME, Presence Check, (un)Defined Check");
     for(String[] publicStaticField : publicStaticFieldNames) {
       final String publicStaticFieldName = publicStaticField[0];
-      final boolean isFieldDefined =  !"undef".equals(publicStaticField[1]);
+      
       System.out.print(publicStaticFieldName);
       
-      String errMsg1 = 
+      String errMsg = 
           String.format(
               "Expected class to have a public static field w/ the name: %s.", 
               publicStaticFieldName);
-      assertTrue(errMsg1,
+      
+      assertTrue(errMsg,
           configClassScanner.containsPublicStaticField(publicStaticFieldName));
       
-      System.out.print(" ✓");
+      System.out.print(" Present ");
       
-      if(isFieldDefined) {
-        String errMsg2 = 
-            String.format(
-                "Expected field w/ name `%s` to be defined in class.", 
-                publicStaticFieldName);
-        assertTrue(errMsg2, 
-            configClassScanner.publicStaticFieldIsDefined(publicStaticFieldName));
+      final boolean isFieldExpectedToBeDefined = !"undef".equals(publicStaticField[1]);
+      
+      boolean isFieldActuallyDefined = 
+          configClassScanner.publicStaticFieldIsDefined(publicStaticFieldName);
+      
+      assertEquals(isFieldExpectedToBeDefined, isFieldActuallyDefined);
+      
+      if(isFieldExpectedToBeDefined ^ isFieldExpectedToBeDefined) { // different
+        System.out.print(isFieldExpectedToBeDefined ? "expecting defined; " : "expecting not defined; ");
+        System.out.println(isFieldActuallyDefined ? "actually defined" : "actually not defined");
       } else {
-        String errMsg2 = 
-            String.format(
-                "Expected field w/ name `%s` to be not defined in class.", 
-                publicStaticFieldName);
-        assertFalse(errMsg2, 
-            configClassScanner.publicStaticFieldIsDefined(publicStaticFieldName));
+        System.out.println();
       }
-      
-      System.out.println(" ✓");
-      
     }
+  }
+  
+  public static ConfigClassScanner runClassScanner(
+      String className, File classFile, byte[] bytecode) {
+    ConfigClassScanner configClassScanner = 
+        new ConfigClassScanner(ClassWriter.COMPUTE_MAXS, className);
+    
+    ClassAdapterRunner configScanRunner = null;
+    
+    if(classFile != null) {
+      configScanRunner = 
+          ClassAdapterRunner.create(configClassScanner, classFile);
+    } else if(bytecode != null) {
+      configScanRunner = 
+          ClassAdapterRunner.create(configClassScanner, bytecode);
+    } else {
+      throw new RuntimeException("No class file or bytecode array!");
+    }
+    
+    configScanRunner.run();
+    return configClassScanner;
   }
 
 }

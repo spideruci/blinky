@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Array;
 
 import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
-import org.spideruci.analysis.statik.instrumentation.Deputy;
+import org.spideruci.analysis.statik.instrumentation.Config;
 import org.spideruci.analysis.trace.EventBuilder;
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.TraceEvent;
@@ -79,7 +79,7 @@ public class Profiler {
     
     if(args == null || args.isEmpty()) {
       setLogFlags(true);
-      Deputy.checkInclusionList = false;
+      Config.checkInclusionList = false;
       return;
     }
     
@@ -154,7 +154,7 @@ public class Profiler {
       
       switch(arg_name) {
       case "whitelist":
-        Deputy.checkInclusionList = true;
+        Config.checkInclusionList = true;
         break;
       case "entry-method":
         entryMethod = arg_value;
@@ -400,7 +400,7 @@ public class Profiler {
   }
   
   public static final String LINENUMER = "printLnLineNumber";
-  public static final String LINENUMER_DESC = "(" + Deputy.STRING_DESC + Deputy.STRING_DESC + ")V";
+  public static final String LINENUMER_DESC = "(" + Config.STRING_DESC + Config.STRING_DESC + ")V";
   synchronized static public void printLnLineNumber(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
@@ -466,7 +466,7 @@ public class Profiler {
   }
   
   public static final String GETHASH = "getHash";
-  public static final String GETHASH_DESC = "(" + Deputy.OBJECT_DESC + ")" + Deputy.STRING_DESC;
+  public static final String GETHASH_DESC = "(" + Config.OBJECT_DESC + ")" + Config.STRING_DESC;
   synchronized static public 
   String getHash(Object obj) {
     int id = System.identityHashCode(obj);
@@ -474,7 +474,7 @@ public class Profiler {
   }
   
   public static final String GETTYPENAME = "getTypeName";
-  public static final String GETTYPENAME_DESC = "(" + Deputy.OBJECT_DESC + Deputy.STRING_DESC + ")" + Deputy.STRING_DESC;
+  public static final String GETTYPENAME_DESC = "(" + Config.OBJECT_DESC + Config.STRING_DESC + ")" + Config.STRING_DESC;
   synchronized static public String getTypeName(Object obj, String staticType) {
     if(obj == null) {
       return staticType + "#0";

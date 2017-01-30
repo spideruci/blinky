@@ -70,7 +70,7 @@ public class GuardedMethodAdapter extends AdviceAdapter implements Opcodes {
   }
   
   private void guard() {
-    ProbeBuilder.start(mv).build(Profiler.GUARD, Deputy.PROFILER_NAME, "Z");
+    ProbeBuilder.start(mv).build(Profiler.GUARD, Config.PROFILER_NAME, "Z");
     mv.visitInsn(POP);
   }
 }

@@ -13,6 +13,7 @@ public class ConfigClassScanner extends PrototypicalClassAdapter {
 
   private boolean containsClinit;
   private final TreeMap<String, Type> publicStaticFields;
+  private final TreeMap<String, Object> publicStaticFieldsValues;
   private final TreeSet<String> undefinedPublicStaticFields;
   private final TreeSet<String> staticFieldsDefinedInClinit;
   
@@ -20,6 +21,7 @@ public class ConfigClassScanner extends PrototypicalClassAdapter {
     super(classWriterFlags, className);
     containsClinit = false;
     publicStaticFields = new TreeMap<>();
+    publicStaticFieldsValues = new TreeMap<>();
     undefinedPublicStaticFields = new TreeSet<>();
     staticFieldsDefinedInClinit = new TreeSet<>();
   }
@@ -46,6 +48,7 @@ public class ConfigClassScanner extends PrototypicalClassAdapter {
     
     if((access & PUBLIC_STATIC) == PUBLIC_STATIC) {
       publicStaticFields.put(name, Type.getType(desc));
+      publicStaticFieldsValues.put(name, value);
       
       if(value == null) {
         undefinedPublicStaticFields.add(name);
@@ -64,6 +67,10 @@ public class ConfigClassScanner extends PrototypicalClassAdapter {
     return publicStaticFields.get(fieldName);
   }
   
+  public Object getPublicStaticFieldValue(String fieldName) {
+    return publicStaticFieldsValues.get(fieldName);
+  }
+  
   public boolean containsClinit() {
     return this.containsClinit;
   }
@@ -77,6 +84,26 @@ public class ConfigClassScanner extends PrototypicalClassAdapter {
     String errMsg = String.format(
         "%s does not exist in class %s", fieldName, this.className);
     throw new RuntimeException(errMsg);
+  }
+  
+  private static class ClinitScanner extends MethodVisitor {
+
+    private final TreeSet<String> definedStaticFields;
+    
+    protected ClinitScanner(MethodVisitor mv, TreeSet<String> definedStaticFields) {
+      super(Opcodes.ASM5, mv);
+      this.definedStaticFields = definedStaticFields;
+    }
+    
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name,
+        String desc) {
+      
+      if(opcode == Opcodes.PUTSTATIC) {
+        definedStaticFields.add(name);
+      }
+    }
+
   }
 
 }
