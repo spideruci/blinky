@@ -10,7 +10,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spideruci.analysis.config.definer.TestConfigFieldsDefiner;
 
 public class TestConfigFile {
   
@@ -20,7 +19,7 @@ public class TestConfigFile {
   
   @BeforeClass
   public static void setup() {
-    ClassLoader classLoader = TestConfigFieldsDefiner.class.getClassLoader();
+    ClassLoader classLoader = TestConfigFile.class.getClassLoader();
     URL classfileURL = classLoader.getResource("config.yaml");
     configYaml = new File(classfileURL.getFile()); 
   }
@@ -38,12 +37,12 @@ public class TestConfigFile {
     String field = "number";
     
     // when
-    int actualValue = (int) config.get(field);
+    
+    int actualValue = (int) ((Integer) config.get(field));
     
     // then
     assertEquals(expectedValue, actualValue); 
   }
-  
   
   @Test
   public void testForFloatConfig() {
@@ -52,7 +51,7 @@ public class TestConfigFile {
     String field = "float";
     
     // when
-    float actualValue = (float) config.get(field);
+    float actualValue = (float) ((Float) config.get(field));
     
     // then
     assertEquals(expectedValue, actualValue, 0.0f);
@@ -65,7 +64,7 @@ public class TestConfigFile {
     String field = "LINE_COUNT";
     
     // when
-    float actualValue = (float) config.get(field);
+    float actualValue = (float) ((Float) config.get(field));
     
     // then
     assertEquals(expectedValue, actualValue, 0.0f);
@@ -78,7 +77,7 @@ public class TestConfigFile {
     String field = "boolen";
     
     // when
-    boolean actualValue = (boolean) config.get(field);
+    boolean actualValue = (boolean) ((Boolean) config.get(field));
     
     // then
     assertEquals(expectedValue, actualValue);

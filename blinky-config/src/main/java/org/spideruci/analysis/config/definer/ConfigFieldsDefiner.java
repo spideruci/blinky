@@ -28,7 +28,10 @@ public class ConfigFieldsDefiner extends PrototypicalClassAdapter {
     return configClassScanner;
   }
   
-  private static void checkConfig(String className, Map<String, ?> config, ConfigClassScanner configClassScanner) {
+  private static void checkConfig(
+      String className, 
+      Map<String, ?> config, 
+      ConfigClassScanner configClassScanner) {
     for(String configableFieldName : config.keySet()) {
       if(configableFieldName == null || configableFieldName.isEmpty()) {
         continue;
@@ -61,14 +64,15 @@ public class ConfigFieldsDefiner extends PrototypicalClassAdapter {
       final Type fieldType = configClassScanner.getPublicStaticField(configableFieldName);
       
       if(!fieldType.equals(valueType)) {
+        System.out.println(value);
         final String msg = String.format(
-            "TYPE MISMATCH: Field for config'ing %s is declared as **%s** "
-            + "in %s; but as **%s** in the config file.",
-            configableFieldName,
-            fieldType.getClassName(),
-            className,
-            valueType.getClassName());
-        throw new RuntimeException(msg);
+            "TYPE MISMATCH: Field for config'ing %s is declared as%n"
+            + "**%s** in %s; but as %n"
+            + "**%s** in the config file.",
+            configableFieldName, fieldType.getClassName(),
+            className, valueType.getClassName());
+        log.error(msg);
+        System.exit(1);
       }
     }
   }

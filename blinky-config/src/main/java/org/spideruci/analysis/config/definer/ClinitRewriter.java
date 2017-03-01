@@ -90,7 +90,7 @@ public class ClinitRewriter extends MethodVisitor {
     final int arraysize = value.size();
     
     mv.visitLdcInsn(arraysize);
-    mv.visitTypeInsn(Opcodes.ANEWARRAY, stringArrayDesc);
+    mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/String");
     
     for(int index = 0; index < arraysize; index += 1) {
       mv.visitInsn(Opcodes.DUP);

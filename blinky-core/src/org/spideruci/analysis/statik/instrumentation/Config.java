@@ -3,8 +3,8 @@ package org.spideruci.analysis.statik.instrumentation;
 public class Config {
   public static int LINE_COUNT = 0;
   
-  public static final String[] exclusionList = null;
-  public static final String[] inclusionList = null;
+  public static String[] exclusionList;
+  public static String[] inclusionList;
   
   public static boolean checkInclusionList = false;
   
