@@ -35,6 +35,7 @@ exclusionList:
 inclusionList:
 - org/spideruci/patternabstraction/benckmark
 - org/spideruci/analysis/diagnostics/subjects
+- java/util/ArrayList
 
 ## FUTURE EXAMPLES (NOT YET TESTED; DO NOT UNCOMMENT):
 # name: blinky

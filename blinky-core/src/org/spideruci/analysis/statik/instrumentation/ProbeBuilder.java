@@ -36,6 +36,12 @@ public class ProbeBuilder implements Opcodes {
     this.mv = mv;
   }
   
+  public ProbeBuilder setStaticBooelanField(boolean value, String fieldName, String fieldOwner) {
+    this.mv.visitLdcInsn(value);
+    this.mv.visitFieldInsn(Opcodes.PUTSTATIC, fieldOwner, fieldName, Config.BOOLEAN_TYPEDESC);
+    return this;
+  }
+  
   public ProbeBuilder passArg(String arg) {
     this.mv.visitLdcInsn(arg);
     this.callbackDesc.append(Config.STRING_DESC);
@@ -310,6 +316,7 @@ public class ProbeBuilder implements Opcodes {
   }
   
   public void build(String callBackName) {
+//    this.build(callBackName, OfflineInstrumenter.isActive ? Config.PROFILER_B_NAME : Config.PROFILER_NAME);
     this.build(callBackName, Config.PROFILER_NAME);
   }
   
@@ -329,7 +336,6 @@ public class ProbeBuilder implements Opcodes {
   public StringBuffer getCallbackDesc() {
     return this.callbackDesc;
   }
-  
   
   private void safeGet(int opcode, String desc, String owner) {
     final boolean isValueWide = desc.equals("D") || desc.equals("J");

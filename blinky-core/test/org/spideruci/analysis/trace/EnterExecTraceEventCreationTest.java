@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.TraceLogger;
 import org.spideruci.analysis.trace.events.props.EnterExecPropNames;
 
 public class EnterExecTraceEventCreationTest extends ExecutionEventTestScafold {
@@ -75,8 +76,8 @@ public class EnterExecTraceEventCreationTest extends ExecutionEventTestScafold {
 
   private void thenVerifyBasicEventPropertiesByPropertyNames(TraceEvent actualEvent) {
 
-    assertEquals(vitalState[Profiler.THREAD_ID], Long.parseLong(actualEvent.getProp(EnterExecPropNames.THREAD_ID)) );
-    assertEquals(vitalState[Profiler.TIMESTAMP], Long.parseLong(actualEvent.getProp(EnterExecPropNames.TIMESTAMP)) );
+    assertEquals(vitalState[TraceLogger.THREAD_ID], Long.parseLong(actualEvent.getProp(EnterExecPropNames.THREAD_ID)) );
+    assertEquals(vitalState[TraceLogger.TIMESTAMP], Long.parseLong(actualEvent.getProp(EnterExecPropNames.TIMESTAMP)) );
     assertEquals(dynamicHostId, actualEvent.getProp(EnterExecPropNames.DYN_HOST_ID) );
     assertEquals(insnId, actualEvent.getProp(EnterExecPropNames.INSN_EVENT_ID) );
     assertEquals(insnType, EventType.valueOf(actualEvent.getProp(EnterExecPropNames.INSN_EVENT_TYPE)) );

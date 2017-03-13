@@ -3,6 +3,7 @@ package org.spideruci.analysis.trace;
 import static org.junit.Assert.assertEquals;
 
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.TraceLogger;
 
 public class ExecutionEventTestScafold {
   
@@ -23,9 +24,9 @@ public class ExecutionEventTestScafold {
   
   // And
   protected void thenVerifyBasicEventProperties(TraceEvent actualEvent) {
-    assertEquals(vitalState[Profiler.THREAD_ID], Long.parseLong(actualEvent.getExecThreadId()) );
-    assertEquals(vitalState[Profiler.TIMESTAMP], Long.parseLong(actualEvent.getExecTimestamp()) );
-    assertEquals(vitalState[Profiler.CALLDEPTH], Long.parseLong(actualEvent.getExecCalldepth()) );
+    assertEquals(vitalState[TraceLogger.THREAD_ID], Long.parseLong(actualEvent.getExecThreadId()) );
+    assertEquals(vitalState[TraceLogger.TIMESTAMP], Long.parseLong(actualEvent.getExecTimestamp()) );
+    assertEquals(vitalState[TraceLogger.CALLDEPTH], Long.parseLong(actualEvent.getExecCalldepth()) );
     assertEquals(dynamicHostId, actualEvent.getExecInsnDynHost());
     assertEquals(insnId, actualEvent.getExecInsnEventId());
     assertEquals(insnType, actualEvent.getExecInsnType());

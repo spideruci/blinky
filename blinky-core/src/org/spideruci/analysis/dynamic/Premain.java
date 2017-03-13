@@ -1,5 +1,6 @@
 package org.spideruci.analysis.dynamic;
 
+import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
 
 import java.lang.instrument.Instrumentation;
@@ -30,12 +31,12 @@ public class Premain {
     
     System.out.println("EXCLUSION LIST");
     for(int i = 0; i < Config.exclusionList.length; i += 1) {
-      System.out.println(Config.exclusionList[i]);
+      REAL_OUT.println(Config.exclusionList[i]);
     }
     
     System.out.println("INCLUSION LIST");
     for(int i = 0; i < Config.inclusionList.length; i += 1) {
-      System.out.println(Config.inclusionList[i]);
+      REAL_OUT.println(Config.inclusionList[i]);
     }
     
     instrumentation.addTransformer(new Blinksformer());

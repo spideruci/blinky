@@ -8,6 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.ProfilerB;
 import org.spideruci.analysis.dynamic.util.MethodDescSplitter;
 import org.spideruci.analysis.statik.instrumentation.zerooperand.ZeroOperandSwitcher;
 import org.spideruci.analysis.statik.instrumentation.zerooperand.ZeroOperandSwitchListerner;
@@ -166,6 +167,14 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(byteIndex, lineNum, 
           EventType.$invoke$, opcode, methodDecl.getId(), owner, name, desc);
       
+      final boolean invokingRtJar = isWithinRtJar(owner);
+      final boolean withinRtJar = isWithinRtJar(this.methodDecl.getDeclOwner());
+      
+      if(!withinRtJar && invokingRtJar) {
+        ProbeBuilder.start(mv)
+        .setStaticBooelanField(true, ProfilerB.ACTIVE_FLAG_NAME, Config.PROFILER_B_NAME);
+      }
+      
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
@@ -180,6 +189,11 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .build(Profiler.COMPLETE);
+      
+      if(!withinRtJar && invokingRtJar) {
+        ProbeBuilder.start(mv)
+        .setStaticBooelanField(false, ProfilerB.ACTIVE_FLAG_NAME, Config.PROFILER_B_NAME);
+      }
       
       Profiler.latestLineNumber = lineNum;
       Profiler.latestBytecodeIndex = byteIndex;
@@ -449,5 +463,27 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
   @Override
   public void visitMaxs(int MaxStack, int maxLocals) {
     super.visitMaxs(MaxStack, maxLocals);
+  }
+  
+  private static final String[] rtNameSpaces = new String[] {
+      "java", // "javax"
+      "sun", //"sunw",
+      "apple/",
+      "com/apple",
+      "com/sun",
+      "org/ietf",
+      "org/jcp",
+      "org/omg",
+      "org/w3c",
+      "org/xml",
+  };
+  
+  private static boolean isWithinRtJar(final String className) {
+    for(int i = 0; i < rtNameSpaces.length; i += 1) {
+      if(className.startsWith(rtNameSpaces[i]))
+        return true;
+    }
+    
+    return false;
   }
 }

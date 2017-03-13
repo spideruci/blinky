@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.TraceLogger;
 import org.spideruci.analysis.trace.events.props.FieldInsnExecPropNames;
 
 public class FieldInsnExecEventCreationTest extends ExecutionEventTestScafold {
@@ -89,8 +90,8 @@ public class FieldInsnExecEventCreationTest extends ExecutionEventTestScafold {
 
   private void thenVerifyBasicEventPropertiesByPropertyNames(TraceEvent actualEvent) {
     
-    assertEquals(vitalState[Profiler.THREAD_ID], Long.parseLong(actualEvent.getProp(FieldInsnExecPropNames.THREAD_ID)) );
-    assertEquals(vitalState[Profiler.TIMESTAMP], Long.parseLong(actualEvent.getProp(FieldInsnExecPropNames.TIMESTAMP)) );
+    assertEquals(vitalState[TraceLogger.THREAD_ID], Long.parseLong(actualEvent.getProp(FieldInsnExecPropNames.THREAD_ID)) );
+    assertEquals(vitalState[TraceLogger.TIMESTAMP], Long.parseLong(actualEvent.getProp(FieldInsnExecPropNames.TIMESTAMP)) );
     assertEquals(dynamicHostId, actualEvent.getProp(FieldInsnExecPropNames.DYN_HOST_ID) );
     assertEquals(insnId, actualEvent.getProp(FieldInsnExecPropNames.INSN_EVENT_ID) );
     assertEquals(insnType, EventType.valueOf(actualEvent.getProp(FieldInsnExecPropNames.INSN_EVENT_TYPE)) );

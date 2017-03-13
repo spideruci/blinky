@@ -25,50 +25,52 @@ BLINKY="-Xbootclasspath/p:$BLINKY_JAR -javaagent:$BLINKY_JAR="
 INPUT1="FOUNTAIN-5-2-16-nyt.txt"
 INPUT2="pride-and-prejudice.txt"
 
-CONFIGS=("0" \
-      "l,frames,calldepth" \
-      "i,frames,calldepth" \
-      "e,frames,calldepth" \
-      "x,frames,calldepth" \
-      "xile,frames,calldepth" \
-      "z,frames,calldepth" \
-      "f,frames,calldepth" \
-      "v,frames,calldepth" \
-      "c,frames,calldepth" \
-      "j,frames,calldepth" \
-      "s,frames,calldepth" \
-      "t,frames,calldepth" \
-      "A,frames,calldepth" )
+CONFIGS=(
+      # "0" \
+      # "l,frames,calldepth" \
+      # "i,frames,calldepth" \
+      # "e,frames,calldepth" \
+      # "x,frames,calldepth" \
+      # "xile,frames,calldepth" \
+      # "z,frames,calldepth" \
+      # "f,frames,calldepth" \
+      # "v,frames,calldepth" \
+      # "c,frames,calldepth" \
+      # "j,frames,calldepth" \
+      # "s,frames,calldepth" \
+      # "t,frames,calldepth" \
+      "A,frames,calldepth" 
+      )
       
-MAINS=( )
+MAINS=("Namaste" \
+  # "SummaryLib 1" \
+  # "SummaryLib 2" \
+  # "SummaryLib 3" \
+  # "SummaryLib 4" \
+  # "SummaryLib 5" \
+  # "SummaryLib 6" \
+  # "styleEx.BulletinBoard" \
+  # "styleEx.CandyFactory" \
+  # "styleEx.CodeGolf" \
+  # "styleEx.Constructivist" \
+  # "styleEx.CookBook" \
+  # "styleEx.DeclaredIntentions" \
+  # "styleEx.Hollywood" \
+  # "styleEx.HollywoodWordsWithZ" \
+  # "styleEx.InfiniteMirror" \
+  # "styleEx.KickYourTeammateForward" \
+  # "styleEx.LazyRivers" \
+  # "styleEx.PersistentTablesReader" \
+  # "styleEx.Quarantine" \
+  # "styleEx.Spreadsheet" \
+  # "styleEx.Tantrum" \
+  # "styleEx.TermFrequency" \
+  # "styleEx.TheOne" \
+  # "styleEx.noCommitment.NoCommitment"
+  )
 #IFS=""
 
-for MAIN in "Namaste" \
-  "SummaryLib 1" \
-  "SummaryLib 2" \
-  "SummaryLib 3" \
-  "SummaryLib 4" \
-  "SummaryLib 5" \
-  "SummaryLib 6" \
-  "styleEx.BulletinBoard" \
-  "styleEx.CandyFactory" \
-  "styleEx.CodeGolf" \
-  "styleEx.Constructivist" \
-  "styleEx.CookBook" \
-  "styleEx.DeclaredIntentions" \
-  "styleEx.Hollywood" \
-  "styleEx.HollywoodWordsWithZ" \
-  "styleEx.InfiniteMirror" \
-  "styleEx.KickYourTeammateForward" \
-  "styleEx.LazyRivers" \
-  "styleEx.PersistentTablesReader" \
-  "styleEx.Quarantine" \
-  "styleEx.Spreadsheet" \
-  "styleEx.Tantrum" \
-  "styleEx.TermFrequency" \
-  "styleEx.TheOne" \
-  "styleEx.noCommitment.NoCommitment"; do
-  
+for MAIN in ${MAINS[@]}; do
   
   SUBJECT=${BOLD}"$MAIN"${NORMAL}
   
@@ -79,7 +81,7 @@ for MAIN in "Namaste" \
   for CONFIG in ${CONFIGS[@]}; do
     echo "👉 with configuration: $CONFIG"
     
-    #java $BLINKY$CONFIG -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN > /dev/null 2>&1
+    java $BLINKY$CONFIG -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN 2>&1
   done
 done
 

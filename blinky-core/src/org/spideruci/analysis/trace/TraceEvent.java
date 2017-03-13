@@ -20,12 +20,13 @@ import org.spideruci.analysis.util.MyAssert;
 public class TraceEvent implements MethodDecl, Instruction {
   
   private static final String SEP = ",";
+  private static final String IPD_SEP = "|";
   
   private final int id;
   private final EventType type;
   private final String[] propValues;
   private final Enum[] propNames;
-  private String[] ipds;
+  private String ipd;
   
   public static TraceEvent copy(TraceEvent e) {
     TraceEvent copy = new TraceEvent(e.id, e.type, e.propNames);
@@ -99,7 +100,21 @@ public class TraceEvent implements MethodDecl, Instruction {
     return new TraceEvent(id, type, DeclPropNames.values);
   }
   
-  public static TraceEvent valueOf(String eventString) {
+  public static TraceEvent valueOf(final String eventSerString) {
+    // Goop code to handle the IPD. Including the IPD permanently in the Insn
+    // Prop names is a TODO for now, till the control flow analysis becomes a 
+    // default option for analysis.
+    final String ipdString;
+    final String eventString;
+    if(eventSerString.contains(IPD_SEP)) {
+      String[] ipdSplit = eventSerString.split("\\" + IPD_SEP);
+      eventString = ipdSplit[0];
+      ipdString = (ipdSplit.length >= 2) ? ipdSplit[1] : null;
+    } else {
+      eventString = eventSerString;
+      ipdString = null;
+    }
+    
     String[] split = eventString.split(SEP);
     String typeString = split[0];
     int id = Integer.parseInt(split[1]);
@@ -148,6 +163,11 @@ public class TraceEvent implements MethodDecl, Instruction {
       event.setProp(i - offset, split[i]);
     }
     
+    // pick up the ipd for an Insn event, if it exists
+    if(type.isInsn() && ipdString != null) {
+      event.setIpd(ipdString);
+    }
+    
     return event;
   }
   
@@ -160,7 +180,7 @@ public class TraceEvent implements MethodDecl, Instruction {
     this.type = type;
     this.propNames = propNames;
     this.propValues = new String[propNames.length];
-    this.ipds = null;
+    this.ipd = null;
   }
 
   public int getId() {
@@ -169,14 +189,6 @@ public class TraceEvent implements MethodDecl, Instruction {
 
   public EventType getType() {
     return this.type;
-  }
-  
-  public void ipdsAre(String[] ipds) {
-    this.ipds = ipds;
-  }
-  
-  public String[] ipds() {
-    return this.ipds;
   }
 
   public String getLog() {
@@ -189,6 +201,10 @@ public class TraceEvent implements MethodDecl, Instruction {
       buffer.append(value == null ? "" : value).append(SEP);
     }
     buffer.append(propValues[lastIndex]);
+    
+    if(this.type.isInsn() && this.ipd != null) {
+      buffer.append(IPD_SEP).append(this.ipd);
+    }
     
     return buffer.toString();
   }
@@ -352,6 +368,17 @@ public class TraceEvent implements MethodDecl, Instruction {
   @Override
   public String toString() {
     return getLog();
+  }
+
+  public void setIpd(String ipd) {
+    if(ipd != null && ipd.equals("null"))
+      ipd = null;
+    
+    this.ipd = ipd;
+  }
+  
+  public String getIpd() {
+    return this.ipd;
   }
 
   

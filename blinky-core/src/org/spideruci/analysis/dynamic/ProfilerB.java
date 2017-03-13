@@ -1,5 +1,6 @@
 package org.spideruci.analysis.dynamic;
 
+import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 import static org.spideruci.analysis.dynamic.TraceLogger.handleLog;
 import static org.spideruci.analysis.dynamic.TraceLogger.handleVarLog;
 import static org.spideruci.analysis.dynamic.TraceLogger.handleArgLog;
@@ -8,42 +9,19 @@ import static org.spideruci.analysis.dynamic.TraceLogger.handleEnterLog;
 import static org.spideruci.analysis.dynamic.TraceLogger.handleFieldLog;
 import static org.spideruci.analysis.dynamic.TraceLogger.handleInvokeLog;
 
-
-import java.io.PrintStream;
 import java.lang.reflect.Array;
 
-import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.statik.instrumentation.Config;
-import org.spideruci.analysis.trace.EventBuilder;
 import org.spideruci.analysis.trace.EventType;
-import org.spideruci.analysis.trace.TraceEvent;
 
-public class Profiler {
+public class ProfilerB {
+  
+  public static final String ACTIVE_FLAG_NAME = "isActive";
+  public static boolean isActive = false;
 
-  public static int latestLineNumber = 0;
-  public static int latestBytecodeIndex = 0;
-  public static boolean $guard1$ = true;
-  
-  public static boolean SAFEMODE = false;
-  
-  public static boolean logMethodEnter = false;
-  public static boolean logMethodExit = false;
-  public static boolean logMethodInvoke = false;
-  public static boolean logSourceLineNumber = false;
-  public static boolean logVar = false;
-  public static boolean logZero = false;
-  public static boolean logJump = false;
-  public static boolean logField = false;
-  public static boolean logConstant = false;
-  public static boolean logType = false;
-  public static boolean logSwitch = false;
-  public static boolean logInvokeRuntimeSign = false;
-  public static boolean logEnterRuntimeSign = false;
+  private static boolean $guard1$ = true;
   
   public static boolean log = true;
-  
-  public static PrintStream REAL_OUT = System.out;
-  public static PrintStream REAL_ERR = System.err;
   
   public static String entryMethod = null;
   public static String entryClass = null;
@@ -52,145 +30,7 @@ public class Profiler {
   public static boolean callDepth = false;
   public static boolean useSourcefileName = false;
   
-  public static long thread = -1;
-  
-  synchronized static public void setLogFlags(final boolean value) {
-    logMethodEnter = 
-        logMethodExit = 
-        logMethodInvoke = 
-        logSourceLineNumber = 
-        logVar = 
-        logJump = 
-        logZero = 
-        logConstant = 
-        logField = 
-        logType = 
-        logSwitch = 
-//        logInvokeRuntimeSign = 
-        logEnterRuntimeSign = 
-        log = value;
-  }
-
-  synchronized static public void initProfiler(String args) {
-    if(REAL_ERR == null) {
-      REAL_ERR = System.err;
-    }
-    
-    if(REAL_OUT == null) {
-      REAL_OUT = System.out;
-    }
-    
-    
-    if(args == null || args.isEmpty()) {
-      setLogFlags(true);
-      Config.checkInclusionList = false;
-      return;
-    }
-    
-    System.out.println(args);
-    String[] split = args.split(",");
-    
-    
-    String profileConfig = split[0];
-    
-    if(profileConfig.equals("0")) {
-      setLogFlags(false);
-      profileConfig = "";
-    } else if(profileConfig.equals("A")) {
-      setLogFlags(true);
-      profileConfig = "";
-    }
-    
-    char[] processedArgs = profileConfig.trim().toCharArray();
-    
-    for(char arg : processedArgs) {
-      switch(arg) {
-      case 'E':
-        logEnterRuntimeSign = true;
-      case 'e':
-        logMethodEnter = true;
-        continue;
-      case 'x':
-        logMethodExit = true;
-        continue;
-      case 'l':
-        logSourceLineNumber = true;
-        continue;
-      case 'I':
-        logInvokeRuntimeSign = true;
-      case 'i': 
-        logMethodInvoke = true;
-        continue;
-      case 'v':
-        logVar = true;
-        continue;
-      case 'z':
-        logZero = true;
-        continue;
-      case 'j':
-        logJump = true;
-        continue;
-      case 'f':
-        logField = true;
-        continue;
-      case 'c':
-        logConstant = true;
-        continue;
-      case 't':
-        logType = true;
-        continue;
-      case 's':
-        logSwitch = true;
-        continue;
-      default: continue;
-      }
-    }
-
-    for(int count = 1; count < split.length; count += 1) {
-      String arg = split[count]; 
-      if(arg == null || arg.length() == 0) {
-        continue;
-      }
-      String[] arg_split = arg.split("=");
-      String arg_name = arg_split[0];
-      String arg_value = arg_split.length == 1 ? "" : arg_split[1];
-      REAL_OUT.printf("'%s':%s\n", arg_name , arg_value);
-      
-      switch(arg_name) {
-      case "whitelist":
-        Config.checkInclusionList = true;
-        break;
-      case "entry-method":
-        entryMethod = arg_value;
-        break;
-      case "entry-class":
-        entryClass = arg_value;
-        break;
-      case "frames":
-        ClassInstrumenter.FRAMES = true;
-        break;
-      case "retransform":
-        Premain.allowRetransform = true;
-        break;
-      case "stop-app-ins":
-        Profiler.stopAppInsn = true;
-        break;
-      case "control":
-        ClassInstrumenter.CONTROL_FLOW = true;
-        break;
-      case "safe":
-        Profiler.SAFEMODE = true;
-        break;
-      case "calldepth":
-        Profiler.callDepth = true;
-        break;
-      case "sourcename":
-        Profiler.useSourcefileName = true;
-       default:
-         break;
-      }
-    }
-  }
+  private static long thread = -1;
   
   public static final String REGUARD = "reguard";
   synchronized static public void reguard(boolean guard) {
@@ -215,7 +55,7 @@ public class Profiler {
     if($guard1$) return;
     boolean guard = guard();
     
-    if(logMethodEnter) {
+    if(Profiler.logMethodEnter) {
       handleEnterLog(instruction, tag, EventType.$enter$);
     }
     $guard1$ = guard;
@@ -228,7 +68,7 @@ public class Profiler {
     
     boolean guard = guard();
     
-    if(logMethodExit) {
+    if(Profiler.logMethodExit) {
       handleLog(instruction, tag, EventType.$exit$);
     }
     $guard1$ = guard;
@@ -242,7 +82,7 @@ public class Profiler {
   synchronized static public void printlnInvokeLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logMethodInvoke) {
+    if(Profiler.logMethodInvoke) {
       handleInvokeLog(instruction, tag, EventType.$invoke$);
     }
     reguard(guard);
@@ -252,7 +92,7 @@ public class Profiler {
   synchronized static public void printlnCompleteLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logMethodInvoke) {
+    if(Profiler.logMethodInvoke) {
       handleLog(instruction, tag, EventType.$complete$);
     }
     reguard(guard);
@@ -262,7 +102,7 @@ public class Profiler {
   synchronized static public void printlnVarLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logVar) {
+    if(Profiler.logVar) {
       handleLog(instruction, tag, EventType.$var$);
     }
     reguard(guard);
@@ -271,7 +111,7 @@ public class Profiler {
   synchronized static public void printlnVarLog(String varId, String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logVar) {
+    if(Profiler.logVar) {
       handleVarLog(instruction, tag, varId);
     }
     reguard(guard);
@@ -281,7 +121,7 @@ public class Profiler {
   synchronized static public void printlnField(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logField) {
+    if(Profiler.logField) {
       handleLog(instruction, tag, EventType.$field$);
     }
     reguard(guard);
@@ -293,7 +133,7 @@ public class Profiler {
 //      String fieldOwnerId, String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logField) {
+    if(Profiler.logField) {
       handleFieldLog(instruction, tag, fieldId, fieldOwnerId);
     }
     reguard(guard);
@@ -304,7 +144,7 @@ public class Profiler {
       String instruction, String tag, String type) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logZero) {
+    if(Profiler.logZero) {
       handleLog(instruction, tag, EventType.valueOf(type));
     }
     reguard(guard);
@@ -314,7 +154,7 @@ public class Profiler {
   synchronized static public void printlnConstantLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logConstant) {
+    if(Profiler.logConstant) {
       handleLog(instruction, tag, EventType.$constant$);
     }
     reguard(guard);
@@ -324,7 +164,7 @@ public class Profiler {
   synchronized static public void printlnTypeLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logType) {
+    if(Profiler.logType) {
       handleLog(instruction, tag, EventType.$type$);
     }
     reguard(guard);
@@ -334,7 +174,7 @@ public class Profiler {
   synchronized static public void printlnSwitchLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logSwitch) {
+    if(Profiler.logSwitch) {
       handleLog(instruction, tag, EventType.$switch$);
     }
     reguard(guard);
@@ -345,7 +185,7 @@ public class Profiler {
       String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logZero) {
+    if(Profiler.logZero) {
       
       Object element = Array.get(arrayref, index);
       int length = Array.getLength(arrayref);
@@ -369,7 +209,7 @@ public class Profiler {
       String elementId, String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logZero) {
+    if(Profiler.logZero) {
       int length = Array.getLength(arrayref);
       String arrayType = arrayref.getClass().getName();
       if(arrayType.length() == 2) {
@@ -387,7 +227,7 @@ public class Profiler {
   synchronized static public void printlnJumpLog(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logJump) {
+    if(Profiler.logJump) {
       handleLog(instruction, tag, EventType.$jump$);
     }
     reguard(guard);
@@ -397,7 +237,7 @@ public class Profiler {
   synchronized static public void printlnIinc(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logVar) {
+    if(Profiler.logVar) {
       handleLog(instruction, tag, EventType.$iinc$);
     }
     reguard(guard);
@@ -408,7 +248,7 @@ public class Profiler {
   synchronized static public void printLnLineNumber(String instruction, String tag) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logSourceLineNumber) {
+    if(Profiler.logSourceLineNumber) {
       handleLog(instruction, tag, EventType.$line$);
     }
     reguard(guard);
@@ -419,7 +259,7 @@ public class Profiler {
       boolean isFirst, boolean isLast) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logEnterRuntimeSign) {
+    if(Profiler.logEnterRuntimeSign) {
 //      long[] vitalState = getVitalExecState();
 //      long threadId = vitalState[THREAD_ID];
 //      long time = vitalState[TIMESTAMP];
@@ -434,7 +274,7 @@ public class Profiler {
   synchronized static public void printLnInvokeArgLog(String argType, String index) {
     if($guard1$) return;
     boolean guard = guard();
-    if(logInvokeRuntimeSign) {
+    if(Profiler.logInvokeRuntimeSign) {
       handleArgLog(argType, index, EventType.$invokeargtype$, true, true);
     }
     reguard(guard);
@@ -460,8 +300,6 @@ public class Profiler {
     
     return false;
   }
-  
-
   
   public static final String GETHASH = "getHash";
   public static final String GETHASH_DESC = "(" + Config.OBJECT_DESC + ")" + Config.STRING_DESC;
@@ -500,7 +338,6 @@ public class Profiler {
 
   synchronized static public void setGuard1() {
     $guard1$ = true;
-    TraceLogger.printTraceCount();
   }
   
   /**
@@ -550,7 +387,5 @@ public class Profiler {
         ownerName.equals("net/percederberg/tetris/Game$GameThread"));
     return regular;
   }
-  
 
-    
 }

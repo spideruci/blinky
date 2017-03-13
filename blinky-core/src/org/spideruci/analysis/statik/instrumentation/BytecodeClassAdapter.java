@@ -23,7 +23,8 @@ public class BytecodeClassAdapter extends ClassVisitor {
   @Override
   public void visitSource(String source, String debug) {
     super.visitSource(source, debug);
-    final String packageName = className.substring(0, className.lastIndexOf('/'));
+    int lastsepIdx = className.lastIndexOf('/');
+    final String packageName = lastsepIdx == -1 ? "" : className.substring(0, lastsepIdx);
     this.sourceName = packageName + "/" + source;
   }
   

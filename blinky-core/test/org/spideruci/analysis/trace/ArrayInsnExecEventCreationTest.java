@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.TraceLogger;
 import org.spideruci.analysis.trace.events.props.ArrayInsnExecPropNames;
 import org.spideruci.analysis.trace.events.props.InvokeInsnExecPropNames;
 
@@ -133,8 +134,8 @@ public class ArrayInsnExecEventCreationTest extends ExecutionEventTestScafold {
 
   private void thenVerifyBasicEventPropertiesByPropertyNames(TraceEvent actualEvent) {
     
-    assertEquals(vitalState[Profiler.THREAD_ID], Long.parseLong(actualEvent.getProp(ArrayInsnExecPropNames.THREAD_ID)) );
-    assertEquals(vitalState[Profiler.TIMESTAMP], Long.parseLong(actualEvent.getProp(ArrayInsnExecPropNames.TIMESTAMP)) );
+    assertEquals(vitalState[TraceLogger.THREAD_ID], Long.parseLong(actualEvent.getProp(ArrayInsnExecPropNames.THREAD_ID)) );
+    assertEquals(vitalState[TraceLogger.TIMESTAMP], Long.parseLong(actualEvent.getProp(ArrayInsnExecPropNames.TIMESTAMP)) );
     assertEquals(dynamicHostId, actualEvent.getProp(ArrayInsnExecPropNames.DYN_HOST_ID) );
     assertEquals(insnId, actualEvent.getProp(ArrayInsnExecPropNames.INSN_EVENT_ID) );
     assertEquals(insnType, EventType.valueOf(actualEvent.getProp(ArrayInsnExecPropNames.INSN_EVENT_TYPE)) );

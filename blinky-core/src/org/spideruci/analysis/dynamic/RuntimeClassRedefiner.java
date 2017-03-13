@@ -30,7 +30,7 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
 
     if(className.equals("java/util/zip/ZipFile")) {
       ErrorLogManager.logClassTxStatus(className, true, SKIPD);
-    } else if(RedefinitionTargets.isTarget(className)
+    } else if(RedefinitionTargets.isExactTarget(className)
         && !RedefinitionTargets.isException(className)) {
       instrumentedBytes = Blinksformer.instrumentClass(className, 
           classfileBuffer, true /*isRuntime*/);
@@ -58,6 +58,7 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
     }
 
     public static boolean isExactTarget(String className) {
+      
       for(String exactTarget : exactTargets) {
         if(className.equals(exactTarget)) {
           return true;
@@ -87,19 +88,20 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
     
     
     private static final String[] wildCardTargets = new String[] {
-        "java/util",
+//        "java/util",
 //        "java/net/URLClassLoader", 
 //        "java/security/SecureClassLoader",
 //        "java/lang/ClassLoader"
 //        "java/util/concurrent"
-        "java/security",
+//        "java/security",
     };
     
     private static final String[] exactTargets = new String[] {
-//    "java/util/Hashtable", "java/util/regex/Pattern",  "java/util/ArrayList"
-        "java/net/URLClassLoader", 
-        "java/security/SecureClassLoader",
-        "java/util/Arrays",
+//    "java/util/Hashtable", "java/util/regex/Pattern",  
+        "java/util/ArrayList",
+//        "java/net/URLClassLoader", 
+//        "java/security/SecureClassLoader",
+//        "java/util/Arrays",
     };
     
     private static final String[] wildCardExceptions = new String[] {

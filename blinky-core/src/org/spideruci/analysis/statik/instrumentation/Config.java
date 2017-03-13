@@ -13,6 +13,7 @@ public class Config {
   public static final String NA = "NA";
   
   public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
+  public static final String PROFILER_B_NAME = "org/spideruci/analysis/dynamic/ProfilerB";
   public static final String RUNTIME_TYPE_PROFILER_NAME = "org/spideruci/analysis/dynamic/RuntimeTypeProfiler";
   
   public static final String STRING_DESC = "Ljava/lang/String;";

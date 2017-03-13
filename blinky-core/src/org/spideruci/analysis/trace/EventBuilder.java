@@ -1,11 +1,11 @@
 package org.spideruci.analysis.trace;
 
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.dynamic.TraceLogger;
 import org.spideruci.analysis.trace.events.props.ArrayInsnExecPropNames;
 import org.spideruci.analysis.trace.events.props.DeclPropNames;
 import org.spideruci.analysis.trace.events.props.EnterExecPropNames;
 import org.spideruci.analysis.trace.events.props.FieldInsnExecPropNames;
-import org.spideruci.analysis.trace.events.props.InsnExecPropNames;
 import org.spideruci.analysis.trace.events.props.InsnPropNames;
 import org.spideruci.analysis.trace.events.props.InvokeInsnExecPropNames;
 import org.spideruci.analysis.trace.events.props.VarInsnExecPropNames;
@@ -16,9 +16,9 @@ public class EventBuilder {
       String dynamicHostId, String insnId, long[] vitalState, 
       EventType insnType) {
     
-    long threadId = vitalState[Profiler.THREAD_ID];
-    long timestamp = vitalState[Profiler.TIMESTAMP];
-    long calldepth = vitalState[Profiler.CALLDEPTH];
+    long threadId = vitalState[TraceLogger.THREAD_ID];
+    long timestamp = vitalState[TraceLogger.TIMESTAMP];
+    long calldepth = vitalState[TraceLogger.CALLDEPTH];
     
     event.setExecInsnDynHost(dynamicHostId);
     event.setExecInsnEventId(insnId);
