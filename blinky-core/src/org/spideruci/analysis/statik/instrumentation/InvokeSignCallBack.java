@@ -1,6 +1,6 @@
 package org.spideruci.analysis.statik.instrumentation;
 
-import static org.spideruci.analysis.statik.instrumentation.Deputy.RUNTIME_TYPE_PROFILER_NAME;
+import static org.spideruci.analysis.statik.instrumentation.Config.RUNTIME_TYPE_PROFILER_NAME;
 
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.SETUP_INVOKE;
 import static org.spideruci.analysis.dynamic.RuntimeTypeProfiler.GET;

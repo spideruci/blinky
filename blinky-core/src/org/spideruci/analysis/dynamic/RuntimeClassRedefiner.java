@@ -33,7 +33,7 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
     } else if(RedefinitionTargets.isTarget(className)
         && !RedefinitionTargets.isException(className)) {
       instrumentedBytes = Blinksformer.instrumentClass(className, 
-          classfileBuffer, true /*isRuntime*/, false /*isWithGuard*/);
+          classfileBuffer, true /*isRuntime*/);
     } else {
       ErrorLogManager.logClassTxStatus(className, true, SKIPD);
     }

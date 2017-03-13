@@ -1,8 +1,8 @@
 package org.spideruci.analysis.statik.instrumentation;
 
-import static org.spideruci.analysis.statik.instrumentation.Deputy.STRING_DESC;
-import static org.spideruci.analysis.statik.instrumentation.Deputy.OBJECT_DESC;
-import static org.spideruci.analysis.statik.instrumentation.Deputy.PROFILER_NAME;
+import static org.spideruci.analysis.statik.instrumentation.Config.STRING_DESC;
+import static org.spideruci.analysis.statik.instrumentation.Config.OBJECT_DESC;
+import static org.spideruci.analysis.statik.instrumentation.Config.PROFILER_NAME;
 import static org.spideruci.analysis.dynamic.Profiler.GETHASH;
 import static org.spideruci.analysis.dynamic.Profiler.GETHASH_DESC;
 
@@ -38,25 +38,25 @@ public class ProbeBuilder implements Opcodes {
   
   public ProbeBuilder passArg(String arg) {
     this.mv.visitLdcInsn(arg);
-    this.callbackDesc.append(Deputy.STRING_DESC);
+    this.callbackDesc.append(Config.STRING_DESC);
     return this;
   }
   
   public ProbeBuilder passArg(boolean b) {
     this.mv.visitLdcInsn(b);
-    this.callbackDesc.append(Deputy.BOOLEAN_TYPEDESC);
+    this.callbackDesc.append(Config.BOOLEAN_TYPEDESC);
     return this;
   }
   
   public ProbeBuilder passArg(int arg) {
     this.mv.visitLdcInsn(arg);
-    this.callbackDesc.append(Deputy.INT_TYPEDESC);
+    this.callbackDesc.append(Config.INT_TYPEDESC);
     return this;
   }
   
   public ProbeBuilder passArg(EventType type) {
     this.mv.visitLdcInsn(type);
-    this.callbackDesc.append(Deputy.EVENT_TYPE_DESC);
+    this.callbackDesc.append(Config.EVENT_TYPE_DESC);
     return this;
   }
   
@@ -66,26 +66,26 @@ public class ProbeBuilder implements Opcodes {
       mv.visitLdcInsn("C");
     } else {
       mv.visitVarInsn(Opcodes.ALOAD, 0);
-      mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
+      mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Config.OBJECT_DESC));
       mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-                         Deputy.PROFILER_NAME, 
+                         Config.PROFILER_NAME, 
                          Profiler.GETHASH, 
                          Profiler.GETHASH_DESC, false);
     }
-    this.callbackDesc.append(Deputy.STRING_DESC);
+    this.callbackDesc.append(Config.STRING_DESC);
     return this;
   }
   
   public ProbeBuilder passRef(int var) {
     mv.visitVarInsn(Opcodes.ALOAD, var);
-    mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Deputy.OBJECT_DESC));
-    this.callbackDesc.append(Deputy.OBJECT_DESC);
+    mv.visitTypeInsn(Opcodes.CHECKCAST, Deputy.desc2type(Config.OBJECT_DESC));
+    this.callbackDesc.append(Config.OBJECT_DESC);
     return this;
   }
   
   public ProbeBuilder passNakedRef(int var) {
     mv.visitVarInsn(Opcodes.ALOAD, var);
-    this.callbackDesc.append(Deputy.OBJECT_DESC);
+    this.callbackDesc.append(Config.OBJECT_DESC);
     return this;
   }
   
@@ -224,8 +224,8 @@ public class ProbeBuilder implements Opcodes {
     MyAssert.assertThat(Opcodes.IALOAD <= opcode && opcode <= Opcodes.SALOAD,
         "not an array load.");
     mv.visitInsn(Opcodes.DUP2);
-    this.callbackDesc.append(Deputy.OBJECT_DESC);
-    this.callbackDesc.append(Deputy.INT_TYPEDESC);
+    this.callbackDesc.append(Config.OBJECT_DESC);
+    this.callbackDesc.append(Config.INT_TYPEDESC);
     return this;
   }
   
@@ -281,9 +281,9 @@ public class ProbeBuilder implements Opcodes {
       throw new RuntimeException("unexpected opcode: "  + opcode);
     }
     
-    this.callbackDesc.append(Deputy.OBJECT_DESC);
-    this.callbackDesc.append(Deputy.INT_TYPEDESC);
-    this.callbackDesc.append(Deputy.STRING_DESC);
+    this.callbackDesc.append(Config.OBJECT_DESC);
+    this.callbackDesc.append(Config.INT_TYPEDESC);
+    this.callbackDesc.append(Config.STRING_DESC);
     return this;
   }
   
@@ -310,7 +310,7 @@ public class ProbeBuilder implements Opcodes {
   }
   
   public void build(String callBackName) {
-    this.build(callBackName, Deputy.PROFILER_NAME);
+    this.build(callBackName, Config.PROFILER_NAME);
   }
   
   public void build(String callBackName, String classbackClassName) {

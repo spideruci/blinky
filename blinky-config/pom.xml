@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>blinky</artifactId>
+    <groupId>org.spideruci.analysis</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.spideruci.analysis.config</groupId>
+  <artifactId>blinky-config</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Blinky Config</name>
+  <description>A compile-time configuration manager for Blinky Core</description>
+
+  <url>https://github.com/spideruci/blinky</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+    <groupId>com.esotericsoftware.yamlbeans</groupId>
+    <artifactId>yamlbeans</artifactId>
+    <version>1.08</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource><directory>src/test/resources</directory></resource>
+    </resources>
+    <plugins>
+      <plugin>
+       <artifactId>maven-assembly-plugin</artifactId>
+       <configuration>
+        <descriptorRefs>
+         <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>
+       </configuration>
+       <executions>
+        <execution>
+         <phase>compile</phase>
+         <goals>
+          <goal>single</goal>
+         </goals>
+        </execution>
+       </executions>
+      </plugin>
+    
+    </plugins>
+  </build>
+
+</project>

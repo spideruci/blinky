@@ -5,6 +5,8 @@ import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
+import org.spideruci.analysis.statik.instrumentation.Config;
+
 /**
  * WARNING: DO NOT HAVE ANY NON_STATIC IMPORTS (i.e. DEPENDENCIES) 
  * IN PREMAIN. FOR SOME REASON IT BLOCKS THE INSTRUMENTAION.
@@ -25,6 +27,16 @@ public class Premain {
     started = true;
     
     Profiler.initProfiler(agentArguments);
+    
+    System.out.println("EXCLUSION LIST");
+    for(int i = 0; i < Config.exclusionList.length; i += 1) {
+      System.out.println(Config.exclusionList[i]);
+    }
+    
+    System.out.println("INCLUSION LIST");
+    for(int i = 0; i < Config.inclusionList.length; i += 1) {
+      System.out.println(Config.inclusionList[i]);
+    }
     
     instrumentation.addTransformer(new Blinksformer());
     

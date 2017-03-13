@@ -76,14 +76,14 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
         if(argInitial == 'L') {
           mv.visitVarInsn(Opcodes.ALOAD, varIndex);
           mv.visitLdcInsn(argType);
-          mv.visitMethodInsn(Opcodes.INVOKESTATIC, Deputy.PROFILER_NAME, 
+          mv.visitMethodInsn(Opcodes.INVOKESTATIC, Config.PROFILER_NAME, 
               Profiler.GETTYPENAME, Profiler.GETTYPENAME_DESC, false);
         } else {
           mv.visitLdcInsn(argType);
         }
         
         ProbeBuilder.start(mv)
-        .appendDesc(Deputy.STRING_DESC)
+        .appendDesc(Config.STRING_DESC)
         .passArg(String.valueOf(varIndex))
         .passArg(i == 0) // isFirst?
         .passArg(i == (argTypes.length - 1)) // isLast?
@@ -342,9 +342,9 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
     
     String metadata;
     if(cst instanceof Long || cst instanceof Double) {
-      metadata = Deputy.LDC_16;
+      metadata = Config.LDC_16;
     } else {
-      metadata = Deputy.LDC_8;
+      metadata = Config.LDC_8;
     }
     
     onConstantInsn(Opcodes.LDC, metadata);

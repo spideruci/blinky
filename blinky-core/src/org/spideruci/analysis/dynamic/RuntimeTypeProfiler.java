@@ -1,7 +1,7 @@
 package org.spideruci.analysis.dynamic;
 
 import org.spideruci.analysis.dynamic.util.Buffer;
-import org.spideruci.analysis.statik.instrumentation.Deputy;
+import org.spideruci.analysis.statik.instrumentation.Config;
 
 public class RuntimeTypeProfiler {
   
@@ -50,7 +50,7 @@ public class RuntimeTypeProfiler {
       return buffer.toString();
     }
     
-    return Deputy.NA;
+    return Config.NA;
   }
   
   public static final String SETUP_INVOKE = "setupForInvoke";
@@ -73,7 +73,7 @@ public class RuntimeTypeProfiler {
       return "~";
     }
     
-    return Deputy.NA;
+    return Config.NA;
   }
   
   private static void printLnArgLog(String typeInfo, String index) {

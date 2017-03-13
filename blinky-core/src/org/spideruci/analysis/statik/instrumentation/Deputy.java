@@ -1,111 +1,15 @@
 package org.spideruci.analysis.statik.instrumentation;
 
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.objectweb.asm.Opcodes;
 
 public class Deputy {
-  public static int LINE_COUNT = 0;
-  
-  public static final ArrayList<String> exclusionList;
-  public static final String[] inclusionList;
-  
-  public static boolean checkInclusionList = false;
-  
-  public static final String STATIC_IDENT = "C";
-  
-  public static final String NA = "NA";
-  
-  public static final String PROFILER_NAME = "org/spideruci/analysis/dynamic/Profiler";
-  public static final String RUNTIME_TYPE_PROFILER_NAME = "org/spideruci/analysis/dynamic/RuntimeTypeProfiler";
-  
-  public static final String STRING_DESC = "Ljava/lang/String;";
-  public static final String OBJECT_DESC = "Ljava/lang/Object;";
-  public static final String EVENT_TYPE_DESC = "Lorg/spideruci/analysis/trace/EventType;";
-  public static final String INT_TYPEDESC = "I";
-  public static final String FLOAT_TYPEDESC = "F";
-  public static final String CHAR_TYPEDESC = "C";
-  public static final String BOOLEAN_TYPEDESC = "Z";
-  public static final String BYTE_TYPEDESC = "B";
-  public static final String DOUBLE_TYPEDESC = "D";
-  public static final String LONG_TYPEDESC = "J";
-  
-  public static final String LDC_16 = "$ldc_16$";
-  public static final String LDC_8 = "$ldc_8$";
-  
-  static {
-    exclusionList = new ArrayList<String>();
-    
-    exclusionList.add("java/");
-    exclusionList.add("java/lang");
-    exclusionList.add("org/objectweb/asm");
-    exclusionList.add("edu/uci/spiderlab/analysis");
-    exclusionList.add("org/spideruci/analysis");
-    exclusionList.add("test/");
-    exclusionList.add("Core/");
-    exclusionList.add("Data/");
-    exclusionList.add("dacapo");
-    exclusionList.add("Harness");
-    exclusionList.add("com/google");
-    exclusionList.add("sun");
-    exclusionList.add("apple/");
-    exclusionList.add("com/apple");
-    exclusionList.add("com/sun");
-    exclusionList.add("javax/");
-    exclusionList.add("org/ietf");
-    exclusionList.add("org/jcp");
-    exclusionList.add("org/omg");
-    exclusionList.add("org/w3c");
-    exclusionList.add("org/xml");
-    exclusionList.add("org/objenesis");
-    exclusionList.add("org/eclipse");
-    exclusionList.add("org/mockito");
-    exclusionList.add("org/hamcrest");
-    exclusionList.add("sunw");
-    exclusionList.add("com/thoughtworks/xstream");
-    exclusionList.add("junit");
-    exclusionList.add("org/junit");
-    exclusionList.add("org/fest");
-    exclusionList.add("junit/tests/framework/");
-    exclusionList.add("junit/tests/runner/TextFeedbackTest");
-    exclusionList.add("junit/tests/runner/TextRunnerTest");
-    exclusionList.add("junit/tests/extensions");
-    exclusionList.add("org/apache/commons/logging");
-    exclusionList.add("org/apache/commons/logging");
-    exclusionList.add("org/codehaus/plexus");
-    exclusionList.add("org/spideruci/tacoco");
-    exclusionList.add("org/apache/maven");
-    
-    exclusionList.add("org/gjt/sp/util/Log$");
-    exclusionList.add("org/gjt/sp/util/Log$LogPrintStream");
-    exclusionList.add("org/gjt/sp/util/Log$LogInputStream");
-    exclusionList.add("org/gjt/sp/util/Log$LogOutputStream");
-    
-    inclusionList = new String[] {
-        "java/io",
-        "java/awt",
-        "java/beans",
-        "java/io",
-        "java/math",
-        "java/net",
-        "java/nio",
-        "java/rmi",
-        "java/sql",
-        "java/text",
-        "javax",
-        "org/ietf",
-        "org/jcp",
-        "org/omg",
-        "org/w3c",
-        "org/xml",
-        "org/gjt/sp/",
-        "DumpXML",
-        "org/spideruci/patternabstraction/benckmark"
-    };
+
+  public static String desc2type(String desc) {
+    if(desc.charAt(0) != 'L') return desc;
+    String type = desc.substring(1, desc.length() - 1);
+    return type;
   }
-  
+
   public static String joinStrings(String[] strings, String sep) {
     int length = strings.length;
     if(length == 0) return "";
@@ -114,17 +18,11 @@ public class Deputy {
     buffer.append(strings[0]);
     for(int i = 1; i<length; i++) {
       buffer.append(sep);
-      buffer.append(strings[i]);     
+      buffer.append(strings[i]);
     }
     return buffer.toString();
   }
-  
-  public static String desc2type(String desc) {
-    if(desc.charAt(0) != 'L') return desc;
-    String type = desc.substring(1, desc.length() - 1);
-    return type;
-  }
-  
+
   public static String primitiveCode2String(int primitiveCode) {
     switch(primitiveCode) {
     case Opcodes.T_BOOLEAN:
@@ -147,5 +45,5 @@ public class Deputy {
       throw new RuntimeException("Unexpected primitive code: " + primitiveCode);
     }
   }
-  
+
 }

@@ -11,7 +11,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.spideruci.analysis.statik.instrumentation.Deputy;
+import org.spideruci.analysis.statik.instrumentation.Config;
 import org.spideruci.analysis.statik.instrumentation.OfflineInstrumenter;
 import org.spideruci.analysis.dynamic.RuntimeClassRedefiner.RedefinitionTargets;
 import org.spideruci.analysis.logging.ErrorLogManager;
@@ -45,7 +45,7 @@ public class Blinksformer implements ClassFileTransformer {
     }
     
     byte[] instrumentedBytes = instrumentClass(className, classBytes, 
-        false /*isRuntime*/, false /*isWithGuards*/);
+        false /*isRuntime*/);
     
     return instrumentedBytes;
   }
@@ -56,7 +56,7 @@ public class Blinksformer implements ClassFileTransformer {
    * @return
    */
   static byte[] instrumentClass(String className, byte[] classBytes, 
-      boolean isRuntime, boolean isWithGuards) {
+      boolean isRuntime) {
     byte[] instrumentedBytes = null;
     try {
       OfflineInstrumenter.isActive = isRuntime;
@@ -76,36 +76,35 @@ public class Blinksformer implements ClassFileTransformer {
   
   private boolean shouldInstrument(String className) {
     final boolean shouldInstrument = true;
-    if(className.startsWith(Constants.SPIDER_NAMESPACE)
-        || className.startsWith(Constants.SPIDER_NAMESPACE2)) {
-      if(className.contains("test") || className.contains("subject")) {
-        return shouldInstrument; // shouldInstrument
-      }
+    
+    final boolean classUnderSpideruciNamespace = 
+        className.startsWith(Constants.SPIDER_NAMESPACE)
+        || className.startsWith(Constants.SPIDER_NAMESPACE2);
+    
+    if(classUnderSpideruciNamespace
+        && (className.contains("test") || className.contains("subject")) ) {
+      return shouldInstrument; // shouldInstrument
     }
     
-    if(className.contains("Test")) {
+    if(className.contains("Test")
+        || className.contains("Mockito") 
+        || className.contains("Mock")) {
       return !shouldInstrument; // shouldNotInstrument;
     }
 
-    if(className.contains("Mockito") || className.contains("Mock")) {
-      return !shouldInstrument; // shouldNotInstrument;
-    }
-    
-    if(RedefinitionTargets.isException(className)) {
+    if(RedefinitionTargets.isException(className)) { // TODO abstract this away?
       return !shouldInstrument;
     }
     
-    
-    
-    if(Deputy.checkInclusionList) {
-      for(String item : Deputy.inclusionList) {
+    if(Config.checkInclusionList) {
+      for(String item : Config.inclusionList) {
         if(className.startsWith(item)) {
           return shouldInstrument;
         }
       }
     }
     
-    for(String item : Deputy.exclusionList) {
+    for(String item : Config.exclusionList) {
       if(className.startsWith(item)) {
         return !shouldInstrument;
       }

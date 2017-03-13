@@ -1,0 +1,71 @@
+name: vijay
+number: !!int 1
+float: !!float 1.0
+boolen: !!bool true
+array: [1]
+LINE_COUNT: !!float 0.0
+exclusionList:
+- java/
+- java/lang
+- org/objectweb/asm
+- edu/uci/spiderlab/analysis
+- org/spideruci/analysis
+- test/
+- Core/
+- Data/
+- dacapo
+- Harness
+- com/google
+- sun
+- apple/
+- com/apple
+- com/sun
+- javax/
+- org/ietf
+- org/jcp
+- org/omg
+- org/w3c
+- org/xml
+- org/objenesis
+- org/eclipse
+- org/mockito
+- org/hamcrest
+- sunw
+- com/thoughtworks/xstream
+- junit
+- org/junit
+- org/fest
+- junit/tests/framework/
+- junit/tests/runner/TextFeedbackTest
+- junit/tests/runner/TextRunnerTest
+- junit/tests/extensions
+- org/apache/commons/logging
+- org/apache/commons/logging
+- org/codehaus/plexus
+- org/spideruci/tacoco
+- org/apache/maven
+- org/gjt/sp/util/Log$
+- org/gjt/sp/util/Log$LogPrintStream
+- org/gjt/sp/util/Log$LogInputStream
+- org/gjt/sp/util/Log$LogOutputStream
+
+inclusionList:
+- java/io
+- java/awt
+- java/beans
+- java/io
+- java/math
+- java/net
+- java/nio
+- java/rmi
+- java/sql
+- java/text
+- javax
+- org/ietf
+- org/jcp
+- org/omg
+- org/w3c
+- org/xml
+- org/gjt/sp/
+- DumpXML
+- org/spideruci/patternabstraction/benckmark
