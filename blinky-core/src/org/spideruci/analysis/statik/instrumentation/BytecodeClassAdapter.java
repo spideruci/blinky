@@ -47,7 +47,10 @@ public class BytecodeClassAdapter extends ClassVisitor {
       
       mv = new BytecodeMethodAdapter(methodDecl, access, name, desc, mv);
       if (log) {
-        REAL_OUT.println(methodDecl.getLog());
+        synchronized (REAL_OUT) {
+          REAL_OUT.println(methodDecl.getLog());
+        }
+        
       }
     }
     return mv;

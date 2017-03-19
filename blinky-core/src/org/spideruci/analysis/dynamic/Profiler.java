@@ -14,9 +14,7 @@ import java.lang.reflect.Array;
 
 import org.spideruci.analysis.statik.instrumentation.ClassInstrumenter;
 import org.spideruci.analysis.statik.instrumentation.Config;
-import org.spideruci.analysis.trace.EventBuilder;
 import org.spideruci.analysis.trace.EventType;
-import org.spideruci.analysis.trace.TraceEvent;
 
 public class Profiler {
 
@@ -216,7 +214,7 @@ public class Profiler {
     boolean guard = guard();
     
     if(logMethodEnter) {
-      handleEnterLog(instruction, tag, EventType.$enter$);
+      TraceLogger.handleEnterLog(instruction, tag, EventType.$enter$);
     }
     $guard1$ = guard;
   }

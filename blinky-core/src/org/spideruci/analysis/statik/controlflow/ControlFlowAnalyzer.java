@@ -58,9 +58,11 @@ public class ControlFlowAnalyzer extends Analyzer<BasicValue> {
     flowEvent.setProp(ControlFlowPropNames.EXCEPTIONAL, i2s(isExceptional));
     
     String instructionLog = flowEvent.getLog();
-    if(Profiler.log) {
+    
+    synchronized (Profiler.REAL_OUT) {
       Profiler.REAL_OUT.println(instructionLog);
     }
+    
   }
 
 }

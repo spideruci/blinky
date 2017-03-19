@@ -77,6 +77,19 @@ public class Blinksformer implements ClassFileTransformer {
   private boolean shouldInstrument(String className) {
     final boolean shouldInstrument = true;
     
+    if(className.startsWith("java/lang")
+        || className.startsWith("java/io")
+        || className.startsWith("java/nio")
+        || className.equals("java/io/Writer")
+        || className.equals("java/io/BufferedWriter")
+        || className.equals("java/io/OutputStreamWriter")
+        || className.equals("java/io/PrintStream")
+        || className.equals("java/io/FilterOutputStream")
+        || className.equals("java/io/OutputStream")
+        || className.equals("java/io/PrintWriter")) {
+      return !shouldInstrument;
+    }
+    
     final boolean classUnderSpideruciNamespace = 
         className.startsWith(Constants.SPIDER_NAMESPACE)
         || className.startsWith(Constants.SPIDER_NAMESPACE2);

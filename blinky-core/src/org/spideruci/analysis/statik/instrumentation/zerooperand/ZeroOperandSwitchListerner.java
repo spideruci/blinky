@@ -4,6 +4,7 @@ import static org.spideruci.analysis.trace.EventBuilder.buildInstructionLog;
 
 import org.objectweb.asm.MethodVisitor;
 import org.spideruci.analysis.dynamic.Profiler;
+import org.spideruci.analysis.statik.instrumentation.BytecodeMethodAdapter;
 import org.spideruci.analysis.statik.instrumentation.ProbeBuilder;
 import org.spideruci.analysis.trace.EventType;
 import org.spideruci.analysis.trace.MethodDecl;
@@ -98,44 +99,48 @@ public class ZeroOperandSwitchListerner {
     private void onRegularZeroOperandEvent(final int opcode, final EventType eventType) {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, eventType, 
           opcode, methodDecl.getId());
-  
+      
+      final String profilerName = BytecodeMethodAdapter.profilerToUse(methodDecl.getDeclOwner());
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
       .passArg(eventType.toString())
-      .build(Profiler.ZERO_OP);
+      .build(Profiler.ZERO_OP, profilerName);
     }
     
     private void onConstantEvent(final int opcode) {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, EventType.$constant$, 
           opcode, methodDecl.getId());
-  
+
+      final String profilerName = BytecodeMethodAdapter.profilerToUse(methodDecl.getDeclOwner());
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.CONSTANT);
+      .build(Profiler.CONSTANT, profilerName);
     }
     
     private void onArrayLoadEvent(final int opcode) {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, 
           EventType.$arrayload$, opcode, methodDecl.getId());
-  
+
+      final String profilerName = BytecodeMethodAdapter.profilerToUse(methodDecl.getDeclOwner());
       ProbeBuilder.start(mv)
       .passArrayLoadStackArgs(opcode)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.ARRAY);
+      .build(Profiler.ARRAY, profilerName);
     }
     
     private void onArrayStoreEvent(final int opcode) {
       String instructionLog = buildInstructionLog(bytecodeIndex, linenumber, 
           EventType.$arraystore$, opcode, methodDecl.getId());
-  
+
+      final String profilerName = BytecodeMethodAdapter.profilerToUse(methodDecl.getDeclOwner());
       ProbeBuilder.start(mv)
       .passArrayStoreStackArgs(opcode)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.ARRAY);
+      .build(Profiler.ARRAY, profilerName);
     }
 
 }

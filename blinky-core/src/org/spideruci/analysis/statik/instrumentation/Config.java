@@ -5,6 +5,8 @@ public class Config {
   
   public static String[] exclusionList;
   public static String[] inclusionList;
+  public static String[] retransformInclusionList;
+  public static String[] retransformExclusionList;
   
   public static boolean checkInclusionList = false;
   
@@ -29,10 +31,6 @@ public class Config {
   
   public static final String LDC_16 = "$ldc_16$";
   public static final String LDC_8 = "$ldc_8$";
-  
-//  public static final String NULL = null;
-//  public static String UNDEFINED;
-//  public static String[] UNDEFINED_ARRAY;
   
 //  static {
 //    exclusionList = new String[] {

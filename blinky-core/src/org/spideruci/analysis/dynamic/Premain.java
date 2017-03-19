@@ -1,6 +1,5 @@
 package org.spideruci.analysis.dynamic;
 
-import static org.spideruci.analysis.dynamic.Profiler.REAL_OUT;
 import static org.spideruci.analysis.dynamic.Profiler.REAL_ERR;
 
 import java.lang.instrument.Instrumentation;
@@ -31,12 +30,21 @@ public class Premain {
     
     System.out.println("EXCLUSION LIST");
     for(int i = 0; i < Config.exclusionList.length; i += 1) {
-      REAL_OUT.println(Config.exclusionList[i]);
+      REAL_ERR.println(Config.exclusionList[i]);
     }
     
     System.out.println("INCLUSION LIST");
     for(int i = 0; i < Config.inclusionList.length; i += 1) {
-      REAL_OUT.println(Config.inclusionList[i]);
+      REAL_ERR.println(Config.inclusionList[i]);
+    }
+    
+    System.out.println("RETX INCLUSION LIST");
+    final int retxCount = Config.retransformInclusionList.length;
+    RuntimeClassRedefiner.RedefinitionTargets.wildCardTargets = new String[retxCount];
+    for(int i = 0; i < retxCount; i += 1) {
+      RuntimeClassRedefiner.RedefinitionTargets.wildCardTargets[i] =
+          Config.retransformInclusionList[i];
+      REAL_ERR.println(Config.retransformInclusionList[i]);
     }
     
     instrumentation.addTransformer(new Blinksformer());
@@ -64,6 +72,10 @@ public class Premain {
     
     ended = true;
     Profiler.$guard1$ = tempGuard;
-    Profiler.REAL_OUT.println("Premain:" + Profiler.$guard1$);
+    
+    synchronized (Profiler.REAL_OUT) {
+      Profiler.REAL_OUT.println("Premain:" + Profiler.$guard1$);
+    }
+    
   }
 }

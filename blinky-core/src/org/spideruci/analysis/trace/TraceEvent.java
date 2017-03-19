@@ -1,5 +1,7 @@
 package org.spideruci.analysis.trace;
 
+import java.util.Arrays;
+
 import org.spideruci.analysis.trace.events.props.ArrayInsnExecPropNames;
 import org.spideruci.analysis.trace.events.props.ControlFlowPropNames;
 import org.spideruci.analysis.trace.events.props.DeclPropNames;
@@ -229,6 +231,11 @@ public class TraceEvent implements MethodDecl, Instruction {
   }
 
   public void setProp(int index, String propValue) {
+    if(index >= propValues.length) {
+      throw new RuntimeException(
+          String.format("index: %d, propvalue: %s, propnames: %s", 
+              index, propValue, Arrays.toString(this.propNames)));
+    }
     propValues[index] = propValue;
   }
 

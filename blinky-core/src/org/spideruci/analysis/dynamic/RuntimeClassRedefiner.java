@@ -7,6 +7,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.logging.ErrorLogManager;
+import org.spideruci.analysis.statik.instrumentation.Config;
 
 public class RuntimeClassRedefiner implements ClassFileTransformer {
 
@@ -30,25 +31,42 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
 
     if(className.equals("java/util/zip/ZipFile")) {
       ErrorLogManager.logClassTxStatus(className, true, SKIPD);
-    } else if(RedefinitionTargets.isExactTarget(className)
+      
+    } else if(RedefinitionTargets.isTarget(className)
         && !RedefinitionTargets.isException(className)) {
       instrumentedBytes = Blinksformer.instrumentClass(className, 
           classfileBuffer, true /*isRuntime*/);
+      
     } else {
       ErrorLogManager.logClassTxStatus(className, true, SKIPD);
     }
     
     
     Profiler.$guard1$ = tempGuard;
-    Profiler.REAL_OUT.println("RuntimeClassRedefiner:" + Profiler.$guard1$);
+    synchronized (Profiler.REAL_OUT) {
+      Profiler.REAL_OUT.println("RuntimeClassRedefiner:" + Profiler.$guard1$);
+    }
+    
     return instrumentedBytes;
   }
-
 
 
   public static class RedefinitionTargets {
 
     public static boolean isTarget(String className) {
+      if(className.startsWith("java/lang")
+          || className.startsWith("java/io")
+          || className.startsWith("java/nio")
+          || className.equals("java/io/Writer")
+          || className.equals("java/io/BufferedWriter")
+          || className.equals("java/io/OutputStreamWriter")
+          || className.equals("java/io/PrintStream")
+          || className.equals("java/io/FilterOutputStream")
+          || className.equals("java/io/OutputStream")
+          || className.equals("java/io/PrintWriter")) {
+        return false;
+      }
+      
       for(String wildCard : wildCardTargets) {
         if(className.startsWith(wildCard)) {
           return true;
@@ -87,24 +105,30 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
     }
     
     
-    private static final String[] wildCardTargets = new String[] {
+    public static String[] wildCardTargets = new String[] {
 //        "java/util",
 //        "java/net/URLClassLoader", 
 //        "java/security/SecureClassLoader",
 //        "java/lang/ClassLoader"
 //        "java/util/concurrent"
 //        "java/security",
+//        "java/util/ArrayList",
+//        "java/util/Vector",
+//        "java/util/Stack",
     };
     
     private static final String[] exactTargets = new String[] {
 //    "java/util/Hashtable", "java/util/regex/Pattern",  
         "java/util/ArrayList",
+        "java/util/Vector",
+        "java/util/Stack",
 //        "java/net/URLClassLoader", 
 //        "java/security/SecureClassLoader",
 //        "java/util/Arrays",
     };
     
-    private static final String[] wildCardExceptions = new String[] {
+    public static String[] wildCardExceptions = new String[] {
+        "java/lang",
         "java/security/AccessControl",
         // the class-loaders do not play well with the dependence analyzer.
         "java/net/URLClassLoader", 

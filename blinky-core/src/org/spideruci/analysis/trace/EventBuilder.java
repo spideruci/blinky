@@ -122,7 +122,10 @@ public class EventBuilder {
 
     String instructionLog = insnEvent.getLog();
     if(Profiler.log) {
-      Profiler.REAL_OUT.println(instructionLog);
+      synchronized (Profiler.REAL_OUT) {
+        Profiler.REAL_OUT.println(instructionLog);
+      }
+      
     }
     
     return String.valueOf(insnId);

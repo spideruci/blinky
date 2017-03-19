@@ -118,7 +118,6 @@ public class TraceLogger {
 
     REAL_OUT.print(argType + "," + index + "," + type.toString() + 
         (isLast? "\n" : ","));
-
   }
 
   synchronized static private void printEventlog(TraceEvent event) {

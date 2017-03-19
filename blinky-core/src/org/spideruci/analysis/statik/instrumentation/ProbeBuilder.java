@@ -316,7 +316,6 @@ public class ProbeBuilder implements Opcodes {
   }
   
   public void build(String callBackName) {
-//    this.build(callBackName, OfflineInstrumenter.isActive ? Config.PROFILER_B_NAME : Config.PROFILER_NAME);
     this.build(callBackName, Config.PROFILER_NAME);
   }
   

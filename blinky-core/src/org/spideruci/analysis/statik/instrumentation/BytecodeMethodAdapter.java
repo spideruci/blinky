@@ -88,7 +88,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
         .passArg(String.valueOf(varIndex))
         .passArg(i == 0) // isFirst?
         .passArg(i == (argTypes.length - 1)) // isLast?
-        .build(Profiler.ARGLOG);
+        .build(Profiler.ARGLOG, profilerToUse(methodDecl.getDeclOwner()));
       }
       
     }
@@ -101,7 +101,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
     .passArg(methodDecl.getDeclName())
     .passArg(instructionLog)
     .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.METHODENTER);
+    .build(Profiler.METHODENTER, profilerToUse(methodDecl.getDeclOwner()));
     
     Profiler.latestLineNumber = lineNum;
     Profiler.latestBytecodeIndex = byteIndex;
@@ -123,7 +123,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
     .passArg(methodDecl.getDeclName())
     .passArg(instructionLog)
     .passThis(methodDecl.getDeclAccess())
-    .build(Profiler.METHODEXIT);
+    .build(Profiler.METHODEXIT, profilerToUse(methodDecl.getDeclOwner()));
     
     Profiler.latestBytecodeIndex = byteIndex;
     Profiler.latestLineNumber = lineNum;
@@ -142,7 +142,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.LINENUMER);
+      .build(Profiler.LINENUMER, profilerToUse(methodDecl.getDeclOwner()));
     }
   }
   
@@ -159,7 +159,10 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       final int byteIndex = Profiler.latestBytecodeIndex;
       
       if(Profiler.logInvokeRuntimeSign) {
-        Profiler.REAL_OUT.println(name+desc);
+        synchronized (Profiler.REAL_OUT) {
+          Profiler.REAL_OUT.println(name+desc);
+        }
+        
         InvokeSignCallBack.buildArgProfileProbe(mv, opcode, owner, name, desc, 
             this.methodDecl.getDeclOwner() + "/" + this.methodDecl.getDeclName());
       }
@@ -167,33 +170,38 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       String instructionLog = buildInstructionLog(byteIndex, lineNum, 
           EventType.$invoke$, opcode, methodDecl.getId(), owner, name, desc);
       
-      final boolean invokingRtJar = isWithinRtJar(owner);
-      final boolean withinRtJar = isWithinRtJar(this.methodDecl.getDeclOwner());
-      
-      if(!withinRtJar && invokingRtJar) {
-        ProbeBuilder.start(mv)
-        .setStaticBooelanField(true, ProfilerB.ACTIVE_FLAG_NAME, Config.PROFILER_B_NAME);
-      }
-      
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.INVOKE);
+      .build(Profiler.INVOKE, profilerToUse(methodDecl.getDeclOwner()));
+      
+      final boolean callingValidRtJar = 
+          isWithinRtJar(owner) 
+          && !owner.startsWith("java/lang")
+          && !(owner.equals("java/io/PrintStream") && name.startsWith("print"))
+          && !(owner.equals("java/io/Writer") && name.startsWith("write"));
+      final boolean withinRtJar = isWithinRtJar(this.methodDecl.getDeclOwner());
+      final boolean invokingRtFromApp = !withinRtJar && callingValidRtJar;
+      
+      if(invokingRtFromApp) {
+        ProbeBuilder.start(mv)
+        .build(ProfilerB.ACTIVATE, Config.PROFILER_B_NAME);
+      }
       
       super.visitMethodInsn(opcode, owner, name, desc); // make the actual call.
       
       instructionLog = buildInstructionLog(byteIndex, lineNum, 
           EventType.$complete$, -4, methodDecl.getId(), owner, name, desc);
       
+      if(invokingRtFromApp) {
+        ProbeBuilder.start(mv)
+        .build(ProfilerB.DEACTIVATE, Config.PROFILER_B_NAME);
+      }
+      
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.COMPLETE);
-      
-      if(!withinRtJar && invokingRtJar) {
-        ProbeBuilder.start(mv)
-        .setStaticBooelanField(false, ProfilerB.ACTIVE_FLAG_NAME, Config.PROFILER_B_NAME);
-      }
+      .build(Profiler.COMPLETE, profilerToUse(methodDecl.getDeclOwner()));
       
       Profiler.latestLineNumber = lineNum;
       Profiler.latestBytecodeIndex = byteIndex;
@@ -212,7 +220,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.VAR);
+      .build(Profiler.VAR, profilerToUse(methodDecl.getDeclOwner()));
 
       Profiler.latestLineNumber = lineNum;
       Profiler.latestBytecodeIndex = byteIndex;
@@ -241,7 +249,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
         .passPutInsnStackArgs(opcode, desc, owner)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
-        .build(Profiler.FIELD);
+        .build(Profiler.FIELD, profilerToUse(methodDecl.getDeclOwner()));
         
         super.visitFieldInsn(opcode, owner, name, desc); //make the actual call.
       } else {
@@ -256,7 +264,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
         .passGetInsnStackArgs(opcode, desc, owner)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
-        .build(Profiler.FIELD);
+        .build(Profiler.FIELD, profilerToUse(methodDecl.getDeclOwner()));
       }
 
       Profiler.latestLineNumber = lineNum;
@@ -295,7 +303,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.JUMP);
+      .build(Profiler.JUMP, profilerToUse(methodDecl.getDeclOwner()));
       
       Profiler.latestBytecodeIndex = byteIndex;
       Profiler.latestLineNumber = lineNum;
@@ -317,7 +325,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       ProbeBuilder.start(mv)
       .passArg(instructionLog)
       .passThis(methodDecl.getDeclAccess())
-      .build(Profiler.IINC);
+      .build(Profiler.IINC, profilerToUse(methodDecl.getDeclOwner()));
       
       Profiler.latestBytecodeIndex = byteIndex;
       Profiler.latestLineNumber = lineNum;
@@ -376,7 +384,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
         ProbeBuilder.start(mv)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
-        .build(Profiler.CONSTANT);
+        .build(Profiler.CONSTANT, profilerToUse(methodDecl.getDeclOwner()));
         
         Profiler.latestBytecodeIndex = byteIndex;
         Profiler.latestLineNumber = lineNum;
@@ -411,7 +419,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
         ProbeBuilder.start(mv)
         .passArg(instructionLog)
         .passThis(methodDecl.getDeclAccess())
-        .build(Profiler.TYPE);
+        .build(Profiler.TYPE, profilerToUse(methodDecl.getDeclOwner()));
         
         Profiler.latestBytecodeIndex = byteIndex;
         Profiler.latestLineNumber = lineNum;
@@ -471,6 +479,7 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
       "apple/",
       "com/apple",
       "com/sun",
+      "com/oracle",
       "org/ietf",
       "org/jcp",
       "org/omg",
@@ -485,5 +494,10 @@ public class BytecodeMethodAdapter extends AdviceAdapter {
     }
     
     return false;
+  }
+  
+  public static String profilerToUse(final String className) {
+    final boolean isWithinRtJar = isWithinRtJar(className);
+    return isWithinRtJar ? Config.PROFILER_B_NAME : Config.PROFILER_NAME;
   }
 }

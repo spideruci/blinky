@@ -48,10 +48,22 @@ public class TraceIterator implements Iterator<TraceEvent> {
         continue;
       }
       
+      if(eventString.startsWith("$$,")) {
+        int indx = eventString.lastIndexOf("$$$,");
+        eventString = eventString.substring(indx);
+      }
+      
       TraceEvent event = TraceEvent.valueOf(eventString);
+      
+      
       if(event == null) {
         continue;
       }
+      
+      if(event.getType().isDecl()) {
+        System.err.println(eventString);
+      }
+
       
       this.previousEvent = this.currentEvent;
       this.currentEvent = event;
