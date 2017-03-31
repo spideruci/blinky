@@ -122,10 +122,8 @@ public class EventBuilder {
 
     String instructionLog = insnEvent.getLog();
     if(Profiler.log) {
-      synchronized (Profiler.REAL_OUT) {
-        Profiler.REAL_OUT.println(instructionLog);
-      }
-      
+//      TraceLogger.outprintln(instructionLog);
+      Profiler.REAL_OUT.println(instructionLog);
     }
     
     return String.valueOf(insnId);

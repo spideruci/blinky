@@ -74,19 +74,28 @@ public class Blinksformer implements ClassFileTransformer {
     return instrumentedBytes;
   }
   
+  public static boolean ohHellNo(String className) {
+    return
+        className.startsWith("java/lang")
+        || className.startsWith("java/nio/Buffer")
+        || className.startsWith("java/nio/ByteBuffer")
+        || className.startsWith("java/nio/CharBuffer")
+        || className.startsWith("java/nio/HeapCharBuffer")
+        || className.startsWith("java/nio/charset")
+        
+        || className.startsWith("java/io/BufferedOutputStream")
+        || className.startsWith("java/io/BufferedWriter")
+        || className.startsWith("java/io/FileOutputStream")
+        || className.startsWith("java/io/OutputStream")
+        || className.startsWith("java/io/PrintStream")
+        || className.startsWith("java/io/Writer")
+        ;
+  }
+  
   private boolean shouldInstrument(String className) {
     final boolean shouldInstrument = true;
     
-    if(className.startsWith("java/lang")
-        || className.startsWith("java/io")
-        || className.startsWith("java/nio")
-        || className.equals("java/io/Writer")
-        || className.equals("java/io/BufferedWriter")
-        || className.equals("java/io/OutputStreamWriter")
-        || className.equals("java/io/PrintStream")
-        || className.equals("java/io/FilterOutputStream")
-        || className.equals("java/io/OutputStream")
-        || className.equals("java/io/PrintWriter")) {
+    if(ohHellNo(className)) {
       return !shouldInstrument;
     }
     

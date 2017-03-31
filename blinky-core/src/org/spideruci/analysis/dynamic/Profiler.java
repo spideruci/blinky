@@ -374,7 +374,10 @@ public class Profiler {
         elementId = "0";
       }
       
-      REAL_OUT.println("arraylength: " + length);
+      synchronized (REAL_OUT) {
+        REAL_OUT.println("arraylength: " + length);
+      }
+      
       handleArrayLog(instruction, tag, EventType.$arraystore$,
           System.identityHashCode(arrayref), index, elementId, length);
     }
@@ -520,7 +523,9 @@ public class Profiler {
     
     boolean regCondition = methodName.equals("main([Ljava/lang/String;)V");
     if(regCondition) {
-      REAL_OUT.println(regCondition);
+      synchronized (REAL_OUT) {
+        REAL_OUT.println(regCondition);
+      }
     }
     return regCondition;
   }

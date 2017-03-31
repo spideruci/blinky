@@ -17,6 +17,7 @@ public class Main {
   public final static String JAVA_PKG_SEP = "/";
 
   private static final String CONFIG_FILEPATH = "config.filepath";
+  private static final String CONFIG_OVERRIDE = "config.override";
   private static final String CONFIG_CLASSNAME = "config.classname";
   private static final String CONFIG_COMPILEDOUTPUT = "config.compiledoutput";
 
@@ -30,7 +31,10 @@ public class Main {
         String.format("Setting up Compile-time configurations for BLINKY CORE!");
     log.info(introMessage);
 
-    final String configFilePath = System.getProperty(CONFIG_FILEPATH);
+    final String configFilePath = 
+        System.getProperties().containsKey(CONFIG_OVERRIDE) ? 
+            System.getProperty(CONFIG_OVERRIDE) : 
+              System.getProperty(CONFIG_FILEPATH);
 
     ConfigFile conf = ConfigFile.create(configFilePath);
     Map<String, ?> config = conf.readConfig();

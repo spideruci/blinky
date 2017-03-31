@@ -7,7 +7,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import org.spideruci.analysis.logging.ErrorLogManager;
-import org.spideruci.analysis.statik.instrumentation.Config;
 
 public class RuntimeClassRedefiner implements ClassFileTransformer {
 
@@ -54,16 +53,7 @@ public class RuntimeClassRedefiner implements ClassFileTransformer {
   public static class RedefinitionTargets {
 
     public static boolean isTarget(String className) {
-      if(className.startsWith("java/lang")
-          || className.startsWith("java/io")
-          || className.startsWith("java/nio")
-          || className.equals("java/io/Writer")
-          || className.equals("java/io/BufferedWriter")
-          || className.equals("java/io/OutputStreamWriter")
-          || className.equals("java/io/PrintStream")
-          || className.equals("java/io/FilterOutputStream")
-          || className.equals("java/io/OutputStream")
-          || className.equals("java/io/PrintWriter")) {
+      if(Blinksformer.ohHellNo(className)) {
         return false;
       }
       

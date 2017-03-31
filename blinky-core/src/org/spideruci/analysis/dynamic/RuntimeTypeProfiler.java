@@ -169,9 +169,7 @@ public class RuntimeTypeProfiler {
   }
 
   synchronized public static long getParameterJ(int index) {
-    synchronized (Profiler.REAL_OUT) {
-      Profiler.REAL_OUT.println(tempObjectArray[index]);
-    }
+    Profiler.REAL_OUT.println(tempObjectArray[index]);
     
     long x = (Long) tempObjectArray[index]; 
     return x;

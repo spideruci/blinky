@@ -33,37 +33,14 @@ exclusionList:
 
 ## NOTE: if you are not going to add any elements to this list, then remove the list name as well.
 inclusionList:
-- java/util/ArrayList
-- java/util/Collections
-- java/util/Collections$EmptyEnumeration
-- java/util/Collections$SynchronizedCollection
-- java/util/HashMap
-- java/util/HashMap$Entry
-- java/util/HashSet
-- java/util/Hashtable
-- java/util/Hashtable$Enumerator
-- java/util/Properties
-- java/util/Stack
-- java/util/Vector
-- java/util/Vector$1
-- java/util/concurrent/ConcurrentHashMap
-- java/util/concurrent/ConcurrentHashMap$Segment
-- java/util/concurrent/atomic/AtomicInteger
-- java/util/concurrent/locks/AbstractOwnableSynchronizer
-- java/util/concurrent/locks/AbstractQueuedSynchronizer
-- java/util/concurrent/locks/ReentrantLock
-- java/util/concurrent/locks/ReentrantLock$Sync
-- net/n3/nanoxml/ContentReader
-- net/n3/nanoxml/DumpXML
-- net/n3/nanoxml/NonValidator
-- net/n3/nanoxml/StdXMLBuilder
-- net/n3/nanoxml/StdXMLParser
-- net/n3/nanoxml/StdXMLReader
-- net/n3/nanoxml/XMLElement
-- net/n3/nanoxml/XMLEntityResolver
-- net/n3/nanoxml/XMLParserFactory
-- net/n3/nanoxml/XMLUtil
-- net/n3/nanoxml/XMLWriter
+- java/
+- javax/
+- org/ietf
+- org/jcp
+- org/omg
+- org/w3c
+- org/xml
+# - sun/
 
 # - org/spideruci/patternabstraction/benckmark
 # - org/spideruci/analysis/diagnostics/subjects
@@ -82,37 +59,14 @@ inclusionList:
 # - org/xml
 
 retransformInclusionList:
-- java/util/ArrayList
-- java/util/Collections
-- java/util/Collections$EmptyEnumeration
-- java/util/Collections$SynchronizedCollection
-- java/util/HashMap
-- java/util/HashMap$Entry
-- java/util/HashSet
-- java/util/Hashtable
-- java/util/Hashtable$Enumerator
-- java/util/Properties
-- java/util/Stack
-- java/util/Vector
-- java/util/Vector$1
-- java/util/concurrent/ConcurrentHashMap
-- java/util/concurrent/ConcurrentHashMap$Segment
-- java/util/concurrent/atomic/AtomicInteger
-- java/util/concurrent/locks/AbstractOwnableSynchronizer
-- java/util/concurrent/locks/AbstractQueuedSynchronizer
-- java/util/concurrent/locks/ReentrantLock
-- java/util/concurrent/locks/ReentrantLock$Sync
-- net/n3/nanoxml/ContentReader
-- net/n3/nanoxml/DumpXML
-- net/n3/nanoxml/NonValidator
-- net/n3/nanoxml/StdXMLBuilder
-- net/n3/nanoxml/StdXMLParser
-- net/n3/nanoxml/StdXMLReader
-- net/n3/nanoxml/XMLElement
-- net/n3/nanoxml/XMLEntityResolver
-- net/n3/nanoxml/XMLParserFactory
-- net/n3/nanoxml/XMLUtil
-- net/n3/nanoxml/XMLWriter
+- java/
+- javax/
+- org/ietf
+- org/jcp
+- org/omg
+- org/w3c
+- org/xml
+# - sun/
 
 # - java/util/Vector
 # - java

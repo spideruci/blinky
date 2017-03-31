@@ -13,6 +13,21 @@ public class TraceLogger {
   public static final int CALLDEPTH = 2;
   
   private static int count = 0;
+  
+//  synchronized static public void outprintln(final Object object) {
+//    outprintln(String.valueOf(object));
+//  }
+//  
+//  synchronized static public void outprintln(final String string) {
+//    outprintln(string + "\n");
+//  }
+//  
+//  synchronized static public void outprint(final String string) {
+//    synchronized (REAL_OUT) {
+//      REAL_OUT.println(string);
+//    }
+//    
+//  }
 
   synchronized static public void printTraceCount() {
     REAL_OUT.println("Trace Size:" + count);

@@ -94,7 +94,9 @@ public class InvokeSignCallBack implements Opcodes {
         final String staticTypeName = argTypes[idx];
         
         if(staticTypeName == null) {
-          Profiler.REAL_OUT.print("ARGTYPE-NULL>");
+          synchronized (Profiler.REAL_OUT) {
+            Profiler.REAL_OUT.print("ARGTYPE-NULL>");
+          }
           Arrays.printArray(argTypes);
         }
         

@@ -233,8 +233,8 @@ public class TraceEvent implements MethodDecl, Instruction {
   public void setProp(int index, String propValue) {
     if(index >= propValues.length) {
       throw new RuntimeException(
-          String.format("index: %d, propvalue: %s, propnames: %s", 
-              index, propValue, Arrays.toString(this.propNames)));
+          String.format("index: %d, propvalue: %s, propnames: %s, eventId: %d", 
+              index, propValue, Arrays.toString(this.propNames), this.id));
     }
     propValues[index] = propValue;
   }
