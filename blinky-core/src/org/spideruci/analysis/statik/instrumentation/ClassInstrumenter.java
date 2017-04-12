@@ -30,13 +30,13 @@ public class ClassInstrumenter {
     
     try {
       
-      if(CONTROL_FLOW) {
-        bytecode2 = writeProbes(className, bytecode2, true);
+      {
+        bytecode2 = writeProbes(className, bytecode2, true /*isControlAdapter*/);
         checkBytecode(bytecode2);
       }
       
       {
-        bytecode2 = writeProbes(className, bytecode2, false);
+        bytecode2 = writeProbes(className, bytecode2, false /*isControlAdapter*/);
         checkBytecode(bytecode2);
       }
     } catch(Exception e) {

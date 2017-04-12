@@ -14,9 +14,21 @@ public class MyAssert {
     }
   }
   
+  public static void assertThatF(boolean condition, String message, Object ... args) {
+    if(!condition) {
+      throw new RuntimeException(String.format(message, args));
+    }
+  }
+  
   public static void quietlyAssertThat(boolean condition, String message) {
     if(!condition) {
       new RuntimeException(message).printStackTrace();
+    }
+  }
+  
+  public static void quietlyAssertThatF(boolean condition, String message, Object... args) {
+    if(!condition) {
+      new RuntimeException(String.format(message, args)).printStackTrace();
     }
   }
 

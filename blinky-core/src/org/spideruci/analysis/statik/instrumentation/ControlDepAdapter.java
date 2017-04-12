@@ -33,17 +33,18 @@ public class ControlDepAdapter extends ClassNode {
     for(MethodNode methodNode : this.methods) {
       AbstractInsnNode[] insns = methodNode.instructions.toArray();
       
-      try {
-        final String methodName = methodNode.name + methodNode.desc;
-        
-        ControlFlowAnalyzer analyzer = ControlFlowAnalyzer.init(className + "/" + methodName, insns);
-        analyzer.analyze(className, methodNode);
-        
-      } catch (NullPointerException | StackOverflowError | AnalyzerException e) {
-        e.printStackTrace();
-        continue;
+      if(ClassInstrumenter.CONTROL_FLOW) {
+        try {
+          final String methodName = methodNode.name + methodNode.desc;
+
+          ControlFlowAnalyzer analyzer = ControlFlowAnalyzer.init(className + "/" + methodName, insns);
+          analyzer.analyze(className, methodNode);
+
+        } catch (NullPointerException | StackOverflowError | AnalyzerException e) {
+          e.printStackTrace();
+          continue;
+        }
       }
-      
       
       for(int i = 0 ; i < insns.length; i ++) {
         AbstractInsnNode ldcMark = new LdcInsnNode(BYTECODE_LDC_MARKER + i);
