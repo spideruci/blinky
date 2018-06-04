@@ -19,9 +19,9 @@
   </properties>
   <dependencies>
     <dependency>
-     <groupId>org.spideruci.analysis.statik.controlflow</groupId>
-     <artifactId>jump</artifactId>
-     <version>1.0-SNAPSHOT</version>
+      <groupId>org.spideruci.analysis.util</groupId>
+      <artifactId>blinky-util</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
      
     <dependency>
