@@ -1,0 +1,12 @@
+language: java
+
+jdk: 
+- oraclejdk8
+
+before_install: ./scripts/before_install.sh
+
+script: mvn clean verify -P full
+
+cache:
+    directories:
+    - $HOME/.m2
