@@ -50,14 +50,21 @@ for MAIN in "Namaste" \
   "SummaryLib 4" \
   "SummaryLib 5" \
   "SummaryLib 6" \
-  "styleEx.noCommitment.NoCommitment"; do
+  "styleEx.CandyFactory" \
+  "styleEx.CookBook" \
+  "styleEx.DeclaredIntentions" \
+  "styleEx.Hollywood" \
+  "styleEx.Quarantine" \
+  "styleEx.TheOne"; do
   
   
   SUBJECT=${BOLD}"$MAIN"${NORMAL}
   
   echo $SUBJECT
-  echo "🏃 running $SUBJECT with java"
-  java -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN
+  echo -ne "🏃 running $SUBJECT with java"
+  systime="$(TIMEFORMAT='%S';time ( java -cp .:$DIAGNOSTICS_JAR "$SUBJECTS_PKG."$MAIN > /dev/null 2>&1 ) 2>&1 1>/dev/null )"
+  echo " ==> $systime sec"
+  
   echo "🏃 running $SUBJECT with 🌟 blinky"
   for CONFIG in ${CONFIGS[@]}; do
     echo -ne "👉 with configuration: $CONFIG"
