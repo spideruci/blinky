@@ -1,8 +1,27 @@
 language: java
 
-jdk: 
-- oraclejdk8
+matrix:
+    include:
+    - name: java8
+      jdk: openjdk8
+      dist: xenial
 
+    - name: java11
+      jdk: openjdk11
+      dist: bionic
+
+    - name: java13
+      jdk: openjdk13
+      dist: bionic
+    
+    allow_failures:
+    - name: java11
+      jdk: openjdk11
+      dist: bionic
+
+    - name: java13
+      jdk: openjdk13
+      dist: bionic
 before_install: ./scripts/before_install.sh
 
 script: mvn clean verify -P full
