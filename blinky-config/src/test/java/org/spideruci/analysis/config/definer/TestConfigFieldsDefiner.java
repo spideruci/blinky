@@ -130,7 +130,7 @@ public class TestConfigFieldsDefiner {
       
       assertEquals(isFieldExpectedToBeDefined, isFieldActuallyDefined);
       
-      if(isFieldExpectedToBeDefined ^ isFieldExpectedToBeDefined) { // different
+      if(isFieldExpectedToBeDefined ^ isFieldActuallyDefined) { // different
         System.out.print(isFieldExpectedToBeDefined ? "expecting defined; " : "expecting not defined; ");
         System.out.println(isFieldActuallyDefined ? "actually defined" : "actually not defined");
       } else {
