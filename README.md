@@ -2,6 +2,4 @@
 
 # Blinky: Java Code Instrumenter and Execution Tracer
 
-[![](https://travis-ci.org/spideruci/blinky.svg?branch=master)](https://travis-ci.org/spideruci/blinky)
-
-Check out the project wiki for more information: https://github.com/spideruci/blinky/wiki
+Check out the project wiki for more information: https://github.com/spideruci/blinky-core/wiki
